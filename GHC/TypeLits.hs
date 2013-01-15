@@ -29,9 +29,15 @@ module GHC.TypeLits
   , type (<=), type (<=?), type (+), type (*), type (^)
   , type (-)
 
+    -- * Comparing for equality
+  , type (:~:) (..), eqSingNat, eqSingSym
+
     -- * Destructing type-nat singletons.
   , isZero, IsZero(..)
-  , isEven, IsEven(..)
+
+-- Commented out; see definition below; SLPJ Jan 13
+--  , isEven, IsEven(..)
+
 
     -- * Matching on type-nats
   , Nat1(..), FromNat1
@@ -47,7 +53,7 @@ import GHC.Base(String)
 import GHC.Read(Read(..))
 import GHC.Show(Show(..))
 import Unsafe.Coerce(unsafeCoerce)
-import Data.Bits(testBit,shiftR)
+-- import Data.Bits(testBit,shiftR)
 import Data.Maybe(Maybe(..))
 import Data.List((++))
 
@@ -189,9 +195,16 @@ instance Show (IsZero n) where
   show IsZero     = "0"
   show (IsSucc n) = "(" ++ show n ++ " + 1)"
 
+{- ----------------------------------------------------------------------------
+
+This IsEven code is commented out for now.  The trouble is that the 
+IsEven constructor has an ambiguous type, at least until (+) becomes
+suitably injective. 
+
 data IsEven :: Nat -> * where
   IsEvenZero :: IsEven 0
   IsEven     :: !(Sing (n+1)) -> IsEven (2 * n + 2)
+  IsEven     :: !(Sing (n)) -> IsEven (2 * n + 1)
   IsOdd      :: !(Sing n)     -> IsEven (2 * n + 1)
 
 isEven :: Sing n -> IsEven n
@@ -204,8 +217,7 @@ instance Show (IsEven n) where
   show (IsEven x) = "(2 * " ++ show x ++ ")"
   show (IsOdd  x) = "(2 * " ++ show x ++ " + 1)"
 
-
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------ -}
 
 -- | Unary implemenation of natural numbers.
 -- Used both at the type and at the value level.
@@ -214,5 +226,41 @@ data Nat1 = Zero | Succ Nat1
 type family FromNat1 (n :: Nat1) :: Nat
 type instance FromNat1 Zero     = 0
 type instance FromNat1 (Succ n) = 1 + FromNat1 n
+
+--------------------------------------------------------------------------------
+
+-- | A type that provides evidence for equality between two types.
+data (:~:) :: k -> k -> * where
+  Refl :: a :~: a
+
+instance Show (a :~: b) where
+  show Refl = "Refl"
+
+{- | Check if two type-natural singletons of potentially different types
+are indeed the same, by comparing their runtime representations.
+
+WARNING: in combination with `unsafeSingNat` this may lead to unsoudness:
+
+> eqSingNat (sing :: Sing 1) (unsafeSingNat 1 :: Sing 2)
+> == Just (Refl :: 1 :~: 2)
+-}
+
+eqSingNat :: Sing (m :: Nat) -> Sing (n :: Nat) -> Maybe (m :~: n)
+eqSingNat x y
+  | fromSing x == fromSing y  = Just (unsafeCoerce Refl)
+  | otherwise                 = Nothing
+
+
+{- | Check if two symbol singletons of potentially different types
+are indeed the same, by comparing their runtime representations.
+WARNING: in combination with `unsafeSingSymbol` this may lead to unsoudness
+(see `eqSingNat` for an example).
+-}
+
+eqSingSym:: Sing (m :: Symbol) -> Sing (n :: Symbol) -> Maybe (m :~: n)
+eqSingSym x y
+  | fromSing x == fromSing y  = Just (unsafeCoerce Refl)
+  | otherwise                 = Nothing
+
 
 
