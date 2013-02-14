@@ -25,15 +25,37 @@ module GHC.Fingerprint (
 import GHC.Base
 import GHC.Fingerprint.Type
 import GHC.Num
+import GHC.Word
+import Data.Bits
+import GHC.Real
+import Data.List
 
 fingerprint0 :: Fingerprint
-fingerprint0 = Fingerprint (fromInteger 0) (fromInteger 0)
+fingerprint0 = Fingerprint (fromInteger 0)
 
 fingerprintFingerprints :: [Fingerprint] -> Fingerprint
-fingerprintFingerprints _ = fingerprint0
+fingerprintFingerprints = Fingerprint . fnv1a . splitWords . map (\(Fingerprint h) -> h)
 
 fingerprintString :: String -> Fingerprint
-fingerprintString _ = fingerprint0
+fingerprintString = Fingerprint . fnv1a . splitWords . map (fromIntegral . ord)
+
+
+-- | from http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param 
+fnv1a :: [Word8] -> Word32
+fnv1a = go offset_basis
+  where
+    offset_basis = fromInteger 2166136261
+    prime = fromInteger 16777619
+    go hash [] = hash
+    go hash (w:ws) = go ((hash `xor` fromIntegral w) * prime) ws
+
+splitWords :: [Word32] -> [Word8]
+splitWords = concatMap f
+  where f w32 = [fromIntegral (w32 `shiftR` 24),
+                 fromIntegral (w32 `shiftR` 16),
+                 fromIntegral (w32 `shiftR` 8),
+                 fromIntegral w32]
+
 
 
 {-

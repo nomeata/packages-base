@@ -26,7 +26,7 @@ module Data.Typeable.Internal (
     TypeRep(..),
     Fingerprint(..),
     TyCon(..),
-    mkTyCon,
+    --mkTyCon,
     mkTyCon3,
     mkTyConApp,
     mkAppTy,
@@ -117,6 +117,7 @@ instance Ord TyCon where
 
 #include "MachDeps.h"
 
+{-
 -- mkTyCon is an internal function to make it easier for GHC to
 -- generate derived instances.  GHC precomputes the MD5 hash for the
 -- TyCon and passes it as two separate 64-bit values to mkTyCon.  The
@@ -130,6 +131,7 @@ mkTyCon :: Word#   -> Word#   -> String -> String -> String -> TyCon
 #endif
 mkTyCon high# low# pkg modl name
   = TyCon (Fingerprint (W64# high#) (W64# low#)) pkg modl name
+-}
 
 -- | Applies a type constructor to a sequence of types
 mkTyConApp  :: TyCon -> [TypeRep] -> TypeRep
