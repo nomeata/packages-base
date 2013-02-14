@@ -69,11 +69,11 @@ import GHC.Real
 --import GHC.IORef
 --import GHC.IOArray
 --import GHC.MVar
-import GHC.ST           ( ST )
-import GHC.STRef        ( STRef )
+-- import GHC.ST           ( ST )
+-- import GHC.STRef        ( STRef )
 import GHC.Ptr          ( Ptr, FunPtr )
 --import GHC.Stable
-import GHC.Arr          ( Array, STArray )
+--import GHC.Arr          ( Array, STArray )
 import Data.Int
 
 {-
@@ -507,7 +507,7 @@ INSTANCE_TYPEABLE1(IO,ioTc,"IO")
 --INSTANCE_TYPEABLE1(MVar,mvarTc,"MVar" )
 #endif
 
-INSTANCE_TYPEABLE2(Array,arrayTc,"Array")
+--INSTANCE_TYPEABLE2(Array,arrayTc,"Array")
 --INSTANCE_TYPEABLE2(IOArray,iOArrayTc,"IOArray")
 
 #ifdef __GLASGOW_HASKELL__
@@ -515,9 +515,9 @@ INSTANCE_TYPEABLE2(Array,arrayTc,"Array")
 -- elsewhere to keep this module within Haskell 98.
 -- This is important because every invocation of runhugs or ffihugs
 -- uses this module via Data.Dynamic.
-INSTANCE_TYPEABLE2(ST,stTc,"ST")
-INSTANCE_TYPEABLE2(STRef,stRefTc,"STRef")
-INSTANCE_TYPEABLE3(STArray,sTArrayTc,"STArray")
+--INSTANCE_TYPEABLE2(ST,stTc,"ST")
+--INSTANCE_TYPEABLE2(STRef,stRefTc,"STRef")
+--INSTANCE_TYPEABLE3(STArray,sTArrayTc,"STArray")
 #endif
 
 #ifndef __NHC__

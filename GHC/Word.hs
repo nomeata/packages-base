@@ -37,7 +37,7 @@ import GHC.Enum
 import GHC.Num
 import GHC.Real
 --import GHC.Read
-import GHC.Arr
+--import GHC.Arr
 import GHC.Show
 import GHC.Err
 --import GHC.Float ()     -- for RealFrac methods
@@ -109,10 +109,12 @@ instance Bounded Word8 where
     minBound = fromInteger 0
     maxBound = fromInteger 0xFF
 
+{-
 instance Ix Word8 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 {-
 instance Read Word8 where
@@ -253,10 +255,12 @@ instance Bounded Word16 where
     minBound = fromInteger 0
     maxBound = fromInteger 0xFFFF
 
+{-
 instance Ix Word16 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 {-
 instance Read Word16 where
@@ -500,10 +504,12 @@ instance Bounded Word32 where
     minBound = fromInteger 0
     maxBound = fromInteger 0xFFFFFFFF
 
+{-
 instance Ix Word32 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 {-
 instance Read Word32 where  
@@ -747,10 +753,12 @@ instance Bounded Word64 where
     minBound = fromInteger 0
     maxBound = fromInteger 0xFFFFFFFFFFFFFFFF
 
+{-
 instance Ix Word64 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 {-
 instance Read Word64 where

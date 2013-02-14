@@ -36,7 +36,7 @@ import GHC.Enum
 import GHC.Num
 import GHC.Real
 --import GHC.Read
-import GHC.Arr
+--import GHC.Arr
 import GHC.Err
 import GHC.Word hiding (uncheckedShiftL64#, uncheckedShiftRL64#)
 import GHC.Show
@@ -123,10 +123,12 @@ instance Bounded Int8 where
     minBound = negate (fromInteger 0x80)
     maxBound = fromInteger 0x7F
 
+{-
 instance Ix Int8 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 {-
 instance Read Int8 where
@@ -280,10 +282,12 @@ instance Bounded Int16 where
     minBound = negate (fromInteger 0x8000)
     maxBound = fromInteger 0x7FFF
 
+{-
 instance Ix Int16 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 {-
 instance Read Int16 where
@@ -531,10 +535,12 @@ instance Bounded Int32 where
     minBound = negate (fromInteger 0x80000000)
     maxBound = fromInteger 0x7FFFFFFF
 
+{-
 instance Ix Int32 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 ------------------------------------------------------------------------
 -- type Int64
@@ -872,10 +878,12 @@ instance Bounded Int64 where
     minBound = negate (fromInteger 0x8000000000000000)
     maxBound = fromInteger 0x7FFFFFFFFFFFFFFF
 
+{-
 instance Ix Int64 where
     range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
+-}
 
 
 {-

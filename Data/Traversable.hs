@@ -53,7 +53,7 @@ import GHC.Base
 import Data.Maybe
 
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Arr
+--import GHC.Arr
 #elif defined(__HUGS__)
 import Hugs.Array
 #elif defined(__NHC__)
@@ -122,8 +122,10 @@ instance Traversable [] where
 
     mapM = Control.Monad.mapM
 
+{-
 instance Ix i => Traversable (Array i) where
     traverse f arr = listArray (bounds arr) `fmap` traverse f (elems arr)
+-}
 
 -- general functions
 

@@ -78,7 +78,7 @@ import Control.Arrow (ArrowZero(..)) -- work around nhc98 typechecker problem
 #endif
 
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Arr
+--import GHC.Arr
 #elif defined(__HUGS__)
 import Hugs.Array
 #elif defined(__NHC__)
@@ -182,11 +182,13 @@ instance Foldable [] where
     foldr1 = List.foldr1
     foldl1 = List.foldl1
 
+{-
 instance Ix i => Foldable (Array i) where
     foldr f z = List.foldr f z . elems
     foldl f z = List.foldl f z . elems
     foldr1 f = List.foldr1 f . elems
     foldl1 f = List.foldl1 f . elems
+-}
 
 -- | Monadic fold over the elements of a structure,
 -- associating to the right, i.e. from right to left.
