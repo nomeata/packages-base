@@ -71,7 +71,7 @@ import GHC.Real
 --import GHC.MVar
 -- import GHC.ST           ( ST )
 -- import GHC.STRef        ( STRef )
-import GHC.Ptr          ( Ptr, FunPtr )
+--import GHC.Ptr          ( Ptr, FunPtr )
 --import GHC.Stable
 --import GHC.Arr          ( Array, STArray )
 import Data.Int
@@ -529,8 +529,8 @@ INSTANCE_TYPEABLE6((,,,,,),tup6Tc,"(,,,,,)")
 INSTANCE_TYPEABLE7((,,,,,,),tup7Tc,"(,,,,,,)")
 #endif /* __NHC__ */
 
-INSTANCE_TYPEABLE1(Ptr,ptrTc,"Ptr")
-INSTANCE_TYPEABLE1(FunPtr,funPtrTc,"FunPtr")
+--INSTANCE_TYPEABLE1(Ptr,ptrTc,"Ptr")
+--INSTANCE_TYPEABLE1(FunPtr,funPtrTc,"FunPtr")
 #ifndef __GLASGOW_HASKELL__
 INSTANCE_TYPEABLE1(ForeignPtr,foreignPtrTc,"ForeignPtr")
 #endif
