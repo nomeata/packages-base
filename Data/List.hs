@@ -153,7 +153,7 @@ module Data.List
 
    -- ** Functions on strings
    , lines             -- :: String   -> [String]
-   , words             -- :: String   -> [String]
+   --, words             -- :: String   -> [String]
    , unlines           -- :: [String] -> String
    , unwords           -- :: [String] -> String
 
@@ -215,7 +215,7 @@ import Prelude
 #endif
 
 import Data.Maybe
-import Data.Char        ( isSpace )
+--import Data.Char        ( isSpace )
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Num
@@ -281,7 +281,7 @@ findIndex p     = listToMaybe . findIndices p
 findIndices      :: (a -> Bool) -> [a] -> [Int]
 
 #if defined(USE_REPORT_PRELUDE) || !defined(__GLASGOW_HASKELL__)
-findIndices p xs = [ i | (x,i) <- zip xs [0..], p x]
+findIndices p xs = [ i | (x,i) <- zip xs (enumFrom 0), p x]
 #else
 -- Efficient definition
 findIndices p ls = loop 0# ls
@@ -592,8 +592,8 @@ minimumBy cmp xs        =  foldl1 minBy xs
 -- particular, instead of returning an 'Int', it returns any type which is
 -- an instance of 'Num'.  It is, however, less efficient than 'length'.
 genericLength           :: (Num i) => [b] -> i
-genericLength []        =  0
-genericLength (_:l)     =  1 + genericLength l
+genericLength []        =  fromInteger 0
+genericLength (_:l)     =  fromInteger 1 + genericLength l
 
 {-# RULES
   "genericLengthInt"     genericLength = (strictGenericLength :: [a] -> Int);
@@ -601,40 +601,40 @@ genericLength (_:l)     =  1 + genericLength l
  #-}
 
 strictGenericLength     :: (Num i) => [b] -> i
-strictGenericLength l   =  gl l 0
+strictGenericLength l   =  gl l (fromInteger 0)
                         where
                            gl [] a     = a
-                           gl (_:xs) a = let a' = a + 1 in a' `seq` gl xs a'
+                           gl (_:xs) a = let a' = a + fromInteger 1 in a' `seq` gl xs a'
 
 -- | The 'genericTake' function is an overloaded version of 'take', which
 -- accepts any 'Integral' value as the number of elements to take.
 genericTake             :: (Integral i) => i -> [a] -> [a]
-genericTake n _ | n <= 0 = []
+genericTake n _ | n <= fromInteger 0 = []
 genericTake _ []        =  []
-genericTake n (x:xs)    =  x : genericTake (n-1) xs
+genericTake n (x:xs)    =  x : genericTake (n-fromInteger 1) xs
 
 -- | The 'genericDrop' function is an overloaded version of 'drop', which
 -- accepts any 'Integral' value as the number of elements to drop.
 genericDrop             :: (Integral i) => i -> [a] -> [a]
-genericDrop n xs | n <= 0 = xs
+genericDrop n xs | n <= fromInteger 0 = xs
 genericDrop _ []        =  []
-genericDrop n (_:xs)    =  genericDrop (n-1) xs
+genericDrop n (_:xs)    =  genericDrop (n-fromInteger 1) xs
 
 
 -- | The 'genericSplitAt' function is an overloaded version of 'splitAt', which
 -- accepts any 'Integral' value as the position at which to split.
 genericSplitAt          :: (Integral i) => i -> [b] -> ([b],[b])
-genericSplitAt n xs | n <= 0 =  ([],xs)
+genericSplitAt n xs | n <= fromInteger 0 =  ([],xs)
 genericSplitAt _ []     =  ([],[])
 genericSplitAt n (x:xs) =  (x:xs',xs'') where
-    (xs',xs'') = genericSplitAt (n-1) xs
+    (xs',xs'') = genericSplitAt (n-fromInteger 1) xs
 
 -- | The 'genericIndex' function is an overloaded version of '!!', which
 -- accepts any 'Integral' value as the index.
 genericIndex :: (Integral a) => [b] -> a -> b
-genericIndex (x:_)  0 = x
-genericIndex (_:xs) n
- | n > 0     = genericIndex xs (n-1)
+genericIndex (x:xs) n
+ | n == fromInteger 0    = x
+ | n > fromInteger 0     = genericIndex xs (n-fromInteger 1)
  | otherwise = error "List.genericIndex: negative argument."
 genericIndex _ _      = error "List.genericIndex: index too large."
 
@@ -1040,11 +1040,11 @@ product                 :: (Num a) => [a] -> a
 sum                     =  foldl (+) 0
 product                 =  foldl (*) 1
 #else
-sum     l       = sum' l 0
+sum     l       = sum' l (fromInteger 0)
   where
     sum' []     a = a
     sum' (x:xs) a = sum' xs (a+x)
-product l       = prod l 1
+product l       = prod l (fromInteger 1)
   where
     prod []     a = a
     prod (x:xs) a = prod xs (a*x)
@@ -1087,6 +1087,7 @@ unlines [] = []
 unlines (l:ls) = l ++ '\n' : unlines ls
 #endif
 
+{-
 -- | 'words' breaks a string up into a list of words, which were delimited
 -- by white space.
 words                   :: String -> [String]
@@ -1095,6 +1096,7 @@ words s                 =  case dropWhile {-partain:Char.-}isSpace s of
                                 s' -> w : words s''
                                       where (w, s'') =
                                              break {-partain:Char.-}isSpace s'
+-}
 
 -- | 'unwords' is an inverse operation to 'words'.
 -- It joins words with separating spaces.

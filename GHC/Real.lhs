@@ -92,8 +92,8 @@ their greatest common divisor.
 \begin{code}
 reduce ::  (Integral a) => a -> a -> Ratio a
 {-# SPECIALISE reduce :: Integer -> Integer -> Rational #-}
-reduce _ 0              =  ratioZeroDenominatorError
-reduce x y              =  (x `quot` d) :% (y `quot` d)
+reduce x y              =  if x == fromInteger 0 then ratioZeroDenominatorError else
+                           (x `quot` d) :% (y `quot` d)
                            where d = gcd x y
 \end{code}
 
@@ -148,7 +148,7 @@ class  (Real a, Enum a) => Integral a  where
     n `div` d           =  q  where (q,_) = divMod n d
     n `mod` d           =  r  where (_,r) = divMod n d
 
-    divMod n d          =  if signum r == negate (signum d) then (q-1, r+d) else qr
+    divMod n d          =  if signum r == negate (signum d) then (q-fromInteger 1, r+d) else qr
                            where qr@(q,r) = quotRem n d
 
 -- | Fractional numbers, supporting real division.
@@ -167,7 +167,7 @@ class  (Num a) => Fractional a  where
 
     {-# INLINE recip #-}
     {-# INLINE (/) #-}
-    recip x             =  1 / x
+    recip x             = fromInteger 1 / x
     x / y               = x * recip y
 
 -- | Extracting components of fractions.
@@ -199,17 +199,17 @@ class  (Real a, Fractional a) => RealFrac a  where
     truncate x          =  m  where (m,_) = properFraction x
 
     round x             =  let (n,r) = properFraction x
-                               m     = if r < 0 then n - 1 else n + 1
-                           in case signum (abs r - 0.5) of
-                                -1 -> n
-                                0  -> if even n then n else m
-                                1  -> m
-                                _  -> error "round default defn: Bad value"
+                               m     = if r < fromInteger 0 then n - fromInteger 1 else n + fromInteger 1
+                           in let s = signum (abs r - fromInteger 1 / fromInteger 2) in
+                              if s == negate (fromInteger 1) then n else
+                              if s == fromInteger 0 then (if even n then n else m) else
+                              if s == fromInteger 1 then m else
+                                             error "round default defn: Bad value"
 
-    ceiling x           =  if r > 0 then n + 1 else n
+    ceiling x           =  if r > fromInteger 0 then n + fromInteger 1 else n
                            where (n,r) = properFraction x
 
-    floor x             =  if r < 0 then n - 1 else n
+    floor x             =  if r < fromInteger 0 then n - fromInteger 1 else n
                            where (n,r) = properFraction x
 \end{code}
 
@@ -218,19 +218,19 @@ These 'numeric' enumerations come straight from the Report
 
 \begin{code}
 numericEnumFrom         :: (Fractional a) => a -> [a]
-numericEnumFrom n	=  n `seq` (n : numericEnumFrom (n + 1))
+numericEnumFrom n	=  n `seq` (n : numericEnumFrom (n + fromInteger 1))
 
 numericEnumFromThen     :: (Fractional a) => a -> a -> [a]
 numericEnumFromThen n m	= n `seq` m `seq` (n : numericEnumFromThen m (m+m-n))
 
 numericEnumFromTo       :: (Ord a, Fractional a) => a -> a -> [a]
-numericEnumFromTo n m   = takeWhile (<= m + 1/2) (numericEnumFrom n)
+numericEnumFromTo n m   = takeWhile (<= m + fromInteger 1/fromInteger 2) (numericEnumFrom n)
 
 numericEnumFromThenTo   :: (Ord a, Fractional a) => a -> a -> a -> [a]
 numericEnumFromThenTo e1 e2 e3
     = takeWhile predicate (numericEnumFromThen e1 e2)
                                 where
-                                 mid = (e2 - e1) / 2
+                                 mid = (e2 - e1) / fromInteger 2
                                  predicate | e2 >= e1  = (<= e3 + mid)
                                            | otherwise = (>= e3 + mid)
 \end{code}
@@ -378,8 +378,8 @@ instance  Integral Integer where
     a `divMod` b = case a `divModInteger` b of
                    (# x, y #) -> (x, y)
 
-    _ `quotRem` 0 = divZeroError
-    a `quotRem` b = case a `quotRemInteger` b of
+    a `quotRem` b = if b == 0 then divZeroError else 
+                    case a `quotRemInteger` b of
                     (# q, r #) -> (q, r)
 
     -- use the defaults for div & mod
@@ -403,18 +403,18 @@ instance  (Integral a)  => Num (Ratio a)  where
     (x:%y) + (x':%y')   =  reduce (x*y' + x'*y) (y*y')
     (x:%y) - (x':%y')   =  reduce (x*y' - x'*y) (y*y')
     (x:%y) * (x':%y')   =  reduce (x * x') (y * y')
-    negate (x:%y)       =  (-x) :% y
+    negate (x:%y)       =  (negate x) :% y
     abs (x:%y)          =  abs x :% y
-    signum (x:%_)       =  signum x :% 1
-    fromInteger x       =  fromInteger x :% 1
+    signum (x:%_)       =  signum x :% fromInteger 1
+    fromInteger x       =  fromInteger x :% fromInteger 1
 
 {-# RULES "fromRational/id" fromRational = id :: Rational -> Rational #-}
 instance  (Integral a)  => Fractional (Ratio a)  where
     {-# SPECIALIZE instance Fractional Rational #-}
     (x:%y) / (x':%y')   =  (x*y') % (y*x')
-    recip (0:%_)        = ratioZeroDenominatorError
     recip (x:%y)
-        | x < 0         = negate y :% negate x
+        | x == fromInteger 0        = ratioZeroDenominatorError
+        | x < fromInteger 0         = negate y :% negate x
         | otherwise     = y :% x
     fromRational (x:%y) =  fromInteger x % fromInteger y
 
@@ -440,10 +440,10 @@ instance  (Integral a, Show a)  => Show (Ratio a)  where
 
 instance  (Integral a)  => Enum (Ratio a)  where
     {-# SPECIALIZE instance Enum Rational #-}
-    succ x              =  x + 1
-    pred x              =  x - 1
+    succ x              =  x + fromInteger 1
+    pred x              =  x - fromInteger 1
 
-    toEnum n            =  fromIntegral n :% 1
+    toEnum n            =  fromIntegral n :% fromInteger 1
     fromEnum            =  fromInteger . truncate
 
     enumFrom            =  numericEnumFrom
@@ -493,11 +493,11 @@ showSigned :: (Real a)
   -> a                  -- ^ the value to show
   -> ShowS
 showSigned showPos p x
-   | x < 0     = showParen (p > 6) (showChar '-' . showPos (-x))
+   | x < fromInteger 0     = showParen (p > fromInteger 6) (showChar '-' . showPos (negate x))
    | otherwise = showPos x
 
 even, odd       :: (Integral a) => a -> Bool
-even n          =  n `rem` 2 == 0
+even n          =  n `rem` fromInteger 2 == fromInteger 0
 odd             =  not . even
 
 -------------------------------------------------------
@@ -508,22 +508,22 @@ odd             =  not . even
         Int -> Int -> Int #-}
 {-# INLINABLE (^) #-}    -- See Note [Inlining (^)]
 (^) :: (Num a, Integral b) => a -> b -> a
-x0 ^ y0 | y0 < 0    = error "Negative exponent"
-        | y0 == 0   = 1
+x0 ^ y0 | y0 < fromInteger 0    = error "Negative exponent"
+        | y0 == fromInteger 0   = fromInteger 1
         | otherwise = f x0 y0
     where -- f : x0 ^ y0 = x ^ y
-          f x y | even y    = f (x * x) (y `quot` 2)
-                | y == 1    = x
-                | otherwise = g (x * x) ((y - 1) `quot` 2) x
+          f x y | even y    = f (x * x) (y `quot` fromInteger 2)
+                | y == fromInteger 1    = x
+                | otherwise = g (x * x) ((y - fromInteger 1) `quot` fromInteger 2) x
           -- g : x0 ^ y0 = (x ^ y) * z
-          g x y z | even y = g (x * x) (y `quot` 2) z
-                  | y == 1 = x * z
-                  | otherwise = g (x * x) ((y - 1) `quot` 2) (x * z)
+          g x y z | even y = g (x * x) (y `quot` fromInteger 2) z
+                  | y == fromInteger 1 = x * z
+                  | otherwise = g (x * x) ((y - fromInteger 1) `quot` fromInteger 2) (x * z)
 
 -- | raise a number to an integral power
 (^^)            :: (Fractional a, Integral b) => a -> b -> a
 {-# INLINABLE (^^) #-}         -- See Note [Inlining (^)
-x ^^ n          =  if n >= 0 then x^n else recip (x^(negate n))
+x ^^ n          =  if n >= fromInteger 0 then x^n else recip (x^(negate n))
 
 {- Note [Inlining (^)
    ~~~~~~~~~~~~~~~~~~~~~
@@ -617,18 +617,18 @@ x ^^ n          =  if n >= 0 then x^n else recip (x^(negate n))
 {-# RULES "(^)/Rational"    (^) = (^%^) #-}
 (^%^)           :: Integral a => Rational -> a -> Rational
 (n :% d) ^%^ e
-    | e < 0     = error "Negative exponent"
-    | e == 0    = 1 :% 1
+    | e < fromInteger 0     = error "Negative exponent"
+    | e == fromInteger 0    = 1 :% 1
     | otherwise = (n ^ e) :% (d ^ e)
 
 -- Special version of (^^) for Rational base
 {-# RULES "(^^)/Rational"   (^^) = (^^%^^) #-}
 (^^%^^)         :: Integral a => Rational -> a -> Rational
 (n :% d) ^^%^^ e
-    | e > 0     = (n ^ e) :% (d ^ e)
-    | e == 0    = 1 :% 1
-    | n > 0     = (d ^ (negate e)) :% (n ^ (negate e))
-    | n == 0    = ratioZeroDenominatorError
+    | e > fromInteger 0     = (n ^ e) :% (d ^ e)
+    | e == fromInteger 0    = 1 :% 1
+    | n > fromInteger 0     = (d ^ (negate e)) :% (n ^ (negate e))
+    | n == fromInteger 0    = ratioZeroDenominatorError
     | otherwise = let nn = d ^ (negate e)
                       dd = (negate n) ^ (negate e)
                   in if even e then (nn :% dd) else (negate nn :% dd)
@@ -645,15 +645,15 @@ x ^^ n          =  if n >= 0 then x^n else recip (x^(negate n))
 -- necessarily is if the other is @0@ or @'minBound'@) for such types.
 gcd             :: (Integral a) => a -> a -> a
 gcd x y         =  gcd' (abs x) (abs y)
-                   where gcd' a 0  =  a
-                         gcd' a b  =  gcd' b (a `rem` b)
+                   where gcd' a b = if b == fromInteger 0 then a else
+                                    gcd' b (a `rem` b)
 
 -- | @'lcm' x y@ is the smallest positive integer that both @x@ and @y@ divide.
 lcm             :: (Integral a) => a -> a -> a
 {-# SPECIALISE lcm :: Int -> Int -> Int #-}
-lcm _ 0         =  0
-lcm 0 _         =  0
-lcm x y         =  abs ((x `quot` (gcd x y)) * y)
+lcm x y         =  if y == fromInteger 0 then fromInteger 0 else
+                   if x == fromInteger 0 then fromInteger 0 else
+                   abs ((x `quot` (gcd x y)) * y)
 
 #ifdef OPTIMISE_INTEGER_GCD_LCM
 {-# RULES

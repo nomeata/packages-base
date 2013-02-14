@@ -110,7 +110,7 @@ import GHC.Classes
 import GHC.CString
 import GHC.Prim
 import {-# SOURCE #-} GHC.Err
-import {-# SOURCE #-} GHC.IO (failIO)
+--import {-# SOURCE #-} GHC.IO (failIO)
 
 -- This is not strictly speaking required by this module, but is an
 -- implicit dependency whenever () or tuples are mentioned, so adding it
@@ -600,6 +600,7 @@ asTypeOf                =  const
 %*********************************************************
 
 \begin{code}
+{-
 instance  Functor IO where
    fmap f x = x >>= (return . f)
 
@@ -623,6 +624,7 @@ thenIO (IO m) k = IO $ \ s -> case m s of (# new_s, _ #) -> unIO k new_s
 
 unIO :: IO a -> (State# RealWorld -> (# State# RealWorld, a #))
 unIO (IO a) = a
+-}
 \end{code}
 
 %*********************************************************

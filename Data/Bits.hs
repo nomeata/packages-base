@@ -242,14 +242,14 @@ class Eq a => Bits a where
 --
 -- Note that: @bitDefault i = 1 `shiftL` i@
 bitDefault :: (Bits a, Num a) => Int -> a
-bitDefault i = 1 `shiftL` i
+bitDefault i = fromInteger 1 `shiftL` i
 {-# INLINE bitDefault #-}
 
 -- | Default implementation for 'testBit'.
 --
 -- Note that: @testBitDefault x i = (x .&. bit i) /= 0@
 testBitDefault ::  (Bits a, Num a) => a -> Int -> Bool
-testBitDefault x i = (x .&. bit i) /= 0
+testBitDefault x i = (x .&. bit i) /= fromInteger 0
 {-# INLINE testBitDefault #-}
 
 -- | Default implementation for 'popCount'.
@@ -257,10 +257,9 @@ testBitDefault x i = (x .&. bit i) /= 0
 -- This implementation is intentionally naive. Instances are expected to provide
 -- an optimized implementation for their size.
 popCountDefault :: (Bits a, Num a) => a -> Int
-popCountDefault = go 0
+popCountDefault = go (fromInteger 0)
  where
-   go !c 0 = c
-   go c w = go (c+1) (w .&. (w - 1)) -- clear the least significant
+   go !c w = if w == fromInteger 0 then c else go (c+1) (w .&. (w - (fromInteger 1))) -- clear the least significant
 {-# INLINABLE popCountDefault #-}
 
 instance Bits Int where

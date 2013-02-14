@@ -37,7 +37,9 @@ module Control.Arrow (
     ArrowLoop(..)
     ) where
 
-import Prelude hiding (id,(.))
+import Data.Function (($))
+import Data.Tuple
+import Data.Either
 
 import Control.Monad
 import Control.Monad.Fix

@@ -31,7 +31,7 @@ import GHC.Base
 import GHC.Show
 import GHC.Num
 import GHC.List ( length, replicate )
-import Numeric          ( showHex )
+--import Numeric          ( showHex )
 
 #include "MachDeps.h"
 
@@ -155,6 +155,7 @@ castPtrToFunPtr (Ptr addr) = FunPtr addr
 ------------------------------------------------------------------------
 -- Show instances for Ptr and FunPtr
 
+{-
 instance Show (Ptr a) where
    showsPrec _ (Ptr a) rs = pad_out (showHex (wordToInteger(int2Word#(addr2Int# a))) "")
      where
@@ -164,5 +165,6 @@ instance Show (Ptr a) where
 
 instance Show (FunPtr a) where
    showsPrec p = showsPrec p . castFunPtrToPtr
+-}
 
 \end{code}

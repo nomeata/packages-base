@@ -1,5 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
-{-# LANGUAGE CPP, NoImplicitPrelude #-}
+{-# LANGUAGE CPP, NoImplicitPrelude, RebindableSyntax #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -355,3 +355,8 @@ The functions in this library use the following naming conventions:
 >  msum :: MonadPlus m => [m a] -> m a
 
 -}
+
+ifThenElse :: Bool -> a -> a -> a
+ifThenElse True x y = x
+ifThenElse False x y = y
+

@@ -43,10 +43,14 @@ module Data.Traversable (
     ) where
 
 import Prelude hiding (mapM, sequence, foldr)
-import qualified Prelude (mapM, foldr)
+import qualified Data.List (foldr)
 import Control.Applicative
+import qualified Control.Monad (mapM)
 import Data.Foldable (Foldable())
 import Data.Monoid (Monoid)
+import Data.Functor (Functor(..))
+import GHC.Base
+import Data.Maybe
 
 #if defined(__GLASGOW_HASKELL__)
 import GHC.Arr
@@ -113,10 +117,10 @@ instance Traversable Maybe where
 
 instance Traversable [] where
     {-# INLINE traverse #-} -- so that traverse can fuse
-    traverse f = Prelude.foldr cons_f (pure [])
+    traverse f = Data.List.foldr cons_f (pure [])
       where cons_f x ys = (:) <$> f x <*> ys
 
-    mapM = Prelude.mapM
+    mapM = Control.Monad.mapM
 
 instance Ix i => Traversable (Array i) where
     traverse f arr = listArray (bounds arr) `fmap` traverse f (elems arr)

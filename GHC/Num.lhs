@@ -62,7 +62,7 @@ class  Num a  where
     {-# INLINE (-) #-}
     {-# INLINE negate #-}
     x - y               = x + negate y
-    negate x            = 0 - x
+    negate x            = fromInteger 0 - x
 
 -- | the same as @'flip' ('-')@.
 --

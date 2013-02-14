@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude
            , BangPatterns
            , ForeignFunctionInterface
@@ -16,18 +17,33 @@
 
 module GHC.Fingerprint (
         Fingerprint(..), fingerprint0, 
-        fingerprintData,
+        -- fingerprintData,
         fingerprintString,
         fingerprintFingerprints
    ) where
 
-import GHC.IO
+import GHC.Base
+import GHC.Fingerprint.Type
+import GHC.Num
+
+fingerprint0 :: Fingerprint
+fingerprint0 = Fingerprint (fromInteger 0) (fromInteger 0)
+
+fingerprintFingerprints :: [Fingerprint] -> Fingerprint
+fingerprintFingerprints _ = fingerprint0
+
+fingerprintString :: String -> Fingerprint
+fingerprintString _ = fingerprint0
+
+
+{-
+--import GHC.IO
 import GHC.Base
 import GHC.Num
 import GHC.List
 import GHC.Real
-import Foreign
-import Foreign.C
+--import Foreign
+--import Foreign.C
 
 import GHC.Fingerprint.Type
 
@@ -76,3 +92,4 @@ foreign import ccall unsafe "MD5Update"
 foreign import ccall unsafe "MD5Final"
    c_MD5Final  :: Ptr Word8 -> Ptr MD5Context -> IO ()
 
+-}

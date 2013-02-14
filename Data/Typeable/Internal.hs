@@ -50,10 +50,11 @@ module Data.Typeable.Internal (
     splitTyConApp,
     funResultTy,
     typeRepArgs,
-    showsTypeRep,
+    --showsTypeRep,
     tyConString,
 #if defined(__GLASGOW_HASKELL__)
-    listTc, funTc
+    --listTc,
+    funTc
 #endif
   ) where
 
@@ -65,22 +66,26 @@ import Data.Maybe
 import Data.List
 import GHC.Num
 import GHC.Real
-import GHC.IORef
-import GHC.IOArray
-import GHC.MVar
+--import GHC.IORef
+--import GHC.IOArray
+--import GHC.MVar
 import GHC.ST           ( ST )
 import GHC.STRef        ( STRef )
 import GHC.Ptr          ( Ptr, FunPtr )
-import GHC.Stable
+--import GHC.Stable
 import GHC.Arr          ( Array, STArray )
 import Data.Int
 
+{-
 import GHC.Fingerprint.Type
 import {-# SOURCE #-} GHC.Fingerprint
    -- loop: GHC.Fingerprint -> Foreign.Ptr -> Data.Typeable
    -- Better to break the loop here, because we want non-SOURCE imports
    -- of Data.Typeable as much as possible so we can optimise the derived
    -- instances.
+-}
+
+import GHC.Fingerprint
 
 -- | A concrete representation of a (monomorphic) type.  'TypeRep'
 -- supports reasonably efficient equality.
@@ -418,6 +423,7 @@ instance (Typeable7 s, Typeable a)
 
 ----------------- Showing TypeReps --------------------
 
+{-
 instance Show TypeRep where
   showsPrec p (TypeRep _ tycon tys) =
     case tys of
@@ -439,6 +445,7 @@ showsTypeRep = shows
 
 instance Show TyCon where
   showsPrec _ t = showString (tyConName t)
+-}
 
 isTupleTyCon :: TyCon -> Bool
 isTupleTyCon (TyCon _ _ _ ('(':',':_)) = True
@@ -446,6 +453,7 @@ isTupleTyCon _                         = False
 
 -- Some (Show.TypeRep) helpers:
 
+{-
 showArgs :: Show a => [a] -> ShowS
 showArgs [] = id
 showArgs [a] = showsPrec 10 a
@@ -456,10 +464,11 @@ showTuple args = showChar '('
                . (foldr (.) id $ intersperse (showChar ',') 
                                $ map (showsPrec 10) args)
                . showChar ')'
+-}
 
 #if defined(__GLASGOW_HASKELL__)
-listTc :: TyCon
-listTc = typeRepTyCon (typeOf [()])
+--listTc :: TyCon
+--listTc = typeRepTyCon (typeOf [()])
 
 funTc :: TyCon
 funTc = mkTyCon3 "ghc-prim" "GHC.Types" "->"
@@ -470,6 +479,8 @@ funTc = mkTyCon3 "ghc-prim" "GHC.Types" "->"
 --      Instances of the Typeable classes for Prelude types
 --
 -------------------------------------------------------------
+
+{-
 
 #include "Typeable.h"
 
@@ -493,11 +504,11 @@ INSTANCE_TYPEABLE1(IO,ioTc,"IO")
 
 #if defined(__GLASGOW_HASKELL__) || defined(__HUGS__)
 -- Types defined in GHC.MVar
-INSTANCE_TYPEABLE1(MVar,mvarTc,"MVar" )
+--INSTANCE_TYPEABLE1(MVar,mvarTc,"MVar" )
 #endif
 
 INSTANCE_TYPEABLE2(Array,arrayTc,"Array")
-INSTANCE_TYPEABLE2(IOArray,iOArrayTc,"IOArray")
+--INSTANCE_TYPEABLE2(IOArray,iOArrayTc,"IOArray")
 
 #ifdef __GLASGOW_HASKELL__
 -- Hugs has these too, but their Typeable<n> instances are defined
@@ -523,8 +534,8 @@ INSTANCE_TYPEABLE1(FunPtr,funPtrTc,"FunPtr")
 #ifndef __GLASGOW_HASKELL__
 INSTANCE_TYPEABLE1(ForeignPtr,foreignPtrTc,"ForeignPtr")
 #endif
-INSTANCE_TYPEABLE1(StablePtr,stablePtrTc,"StablePtr")
-INSTANCE_TYPEABLE1(IORef,iORefTc,"IORef")
+--INSTANCE_TYPEABLE1(StablePtr,stablePtrTc,"StablePtr")
+--INSTANCE_TYPEABLE1(IORef,iORefTc,"IORef")
 
 -------------------------------------------------------
 --
@@ -558,6 +569,7 @@ INSTANCE_TYPEABLE0(Word64,word64Tc,"Word64")
 
 INSTANCE_TYPEABLE0(TyCon,tyconTc,"TyCon")
 INSTANCE_TYPEABLE0(TypeRep,typeRepTc,"TypeRep")
+-}
 
 #ifdef __GLASGOW_HASKELL__
 {-

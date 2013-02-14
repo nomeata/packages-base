@@ -1,4 +1,4 @@
-{-# LANGUAGE Safe #-}
+{- # LANGUAGE Safe #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -22,7 +22,7 @@ module Data.Function
   , on
   ) where
 
-import Prelude
+import GHC.Base
 
 infixl 0 `on`
 

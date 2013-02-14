@@ -35,12 +35,12 @@ import GHC.Base
 import GHC.Enum
 import GHC.Num
 import GHC.Real
-import GHC.Read
+--import GHC.Read
 import GHC.Arr
 import GHC.Err
 import GHC.Word hiding (uncheckedShiftL64#, uncheckedShiftRL64#)
 import GHC.Show
-import GHC.Float ()     -- for RealFrac methods
+--import GHC.Float ()     -- for RealFrac methods
 
 
 ------------------------------------------------------------------------
@@ -61,22 +61,22 @@ instance Num Int8 where
     (I8# x#) - (I8# y#)    = I8# (narrow8Int# (x# -# y#))
     (I8# x#) * (I8# y#)    = I8# (narrow8Int# (x# *# y#))
     negate (I8# x#)        = I8# (narrow8Int# (negateInt# x#))
-    abs x | x >= 0         = x
+    abs x | x >= fromInteger 0         = x
           | otherwise      = negate x
-    signum x | x > 0       = 1
-    signum 0               = 0
-    signum _               = -1
+    signum x | x > fromInteger 0       = fromInteger 1
+             | x == fromInteger 0      = fromInteger 0
+             | otherwise   = negate (fromInteger 1)
     fromInteger i          = I8# (narrow8Int# (integerToInt i))
 
 instance Real Int8 where
-    toRational x = toInteger x % 1
+    toRational x = toInteger x % fromInteger 1
 
 instance Enum Int8 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Int8"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Int8"
     toEnum i@(I# i#)
         | i >= fromIntegral (minBound::Int8) && i <= fromIntegral (maxBound::Int8)
@@ -88,48 +88,50 @@ instance Enum Int8 where
 
 instance Integral Int8 where
     quot    x@(I8# x#) y@(I8# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I8# (narrow8Int# (x# `quotInt#` y#))
     rem     (I8# x#) y@(I8# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
         | otherwise                  = I8# (narrow8Int# (x# `remInt#` y#))
     div     x@(I8# x#) y@(I8# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I8# (narrow8Int# (x# `divInt#` y#))
     mod       (I8# x#) y@(I8# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
         | otherwise                  = I8# (narrow8Int# (x# `modInt#` y#))
     quotRem x@(I8# x#) y@(I8# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = case x# `quotRemInt#` y# of
                                        (# q, r #) ->
                                            (I8# (narrow8Int# q),
                                             I8# (narrow8Int# r))
     divMod  x@(I8# x#) y@(I8# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
-        | otherwise                  = case x# `divModInt#` y# of
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
+        | otherwise                 = case x# `divModInt#` y# of
                                        (# d, m #) ->
                                            (I8# (narrow8Int# d),
                                             I8# (narrow8Int# m))
     toInteger (I8# x#)               = smallInteger x#
 
 instance Bounded Int8 where
-    minBound = -0x80
-    maxBound =  0x7F
+    minBound = negate (fromInteger 0x80)
+    maxBound = fromInteger 0x7F
 
 instance Ix Int8 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
 
+{-
 instance Read Int8 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
+-}
 
 instance Bits Int8 where
     {-# INLINE shift #-}
@@ -216,22 +218,22 @@ instance Num Int16 where
     (I16# x#) - (I16# y#)  = I16# (narrow16Int# (x# -# y#))
     (I16# x#) * (I16# y#)  = I16# (narrow16Int# (x# *# y#))
     negate (I16# x#)       = I16# (narrow16Int# (negateInt# x#))
-    abs x | x >= 0         = x
+    abs x | x >= fromInteger 0         = x
           | otherwise      = negate x
-    signum x | x > 0       = 1
-    signum 0               = 0
-    signum _               = -1
+    signum x | x > fromInteger 0       = fromInteger 1
+             | x == fromInteger 0      = fromInteger 0
+             | otherwise   = negate (fromInteger 1)
     fromInteger i          = I16# (narrow16Int# (integerToInt i))
 
 instance Real Int16 where
-    toRational x = toInteger x % 1
+    toRational x = toInteger x % fromInteger 1
 
 instance Enum Int16 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Int16"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Int16"
     toEnum i@(I# i#)
         | i >= fromIntegral (minBound::Int16) && i <= fromIntegral (maxBound::Int16)
@@ -243,31 +245,31 @@ instance Enum Int16 where
 
 instance Integral Int16 where
     quot    x@(I16# x#) y@(I16# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I16# (narrow16Int# (x# `quotInt#` y#))
     rem       (I16# x#) y@(I16# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
         | otherwise                  = I16# (narrow16Int# (x# `remInt#` y#))
     div     x@(I16# x#) y@(I16# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I16# (narrow16Int# (x# `divInt#` y#))
     mod       (I16# x#) y@(I16# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
         | otherwise                  = I16# (narrow16Int# (x# `modInt#` y#))
     quotRem x@(I16# x#) y@(I16# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = case x# `quotRemInt#` y# of
                                        (# q, r #) ->
                                            (I16# (narrow16Int# q),
                                             I16# (narrow16Int# r))
     divMod  x@(I16# x#) y@(I16# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = case x# `divModInt#` y# of
                                        (# d, m #) ->
                                            (I16# (narrow16Int# d),
@@ -275,16 +277,18 @@ instance Integral Int16 where
     toInteger (I16# x#)              = smallInteger x#
 
 instance Bounded Int16 where
-    minBound = -0x8000
-    maxBound =  0x7FFF
+    minBound = negate (fromInteger 0x8000)
+    maxBound = fromInteger 0x7FFF
 
 instance Ix Int16 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
 
+{-
 instance Read Int16 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
+-}
 
 instance Bits Int16 where
     {-# INLINE shift #-}
@@ -376,19 +380,19 @@ instance Num Int32 where
     (I32# x#) - (I32# y#)  = I32# (narrow32Int# (x# -# y#))
     (I32# x#) * (I32# y#)  = I32# (narrow32Int# (x# *# y#))
     negate (I32# x#)       = I32# (narrow32Int# (negateInt# x#))
-    abs x | x >= 0         = x
+    abs x | x >= fromInteger 0         = x
           | otherwise      = negate x
-    signum x | x > 0       = 1
-    signum 0               = 0
-    signum _               = -1
+    signum x | x > fromInteger 0       = fromInteger 1
+             | x == fromInteger 0      = fromInteger 0
+             | otherwise   = negate (fromInteger 1)
     fromInteger i          = I32# (narrow32Int# (integerToInt i))
 
 instance Enum Int32 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Int32"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Int32"
 #if WORD_SIZE_IN_BITS == 32
     toEnum (I# i#)      = I32# i#
@@ -404,47 +408,49 @@ instance Enum Int32 where
 
 instance Integral Int32 where
     quot    x@(I32# x#) y@(I32# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I32# (narrow32Int# (x# `quotInt#` y#))
     rem       (I32# x#) y@(I32# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- The quotRem CPU instruction fails for minBound `quotRem` -1,
           -- but minBound `rem` -1 is well-defined (0). We therefore
           -- special-case it.
-        | y == (-1)                  = 0
+        | y == negate (fromInteger 1)                  = fromInteger 0
         | otherwise                  = I32# (narrow32Int# (x# `remInt#` y#))
     div     x@(I32# x#) y@(I32# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I32# (narrow32Int# (x# `divInt#` y#))
     mod       (I32# x#) y@(I32# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- The divMod CPU instruction fails for minBound `divMod` -1,
           -- but minBound `mod` -1 is well-defined (0). We therefore
           -- special-case it.
-        | y == (-1)                  = 0
+        | y == negate (fromInteger 1)                  = fromInteger 0
         | otherwise                  = I32# (narrow32Int# (x# `modInt#` y#))
     quotRem x@(I32# x#) y@(I32# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = case x# `quotRemInt#` y# of
                                        (# q, r #) ->
                                            (I32# (narrow32Int# q),
                                             I32# (narrow32Int# r))
     divMod  x@(I32# x#) y@(I32# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = case x# `divModInt#` y# of
                                        (# d, m #) ->
                                            (I32# (narrow32Int# d),
                                             I32# (narrow32Int# m))
     toInteger (I32# x#)              = smallInteger x#
 
+{-
 instance Read Int32 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
+-}
 
 instance Bits Int32 where
     {-# INLINE shift #-}
@@ -519,14 +525,14 @@ instance Bits Int32 where
   #-}
 
 instance Real Int32 where
-    toRational x = toInteger x % 1
+    toRational x = toInteger x % fromInteger 1
 
 instance Bounded Int32 where
-    minBound = -0x80000000
-    maxBound =  0x7FFFFFFF
+    minBound = negate (fromInteger 0x80000000)
+    maxBound = fromInteger 0x7FFFFFFF
 
 instance Ix Int32 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
 
@@ -557,19 +563,19 @@ instance Num Int64 where
     (I64# x#) - (I64# y#)  = I64# (x# `minusInt64#` y#)
     (I64# x#) * (I64# y#)  = I64# (x# `timesInt64#` y#)
     negate (I64# x#)       = I64# (negateInt64# x#)
-    abs x | x >= 0         = x
+    abs x | x >= fromInteger 0         = x
           | otherwise      = negate x
-    signum x | x > 0       = 1
-    signum 0               = 0
-    signum _               = -1
+    signum x | x > fromInteger 0       = fromInteger 1
+             | x == fromInteger 0      = fromInteger 0
+             | otherwise   = negate (fromInteger 1)
     fromInteger i          = I64# (integerToInt64 i)
 
 instance Enum Int64 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Int64"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Int64"
     toEnum (I# i#)      = I64# (intToInt64# i#)
     fromEnum x@(I64# x#)
@@ -583,37 +589,37 @@ instance Enum Int64 where
 
 instance Integral Int64 where
     quot    x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I64# (x# `quotInt64#` y#)
     rem       (I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- The quotRem CPU instruction fails for minBound `quotRem` -1,
           -- but minBound `rem` -1 is well-defined (0). We therefore
           -- special-case it.
-        | y == (-1)                  = 0
+        | y == negate (fromInteger 1)                  = fromInteger 0
         | otherwise                  = I64# (x# `remInt64#` y#)
     div     x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I64# (x# `divInt64#` y#)
     mod       (I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- The divMod CPU instruction fails for minBound `divMod` -1,
           -- but minBound `mod` -1 is well-defined (0). We therefore
           -- special-case it.
-        | y == (-1)                  = 0
+        | y == negate (fromInteger 1)                  = fromInteger 0
         | otherwise                  = I64# (x# `modInt64#` y#)
     quotRem x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = (I64# (x# `quotInt64#` y#),
                                         I64# (x# `remInt64#` y#))
     divMod  x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = (I64# (x# `divInt64#` y#),
                                         I64# (x# `modInt64#` y#))
     toInteger (I64# x)               = int64ToInteger x
@@ -642,8 +648,10 @@ x# `modInt64#` y#
     !zero = intToInt64# 0#
     !r# = x# `remInt64#` y#
 
+{-
 instance Read Int64 where
     readsPrec p s = [(fromInteger x, r) | (x, r) <- readsPrec p s]
+-}
 
 instance Bits Int64 where
     {-# INLINE shift #-}
@@ -721,19 +729,19 @@ instance Num Int64 where
     (I64# x#) - (I64# y#)  = I64# (x# -# y#)
     (I64# x#) * (I64# y#)  = I64# (x# *# y#)
     negate (I64# x#)       = I64# (negateInt# x#)
-    abs x | x >= 0         = x
+    abs x | x >= fromInteger 0         = x
           | otherwise      = negate x
-    signum x | x > 0       = 1
-    signum 0               = 0
-    signum _               = -1
+    signum x | x > fromInteger 0       = fromInteger 1
+             | x == fromInteger 0      = fromInteger 0
+             | otherwise   = negate (fromInteger 1)
     fromInteger i          = I64# (integerToInt i)
 
 instance Enum Int64 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Int64"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Int64"
     toEnum (I# i#)      = I64# i#
     fromEnum (I64# x#)  = I# x#
@@ -742,45 +750,47 @@ instance Enum Int64 where
 
 instance Integral Int64 where
     quot    x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I64# (x# `quotInt#` y#)
     rem       (I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- The quotRem CPU instruction fails for minBound `quotRem` -1,
           -- but minBound `rem` -1 is well-defined (0). We therefore
           -- special-case it.
-        | y == (-1)                  = 0
+        | y == negate (fromInteger 1)                  = fromInteger 0
         | otherwise                  = I64# (x# `remInt#` y#)
     div     x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
-        | y == (-1) && x == minBound = overflowError -- Note [Order of tests]
+        | y == fromInteger 0                     = divZeroError
+        | y == negate (fromInteger 1) && x == minBound = overflowError -- Note [Order of tests]
         | otherwise                  = I64# (x# `divInt#` y#)
     mod       (I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- The divMod CPU instruction fails for minBound `divMod` -1,
           -- but minBound `mod` -1 is well-defined (0). We therefore
           -- special-case it.
-        | y == (-1)                  = 0
+        | y == negate (fromInteger 1)                  = fromInteger 0
         | otherwise                  = I64# (x# `modInt#` y#)
     quotRem x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = case x# `quotRemInt#` y# of
                                        (# q, r #) ->
                                            (I64# q, I64# r)
     divMod  x@(I64# x#) y@(I64# y#)
-        | y == 0                     = divZeroError
+        | y == fromInteger 0                     = divZeroError
           -- Note [Order of tests]
-        | y == (-1) && x == minBound = (overflowError, 0)
+        | y == negate (fromInteger 1) && x == minBound = (overflowError, fromInteger 0)
         | otherwise                  = case x# `divModInt#` y# of
                                        (# d, m #) ->
                                            (I64# d, I64# m)
     toInteger (I64# x#)              = smallInteger x#
 
+{-
 instance Read Int64 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
+-}
 
 instance Bits Int64 where
     {-# INLINE shift #-}
@@ -856,14 +866,14 @@ uncheckedIShiftRA64# = uncheckedIShiftRA#
 #endif
 
 instance Real Int64 where
-    toRational x = toInteger x % 1
+    toRational x = toInteger x % fromInteger 1
 
 instance Bounded Int64 where
-    minBound = -0x8000000000000000
-    maxBound =  0x7FFFFFFFFFFFFFFF
+    minBound = negate (fromInteger 0x8000000000000000)
+    maxBound = fromInteger 0x7FFFFFFFFFFFFFFF
 
 instance Ix Int64 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral i - fromIntegral m
     inRange (m,n) i     = m <= i && i <= n
 
