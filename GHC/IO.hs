@@ -347,7 +347,9 @@ data MaskingState
       -- ^ the state during 'mask': asynchronous exceptions are masked, but blocking operations may still be interrupted
   | MaskedUninterruptible
       -- ^ the state during 'uninterruptibleMask': asynchronous exceptions are masked, and blocking operations may not be interrupted
- deriving (Eq,Show)
+ deriving (Eq)
+
+instance Show MaskingState
 
 -- | Returns the 'MaskingState' for the current thread.
 getMaskingState :: IO MaskingState
@@ -486,4 +488,31 @@ a `finally` sequel =
 --
 evaluate :: a -> IO a
 evaluate a = IO $ \s -> seq# a s -- NB. see #2273, #5129
+
+
+-- @Functor@ and @Monad@ instances for @IO@
+
+instance  Functor IO where
+   fmap f x = x >>= (return . f)
+
+instance  Monad IO  where
+    {-# INLINE return #-}
+    {-# INLINE (>>)   #-}
+    {-# INLINE (>>=)  #-}
+    m >> k    = m >>= \ _ -> k
+    return    = returnIO
+    (>>=)     = bindIO
+    fail s    = failIO s
+
+returnIO :: a -> IO a
+returnIO x = IO $ \ s -> (# s, x #)
+
+bindIO :: IO a -> (a -> IO b) -> IO b
+bindIO (IO m) k = IO $ \ s -> case m s of (# new_s, a #) -> unIO (k a) new_s
+
+thenIO :: IO a -> IO b -> IO b
+thenIO (IO m) k = IO $ \ s -> case m s of (# new_s, _ #) -> unIO k new_s
+
+unIO :: IO a -> (State# RealWorld -> (# State# RealWorld, a #))
+unIO (IO a) = a
 

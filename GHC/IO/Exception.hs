@@ -41,7 +41,7 @@ import GHC.Base
 import GHC.List
 import GHC.IO
 import GHC.Show
-import GHC.Read
+--import GHC.Read
 import GHC.Exception
 import Data.Maybe
 import GHC.IO.Handle.Types
@@ -55,7 +55,8 @@ import Data.Typeable     ( Typeable )
 -- |The thread is blocked on an @MVar@, but there are no other references
 -- to the @MVar@ so it can't ever continue.
 data BlockedIndefinitelyOnMVar = BlockedIndefinitelyOnMVar
-    deriving Typeable
+
+instance Typeable BlockedIndefinitelyOnMVar
 
 instance Exception BlockedIndefinitelyOnMVar
 
@@ -70,7 +71,7 @@ blockedIndefinitelyOnMVar = toException BlockedIndefinitelyOnMVar
 -- |The thread is waiting to retry an STM transaction, but there are no
 -- other references to any @TVar@s involved, so it can't ever continue.
 data BlockedIndefinitelyOnSTM = BlockedIndefinitelyOnSTM
-    deriving Typeable
+instance Typeable BlockedIndefinitelyOnSTM
 
 instance Exception BlockedIndefinitelyOnSTM
 
@@ -85,7 +86,7 @@ blockedIndefinitelyOnSTM = toException BlockedIndefinitelyOnSTM
 -- |There are no runnable threads, so the program is deadlocked.
 -- The @Deadlock@ exception is raised in the main thread only.
 data Deadlock = Deadlock
-    deriving Typeable
+instance Typeable Deadlock
 
 instance Exception Deadlock
 
@@ -96,7 +97,7 @@ instance Show Deadlock where
 
 -- |'assert' was applied to 'False'.
 data AssertionFailed = AssertionFailed String
-    deriving Typeable
+instance Typeable AssertionFailed
 
 instance Exception AssertionFailed
 
@@ -130,7 +131,7 @@ data AsyncException
         -- ^This exception is raised by default in the main thread of
         -- the program when the user requests to terminate the program
         -- via the usual mechanism(s) (e.g. Control-C in the console).
-  deriving (Eq, Ord, Typeable)
+instance Typeable AsyncException
 
 instance Exception AsyncException
 
@@ -142,7 +143,8 @@ data ArrayException
   | UndefinedElement    String
         -- ^An attempt was made to evaluate an element of an
         -- array that had not been initialized.
-  deriving (Eq, Ord, Typeable)
+  deriving (Eq, Ord)
+instance Typeable ArrayException
 
 instance Exception ArrayException
 
@@ -180,7 +182,9 @@ data ExitCode
                 -- The exact interpretation of the code is
                 -- operating-system dependent.  In particular, some values
                 -- may be prohibited (e.g. 0 on a POSIX-compliant system).
-  deriving (Eq, Ord, Read, Show, Typeable)
+  deriving (Eq, Ord)
+instance Typeable ExitCode
+instance Show ExitCode
 
 instance Exception ExitCode
 
@@ -216,7 +220,7 @@ data IOException
      ioe_errno    :: Maybe CInt,     -- errno leading to this error, if any.
      ioe_filename :: Maybe FilePath  -- filename the error is related to.
    }
-    deriving Typeable
+instance Typeable IOException
 
 instance Exception IOException
 

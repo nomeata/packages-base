@@ -62,10 +62,11 @@ module Foreign.Ptr (
 import GHC.Ptr
 import GHC.Base
 import GHC.Num
-import GHC.Read
+--import GHC.Read
 import GHC.Real
 import GHC.Show
 import GHC.Enum
+import GHC.Err
 #else
 import Control.Monad    ( liftM )
 import Foreign.C.Types
@@ -101,8 +102,10 @@ import Hugs.Ptr
 -- must have been obtained from a wrapper stub.  This should be called
 -- whenever the return value from a foreign import wrapper function is
 -- no longer required; otherwise, the storage it uses will leak.
-foreign import ccall unsafe "freeHaskellFunctionPtr"
-    freeHaskellFunPtr :: FunPtr a -> IO ()
+freeHaskellFunPtr :: FunPtr a -> IO ()
+freeHaskellFunPtr = undefined
+--foreign import ccall unsafe "freeHaskellFunctionPtr"
+--    freeHaskellFunPtr :: FunPtr a -> IO ()
 #endif
 
 #ifndef __NHC__

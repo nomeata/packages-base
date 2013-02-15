@@ -53,6 +53,7 @@ import GHC.Word
 import GHC.Ptr
 import GHC.Err
 import GHC.Base
+import GHC.IO
 import GHC.Fingerprint.Type
 import Data.Bits
 import GHC.Real
@@ -183,8 +184,8 @@ sizeOfPtr px x = sizeOf x
 instance Storable Bool where
    sizeOf _          = sizeOf (undefined::HTYPE_INT)
    alignment _       = alignment (undefined::HTYPE_INT)
-   peekElemOff p i   = liftM (/= (0::HTYPE_INT)) $ peekElemOff (castPtr p) i
-   pokeElemOff p i x = pokeElemOff (castPtr p) i (if x then 1 else 0::HTYPE_INT)
+   peekElemOff p i   = liftM (/= (fromInteger 0::HTYPE_INT)) $ peekElemOff (castPtr p) i
+   pokeElemOff p i x = pokeElemOff (castPtr p) i (if x then fromInteger 1 else fromInteger 0::HTYPE_INT)
 
 #define STORABLE(T,size,align,read,write)       \
 instance Storable (T) where {                   \
@@ -260,7 +261,7 @@ instance Storable Fingerprint where
 
 -- peek/poke in fixed BIG-endian 128-bit format
 peekFingerprint :: Ptr Fingerprint -> IO Fingerprint
-peekFingerprint p0 = do
+peekFingerprint p0 = undefined {- do
       let peekW64 :: Ptr Word8 -> Int -> Word64 -> IO Word64
           peekW64 _  0  !i = return i
           peekW64 !p !n !i = do
@@ -271,9 +272,10 @@ peekFingerprint p0 = do
       high <- peekW64 (castPtr p0) 8 0
       low  <- peekW64 (castPtr p0 `plusPtr` 8) 8 0
       return (Fingerprint high low)
+-}
 
 pokeFingerprint :: Ptr Fingerprint -> Fingerprint -> IO ()
-pokeFingerprint p0 (Fingerprint high low) = do
+pokeFingerprint = undefined {- p0 (Fingerprint high low) = do
       let pokeW64 :: Ptr Word8 -> Int -> Word64 -> IO ()
           pokeW64 _ 0  _  = return ()
           pokeW64 p !n !i = do
@@ -282,5 +284,6 @@ pokeFingerprint p0 (Fingerprint high low) = do
 
       pokeW64 (castPtr p0) 8 high
       pokeW64 (castPtr p0 `plusPtr` 8) 8 low
+-}
 #endif
 

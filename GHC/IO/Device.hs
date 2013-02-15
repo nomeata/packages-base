@@ -25,9 +25,9 @@ module GHC.IO.Device (
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
 import GHC.Word
-import GHC.Arr
+--import GHC.Arr
 import GHC.Enum
-import GHC.Read
+--import GHC.Read
 import GHC.Show
 import GHC.Ptr
 import Data.Maybe
@@ -175,5 +175,8 @@ data SeekMode
                         -- from the current position.
   | SeekFromEnd         -- ^ the position of @hdl@ is set to offset @i@
                         -- from the end of the file.
-    deriving (Eq, Ord, Ix, Enum, Read, Show)
+    deriving (Eq, Ord)
+
+instance Enum SeekMode
+instance Show SeekMode
 

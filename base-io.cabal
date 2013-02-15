@@ -1,0 +1,46 @@
+name:           base-io
+version:        4.6.0.1
+license:        BSD3
+license-file:   LICENSE
+maintainer:     libraries@haskell.org
+bug-reports: http://hackage.haskell.org/trac/ghc/newticket?component=libraries/base
+synopsis:       Basic libraries
+description:
+    This package contains the Prelude and its support libraries,
+    and a large collection of useful libraries ranging from data
+    structures to parsing combinators and debugging utilities.
+cabal-version:  >=1.6
+build-type: Simple
+
+source-repository head
+    type:     git
+    location: http://darcs.haskell.org/packages/base.git/
+
+Library {
+    build-depends: rts, ghc-prim, base-pure
+    exposed-modules:
+        Foreign.C.Types,
+        Foreign.ForeignPtr,
+        Foreign.ForeignPtr.Imp,
+        Foreign.ForeignPtr.Safe,
+        Foreign.ForeignPtr.Unsafe,
+        Foreign.Ptr,
+        Foreign.Storable,
+        GHC.ForeignPtr,
+        GHC.IO.BufferedIO,
+        GHC.IO.Buffer,
+        GHC.IO.Device,
+        GHC.IO.Encoding.Types,
+        GHC.IO.Exception,
+        GHC.IO.Handle.Types,
+        GHC.IO,
+        GHC.IORef,
+        GHC.MVar,
+        GHC.Ptr,
+        GHC.Stable,
+        GHC.ST,
+        GHC.Storable,
+        GHC.STRef
+    include-dirs: include
+
+}

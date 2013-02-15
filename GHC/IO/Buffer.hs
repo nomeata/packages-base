@@ -68,6 +68,7 @@ import GHC.Ptr
 import GHC.Word
 import GHC.Show
 import GHC.Real
+import GHC.Err
 import Foreign.C.Types
 import Foreign.ForeignPtr
 import Foreign.Storable
@@ -260,8 +261,10 @@ slideContents buf@Buffer{ bufL=l, bufR=r, bufRaw=raw } = do
          return ()
   return buf{ bufL=0, bufR=elems }
 
-foreign import ccall unsafe "memcpy"
-   memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr ())
+memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr ())
+memcpy = undefined
+--foreign import ccall unsafe "memcpy"
+--   memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr ())
 
 summaryBuffer :: Buffer a -> String
 summaryBuffer buf = "buf" ++ show (bufSize buf) ++ "(" ++ show (bufL buf) ++ "-" ++ show (bufR buf) ++ ")"

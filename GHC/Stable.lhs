@@ -33,6 +33,7 @@ module GHC.Stable (
 
 import GHC.Ptr
 import GHC.Base
+import GHC.Err
 
 -----------------------------------------------------------------------------
 -- Stable Pointers
@@ -77,7 +78,10 @@ deRefStablePtr (StablePtr sp) = IO $ \s -> deRefStablePtr# sp s
 -- it may be 'Foreign.Ptr.nullPtr').  Nevertheless, the call
 -- to 'castStablePtrToPtr' is guaranteed not to diverge.
 --
-foreign import ccall unsafe "hs_free_stable_ptr" freeStablePtr :: StablePtr a -> IO ()
+
+freeStablePtr :: StablePtr a -> IO ()
+freeStablePtr = undefined
+--foreign import ccall unsafe "hs_free_stable_ptr" freeStablePtr :: StablePtr a -> IO ()
 
 -- |
 -- Coerce a stable pointer to an address. No guarantees are made about
