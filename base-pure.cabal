@@ -18,7 +18,7 @@ Library {
         build-depends: integer-simple
     else
         build-depends: integer-gmp
-    cpp-options: -DOPTIMISE_INTEGER_GCD_LCM
+        cpp-options: -DOPTIMISE_INTEGER_GCD_LCM
     build-depends: ghc-prim
     exposed-modules:
         Control.Applicative,
