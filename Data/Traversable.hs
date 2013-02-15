@@ -1,5 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -42,7 +43,6 @@ module Data.Traversable (
     foldMapDefault,
     ) where
 
-import Prelude hiding (mapM, sequence, foldr)
 import qualified Data.List (foldr)
 import Control.Applicative
 import qualified Control.Monad (mapM)

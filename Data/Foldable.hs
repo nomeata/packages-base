@@ -1,5 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -58,7 +59,7 @@ module Data.Foldable (
     find
     ) where
 
-import Prelude
+import Data.Function
 import GHC.Base hiding (foldl, foldr, foldl1, foldr1, mapM_, sequence_,
                 elem, notElem, concat, concatMap, and, or, any, all,
                 sum, product, maximum, minimum)

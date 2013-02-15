@@ -24,6 +24,7 @@ Library {
         Control.Applicative,
         Control.Arrow,
         Control.Category,
+        Control.Monad.Fix,
         Control.Monad,
         Data.Bits,
         Data.Bool,
@@ -39,7 +40,23 @@ Library {
         Data.Ord,
         Data.Ratio,
         Data.Traversable,
-        Data.Tuple
+        Data.Tuple,
+        Data.Typeable,
+        Data.Typeable.Internal,
+        GHC.Base,
+        GHC.Char,
+        GHC.Enum,
+        GHC.Err,
+        GHC.Exception,
+        GHC.Fingerprint,
+        GHC.Fingerprint.Type,
+        GHC.Int,
+        GHC.List,
+        GHC.Num,
+        GHC.Real,
+        GHC.Show,
+        GHC.Word,
+        Unsafe.Coerce
     include-dirs: include
 }
 
