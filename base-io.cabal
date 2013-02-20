@@ -24,7 +24,9 @@ Library {
         GHC.ST,
         GHC.STRef
         GHC.IORef,
+        GHC.Weak
         System.IO.Unsafe
+        Data.IORef
     include-dirs: include
 
 }
