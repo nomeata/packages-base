@@ -1,4 +1,4 @@
-name:           base-io
+name:           base-io-file
 version:        4.6.0.1
 license:        BSD3
 license-file:   LICENSE
@@ -17,7 +17,7 @@ source-repository head
     location: http://darcs.haskell.org/packages/base.git/
 
 Library {
-    build-depends: rts, ghc-prim, base-pure
+    build-depends: rts, ghc-prim, base-pure, base-io
     exposed-modules:
         Foreign.C.Types,
         Foreign.ForeignPtr,
@@ -33,14 +33,10 @@ Library {
         GHC.IO.Encoding.Types,
         GHC.IO.Exception,
         GHC.IO.Handle.Types,
-        GHC.IO,
-        GHC.IORef,
         GHC.MVar,
         GHC.Ptr,
         GHC.Stable,
-        GHC.ST,
-        GHC.Storable,
-        GHC.STRef
+        GHC.Storable
     include-dirs: include
 
 }

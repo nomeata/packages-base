@@ -45,9 +45,10 @@ import GHC.Show
 import GHC.Exception
 import Data.Maybe
 import GHC.IO.Handle.Types
+import GHC.IO.Fail
 import Foreign.C.Types
 
-import Data.Typeable     ( Typeable )
+import Data.Typeable     ( Typeable, cast )
 
 -- ------------------------------------------------------------------------
 -- Exception datatypes and operations
@@ -222,7 +223,11 @@ data IOException
    }
 instance Typeable IOException
 
-instance Exception IOException
+instance Exception IOException where
+    toException = SomeException
+    fromException e = case cast e of
+        Just (IOFail s) -> Just (userError s)
+        Nothing -> cast e
 
 instance Eq IOException where
   (IOError h1 e1 loc1 str1 en1 fn1) == (IOError h2 e2 loc2 str2 en2 fn2) = 
