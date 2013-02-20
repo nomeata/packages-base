@@ -19,10 +19,12 @@ source-repository head
 Library {
     build-depends: rts, ghc-prim, base-pure
     exposed-modules:
+        GHC.IO.Fail,
         GHC.IO,
-        GHC.IORef,
         GHC.ST,
         GHC.STRef
+        GHC.IORef,
+        System.IO.Unsafe
     include-dirs: include
 
 }
