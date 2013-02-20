@@ -46,8 +46,7 @@ import GHC.ST
 import GHC.Exception
 import GHC.Show
 import Data.Maybe
-
-import {-# SOURCE #-} GHC.IO.Exception ( userError )
+import GHC.IO.Fail
 
 -- ---------------------------------------------------------------------------
 -- The IO Monad
@@ -79,7 +78,7 @@ liftIO :: IO a -> State# RealWorld -> STret RealWorld a
 liftIO (IO m) = \s -> case m s of (# s', r #) -> STret s' r
 
 failIO :: String -> IO a
-failIO s = IO (raiseIO# (toException (userError s)))
+failIO s = IO (raiseIO# (toException (IOFail s)))
 
 -- ---------------------------------------------------------------------------
 -- Coercions between IO and ST

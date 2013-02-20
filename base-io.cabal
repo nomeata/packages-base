@@ -19,27 +19,9 @@ source-repository head
 Library {
     build-depends: rts, ghc-prim, base-pure
     exposed-modules:
-        Foreign.C.Types,
-        Foreign.ForeignPtr,
-        Foreign.ForeignPtr.Imp,
-        Foreign.ForeignPtr.Safe,
-        Foreign.ForeignPtr.Unsafe,
-        Foreign.Ptr,
-        Foreign.Storable,
-        GHC.ForeignPtr,
-        GHC.IO.BufferedIO,
-        GHC.IO.Buffer,
-        GHC.IO.Device,
-        GHC.IO.Encoding.Types,
-        GHC.IO.Exception,
-        GHC.IO.Handle.Types,
         GHC.IO,
         GHC.IORef,
-        GHC.MVar,
-        GHC.Ptr,
-        GHC.Stable,
         GHC.ST,
-        GHC.Storable,
         GHC.STRef
     include-dirs: include
 
