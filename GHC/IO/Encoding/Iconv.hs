@@ -44,7 +44,7 @@ import GHC.Num
 import GHC.Show
 import GHC.Real
 import System.IO.Unsafe (unsafePerformIO)
-import System.Posix.Internals
+--import System.Posix.Internals
 
 c_DEBUG_DUMP :: Bool
 c_DEBUG_DUMP = False

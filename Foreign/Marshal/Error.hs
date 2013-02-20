@@ -39,7 +39,8 @@ import System.IO.Error
 #endif
 import GHC.Base
 import GHC.Num
-import GHC.IO.Exception
+import GHC.IO
+--import GHC.IO.Exception
 #endif
 
 -- exported functions
@@ -57,7 +58,7 @@ throwIf :: (a -> Bool)  -- ^ error condition on the result of the 'IO' action
 throwIf pred msgfct act  = 
   do
     res <- act
-    (if pred res then ioError . userError . msgfct else return) res
+    (if pred res then failIO . msgfct else return) res
 
 -- |Like 'throwIf', but discarding the result
 --
@@ -67,12 +68,12 @@ throwIf_ pred msgfct act  = void $ throwIf pred msgfct act
 -- |Guards against negative result values
 --
 throwIfNeg :: (Ord a, Num a) => (a -> String) -> IO a -> IO a
-throwIfNeg  = throwIf (< 0)
+throwIfNeg  = throwIf (< fromInteger 0)
 
 -- |Like 'throwIfNeg', but discarding the result
 --
 throwIfNeg_ :: (Ord a, Num a) => (a -> String) -> IO a -> IO ()
-throwIfNeg_  = throwIf_ (< 0)
+throwIfNeg_  = throwIf_ (< fromInteger 0)
 
 -- |Guards against null pointers
 --

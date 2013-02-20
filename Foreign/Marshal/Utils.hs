@@ -58,6 +58,7 @@ import Foreign.Marshal.Alloc    ( malloc, alloca )
 import GHC.Real                 ( fromIntegral )
 import GHC.Num
 import GHC.Base
+import GHC.Err
 #endif
 
 #ifdef __NHC__
@@ -103,13 +104,13 @@ with val f  =
 -- |Convert a Haskell 'Bool' to its numeric representation
 --
 fromBool       :: Num a => Bool -> a
-fromBool False  = 0
-fromBool True   = 1
+fromBool False  = fromInteger 0
+fromBool True   = fromInteger 1
 
 -- |Convert a Boolean in numeric representation to a Haskell value
 --
 toBool :: (Eq a, Num a) => a -> Bool
-toBool  = (/= 0)
+toBool  = (/= fromInteger 0)
 
 
 -- marshalling of Maybe values
@@ -176,6 +177,10 @@ moveBytes dest src size  = do _ <- memmove dest src (fromIntegral size)
 
 -- |Basic C routines needed for memory copying
 --
-foreign import ccall unsafe "string.h" memcpy  :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
-foreign import ccall unsafe "string.h" memmove :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+--foreign import ccall unsafe "string.h" memcpy  :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+memcpy  :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+memcpy = undefined
+--foreign import ccall unsafe "string.h" memmove :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+memmove :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+memmove = undefined
 

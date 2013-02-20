@@ -138,9 +138,9 @@ utf8_bom_encode ref input
                     utf8_encode input output{ bufR = ow+3 }
 
 bom0, bom1, bom2 :: Word8
-bom0 = 0xef
-bom1 = 0xbb
-bom2 = 0xbf
+bom0 = (fromInteger 0xef)
+bom1 = (fromInteger 0xbb)
+bom2 = (fromInteger 0xbf)
 
 utf8_decode :: DecodeBuffer
 utf8_decode 
@@ -153,22 +153,22 @@ utf8_decode
          | otherwise = do
               c0 <- readWord8Buf iraw ir
               case c0 of
-                _ | c0 <= 0x7f -> do 
+                _ | c0 <= (fromInteger 0x7f) -> do 
                            ow' <- writeCharBuf oraw ow (unsafeChr (fromIntegral c0))
                            loop (ir+1) ow'
-                  | c0 >= 0xc0 && c0 <= 0xdf ->
+                  | c0 >= (fromInteger 0xc0) && c0 <= (fromInteger 0xdf) ->
                            if iw - ir < 2 then done InputUnderflow ir ow else do
                            c1 <- readWord8Buf iraw (ir+1)
-                           if (c1 < 0x80 || c1 >= 0xc0) then invalid else do
+                           if (c1 < (fromInteger 0x80) || c1 >= (fromInteger 0xc0)) then invalid else do
                            ow' <- writeCharBuf oraw ow (chr2 c0 c1)
                            loop (ir+2) ow'
-                  | c0 >= 0xe0 && c0 <= 0xef ->
+                  | c0 >= (fromInteger 0xe0) && c0 <= (fromInteger 0xef) ->
                       case iw - ir of
                         1 -> done InputUnderflow ir ow
                         2 -> do -- check for an error even when we don't have
                                 -- the full sequence yet (#3341)
                            c1 <- readWord8Buf iraw (ir+1)
-                           if not (validate3 c0 c1 0x80) 
+                           if not (validate3 c0 c1 (fromInteger 0x80)) 
                               then invalid else done InputUnderflow ir ow
                         _ -> do
                            c1 <- readWord8Buf iraw (ir+1)
@@ -176,18 +176,18 @@ utf8_decode
                            if not (validate3 c0 c1 c2) then invalid else do
                            ow' <- writeCharBuf oraw ow (chr3 c0 c1 c2)
                            loop (ir+3) ow'
-                  | c0 >= 0xf0 ->
+                  | c0 >= (fromInteger 0xf0) ->
                       case iw - ir of
                         1 -> done InputUnderflow ir ow
                         2 -> do -- check for an error even when we don't have
                                 -- the full sequence yet (#3341)
                            c1 <- readWord8Buf iraw (ir+1)
-                           if not (validate4 c0 c1 0x80 0x80)
+                           if not (validate4 c0 c1 (fromInteger 0x80) (fromInteger 0x80))
                               then invalid else done InputUnderflow ir ow
                         3 -> do
                            c1 <- readWord8Buf iraw (ir+1)
                            c2 <- readWord8Buf iraw (ir+2)
-                           if not (validate4 c0 c1 c2 0x80)
+                           if not (validate4 c0 c1 c2 (fromInteger 0x80))
                               then invalid else done InputUnderflow ir ow
                         _ -> do
                            c1 <- readWord8Buf iraw (ir+1)
@@ -326,18 +326,18 @@ validate3 x1 x2 x3 = validate3_1 ||
                      validate3_3 ||
                      validate3_4
   where
-    validate3_1 = (x1 == 0xE0) &&
-                  between x2 0xA0 0xBF &&
-                  between x3 0x80 0xBF
-    validate3_2 = between x1 0xE1 0xEC &&
-                  between x2 0x80 0xBF &&
-                  between x3 0x80 0xBF
-    validate3_3 = x1 == 0xED &&
-                  between x2 0x80 0x9F &&
-                  between x3 0x80 0xBF
-    validate3_4 = between x1 0xEE 0xEF &&
-                  between x2 0x80 0xBF &&
-                  between x3 0x80 0xBF
+    validate3_1 = (x1 == (fromInteger 0xE0)) &&
+                  between x2 (fromInteger 0xA0) (fromInteger 0xBF) &&
+                  between x3 (fromInteger 0x80) (fromInteger 0xBF)
+    validate3_2 = between x1 (fromInteger 0xE1) (fromInteger 0xEC) &&
+                  between x2 (fromInteger 0x80) (fromInteger 0xBF) &&
+                  between x3 (fromInteger 0x80) (fromInteger 0xBF)
+    validate3_3 = x1 == (fromInteger 0xED) &&
+                  between x2 (fromInteger 0x80) (fromInteger 0x9F) &&
+                  between x3 (fromInteger 0x80) (fromInteger 0xBF)
+    validate3_4 = between x1 (fromInteger 0xEE) (fromInteger 0xEF) &&
+                  between x2 (fromInteger 0x80) (fromInteger 0xBF) &&
+                  between x3 (fromInteger 0x80) (fromInteger 0xBF)
 
 validate4             :: Word8 -> Word8 -> Word8 -> Word8 -> Bool
 {-# INLINE validate4 #-}
@@ -345,16 +345,16 @@ validate4 x1 x2 x3 x4 = validate4_1 ||
                         validate4_2 ||
                         validate4_3
   where 
-    validate4_1 = x1 == 0xF0 &&
-                  between x2 0x90 0xBF &&
-                  between x3 0x80 0xBF &&
-                  between x4 0x80 0xBF
-    validate4_2 = between x1 0xF1 0xF3 &&
-                  between x2 0x80 0xBF &&
-                  between x3 0x80 0xBF &&
-                  between x4 0x80 0xBF
-    validate4_3 = x1 == 0xF4 &&
-                  between x2 0x80 0x8F &&
-                  between x3 0x80 0xBF &&
-                  between x4 0x80 0xBF
+    validate4_1 = x1 == (fromInteger 0xF0) &&
+                  between x2 (fromInteger 0x90) (fromInteger 0xBF) &&
+                  between x3 (fromInteger 0x80) (fromInteger 0xBF) &&
+                  between x4 (fromInteger 0x80) (fromInteger 0xBF)
+    validate4_2 = between x1 (fromInteger 0xF1) (fromInteger 0xF3) &&
+                  between x2 (fromInteger 0x80) (fromInteger 0xBF) &&
+                  between x3 (fromInteger 0x80) (fromInteger 0xBF) &&
+                  between x4 (fromInteger 0x80) (fromInteger 0xBF)
+    validate4_3 = x1 == (fromInteger 0xF4) &&
+                  between x2 (fromInteger 0x80) (fromInteger 0x8F) &&
+                  between x3 (fromInteger 0x80) (fromInteger 0xBF) &&
+                  between x4 (fromInteger 0x80) (fromInteger 0xBF)
 

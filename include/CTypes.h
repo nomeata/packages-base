@@ -47,8 +47,8 @@ INSTANCE_REALFLOAT(T)
 #endif
 
 #define INSTANCE_READ(T,B) \
-instance Read T where { \
-   readsPrec p s = fakeMap (\(x, t) -> (T x, t)) (readsPrec p s) }
+--instance Read T where { \
+--   readsPrec p s = fakeMap (\(x, t) -> (T x, t)) (readsPrec p s) }
 
 #define INSTANCE_SHOW(T,B) \
 instance Show T where { \
@@ -205,9 +205,9 @@ INSTANCE_SHOW(T,B); \
 INSTANCE_TYPEABLE0(T,C,S) ;
 
 #define INSTANCE_READ(T,B) \
-instance Read T where { \
-   readsPrec            = unsafeCoerce# (readsPrec :: Int -> ReadS B); \
-   readList             = unsafeCoerce# (readList  :: ReadS [B]); }
+--instance Read T where { \
+--   readsPrec            = unsafeCoerce# (readsPrec :: Int -> ReadS B); \
+--   readList             = unsafeCoerce# (readList  :: ReadS [B]); }
 
 #define INSTANCE_SHOW(T,B) \
 instance Show T where { \

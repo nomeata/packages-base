@@ -71,11 +71,15 @@ import Foreign.Ptr              ( Ptr, nullPtr, FunPtr )
 
 #ifdef __GLASGOW_HASKELL__
 import Foreign.ForeignPtr       ( FinalizerPtr )
-import GHC.IO.Exception
+--import GHC.IO.Exception
 import GHC.Real
 import GHC.Ptr
 import GHC.Err
 import GHC.Base
+import GHC.Exception
+import Data.Typeable
+import GHC.Show
+import GHC.IO
 #elif defined(__NHC__)
 import NHC.FFI                  ( FinalizerPtr, CInt(..) )
 import IO                       ( bracket )
@@ -217,6 +221,13 @@ free  = _free
 -- auxilliary routines
 -- -------------------
 
+data OOMException = OOMException String
+
+instance Typeable OOMException
+instance Show OOMException
+instance Exception OOMException
+
+
 -- asserts that the pointer returned from the action in the second argument is
 -- non-null
 --
@@ -224,25 +235,25 @@ failWhenNULL :: String -> IO (Ptr a) -> IO (Ptr a)
 failWhenNULL name f = do
    addr <- f
    if addr == nullPtr
-#if __GLASGOW_HASKELL__
-      then ioError (IOError Nothing ResourceExhausted name 
-                                        "out of memory" Nothing Nothing)
-#elif __HUGS__
-      then ioError (IOError Nothing ResourceExhausted name 
-                                        "out of memory" Nothing)
-#else
-      then ioError (userError (name++": out of memory"))
-#endif
+      then throwIO (OOMException name)
       else return addr
 
 -- basic C routines needed for memory allocation
 --
-foreign import ccall unsafe "stdlib.h malloc"  _malloc  ::          CSize -> IO (Ptr a)
-foreign import ccall unsafe "stdlib.h realloc" _realloc :: Ptr a -> CSize -> IO (Ptr b)
-foreign import ccall unsafe "stdlib.h free"    _free    :: Ptr a -> IO ()
+--foreign import ccall unsafe "stdlib.h malloc"  _malloc  ::          CSize -> IO (Ptr a)
+--foreign import ccall unsafe "stdlib.h realloc" _realloc :: Ptr a -> CSize -> IO (Ptr b)
+--foreign import ccall unsafe "stdlib.h free"    _free    :: Ptr a -> IO ()
+_malloc  ::          CSize -> IO (Ptr a)
+_malloc = undefined
+_realloc :: Ptr a -> CSize -> IO (Ptr b)
+_realloc = undefined
+_free    :: Ptr a -> IO ()
+_free    = undefined
 
 -- | A pointer to a foreign function equivalent to 'free', which may be
 -- used as a finalizer (cf 'Foreign.ForeignPtr.ForeignPtr') for storage
 -- allocated with 'malloc', 'mallocBytes', 'realloc' or 'reallocBytes'.
-foreign import ccall unsafe "stdlib.h &free" finalizerFree :: FinalizerPtr a
+--foreign import ccall unsafe "stdlib.h &free" finalizerFree :: FinalizerPtr a
+finalizerFree :: FinalizerPtr a
+finalizerFree = undefined
 

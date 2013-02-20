@@ -18,12 +18,13 @@
 module GHC.IO.Encoding.Failure (
     CodingFailureMode(..), codingFailureModeSuffix,
     isSurrogate,
-    recoverDecode, recoverEncode
+    recoverDecode, recoverEncode,
+    CodingError(..)
   ) where
 
 import GHC.IO
 import GHC.IO.Buffer
-import GHC.IO.Exception
+--import GHC.IO.Exception
 
 import GHC.Base
 import GHC.Char
@@ -31,6 +32,8 @@ import GHC.Word
 import GHC.Show
 import GHC.Num
 import GHC.Real ( fromIntegral )
+import GHC.Exception
+import Data.Typeable
 
 --import System.Posix.Internals
 
@@ -51,7 +54,8 @@ data CodingFailureMode
   | RoundtripFailure
        -- ^ Use the private-use escape mechanism to attempt to allow
        -- illegal sequences to be roundtripped.
-  deriving (Show)
+
+instance Show CodingFailureMode
        -- This will only work properly for those encodings which are
        -- strict supersets of ASCII in the sense that valid ASCII data
        -- is also valid in that encoding. This is not true for
@@ -131,16 +135,16 @@ isSurrogate c = (0xD800 <= x && x <= 0xDBFF)
 {-# INLINE escapeToRoundtripCharacterSurrogate #-}
 escapeToRoundtripCharacterSurrogate :: Word8 -> Char
 escapeToRoundtripCharacterSurrogate b
-  | b < 128   = chr (fromIntegral b)
+  | b < fromInteger 128   = chr (fromIntegral b)
       -- Disallow 'smuggling' of ASCII bytes. For roundtripping to
       -- work, this assumes encoding is ASCII-superset.
-  | otherwise = chr (0xDC00 + fromIntegral b)
+  | otherwise = chr (fromInteger 0xDC00 + fromIntegral b)
 
 -- Lone surrogates (in Buffer CharBufElem) --> bytes (in Buffer Word8)
 {-# INLINE unescapeRoundtripCharacterSurrogate #-}
 unescapeRoundtripCharacterSurrogate :: Char -> Maybe Word8
 unescapeRoundtripCharacterSurrogate c
-    | 0xDC80 <= x && x < 0xDD00 = Just (fromIntegral x) -- Discard high byte
+    | fromInteger 0xDC80 <= x && x < fromInteger 0xDD00 = Just (fromIntegral x) -- Discard high byte
     | otherwise                 = Nothing
   where x = ord c
 
@@ -193,13 +197,14 @@ recoverEncode cfm input@Buffer{  bufRaw=iraw, bufL=ir, bufR=_  }
         return (input { bufL=ir' }, output { bufR=ow+1 })
     _                          -> ioe_encodingError
 
+
+data CodingError = DecodingError | EncodingError
+instance Typeable CodingError
+instance Show CodingError
+instance Exception CodingError
+
 ioe_decodingError :: IO a
-ioe_decodingError = ioException
-    (IOError Nothing InvalidArgument "recoverDecode"
-        "invalid byte sequence" Nothing Nothing)
+ioe_decodingError = throwIO DecodingError
 
 ioe_encodingError :: IO a
-ioe_encodingError = ioException
-    (IOError Nothing InvalidArgument "recoverEncode"
-        "invalid character" Nothing Nothing)
-
+ioe_encodingError = throwIO EncodingError

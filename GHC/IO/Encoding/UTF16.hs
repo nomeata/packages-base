@@ -123,8 +123,8 @@ utf16_decode seen_bom
 
 
 bomB, bomL, bom1, bom2 :: Word8
-bomB = 0xfe
-bomL = 0xff
+bomB = fromInteger 0xfe
+bomL = fromInteger 0xff
 
 -- choose UTF-16BE by default for UTF-16 output
 utf16_native_decode :: DecodeBuffer
@@ -348,11 +348,11 @@ chr2 (W16# a#) (W16# b#) = C# (chr# (upper# +# lower# +# 0x10000#))
 {-# INLINE chr2 #-}
 
 validate1    :: Word16 -> Bool
-validate1 x1 = (x1 >= 0 && x1 < 0xD800) || x1 > 0xDFFF
+validate1 x1 = (x1 >= fromInteger 0 && x1 < fromInteger 0xD800) || x1 > fromInteger 0xDFFF
 {-# INLINE validate1 #-}
 
 validate2       ::  Word16 -> Word16 -> Bool
-validate2 x1 x2 = x1 >= 0xD800 && x1 <= 0xDBFF &&
-                  x2 >= 0xDC00 && x2 <= 0xDFFF
+validate2 x1 x2 = x1 >= fromInteger 0xD800 && x1 <= fromInteger 0xDBFF &&
+                  x2 >= fromInteger 0xDC00 && x2 <= fromInteger 0xDFFF
 {-# INLINE validate2 #-}
 

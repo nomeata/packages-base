@@ -65,7 +65,7 @@ module Foreign.C.Types
           -- 'Prelude.Show', 'Prelude.Enum', 'Typeable', 'Storable',
           -- 'Prelude.Real', 'Prelude.Fractional', 'Prelude.Floating',
           -- 'Prelude.RealFrac' and 'Prelude.RealFloat'.
-        , CFloat(..),   CDouble(..)
+        --, CFloat(..),   CDouble(..)
 -- GHC doesn't support CLDouble yet
 #ifndef __GLASGOW_HASKELL__
         , CLDouble(..)
@@ -82,17 +82,15 @@ import Foreign.Storable
 import Data.Bits        ( Bits(..) )
 import Data.Int         ( Int8,  Int16,  Int32,  Int64  )
 import Data.Word        ( Word8, Word16, Word32, Word64 )
-import {-# SOURCE #-} Data.Typeable
-  -- loop: Data.Typeable -> Data.List -> Data.Char -> GHC.Unicode
-  --            -> Foreign.C.Type
+import Data.Typeable
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
-import GHC.Float
+--import GHC.Float
 import GHC.Enum
 import GHC.Real
 import GHC.Show
-import GHC.Read
+--import GHC.Read
 import GHC.Num
 #else
 import Control.Monad    ( liftM )
@@ -158,6 +156,7 @@ INTEGRAL_TYPE(CULLong,tyConCULLong,"CULLong",HTYPE_UNSIGNED_LONG_LONG)
 "fromIntegral/CULLong->a" fromIntegral = \(CULLong x) -> fromIntegral x
  #-}
 
+{-
 -- | Haskell type representing the C @float@ type.
 FLOATING_TYPE(CFloat,tyConCFloat,"CFloat",HTYPE_FLOAT)
 -- | Haskell type representing the C @double@ type.
@@ -180,6 +179,7 @@ FLOATING_TYPE(CLDouble,tyConCLDouble,"CLDouble",HTYPE_DOUBLE)
 -- GHC doesn't support CLDouble yet
 -- "realToFrac/a->CLDouble"  realToFrac = \x -> CLDouble (realToFrac x)
 -- "realToFrac/CLDouble->a"  realToFrac = \(CLDouble x) -> realToFrac x
+-}
 
 -- | Haskell type representing the C @ptrdiff_t@ type.
 INTEGRAL_TYPE(CPtrdiff,tyConCPtrdiff,"CPtrdiff",HTYPE_PTRDIFF_T)

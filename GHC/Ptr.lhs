@@ -31,7 +31,7 @@ import GHC.Base
 import GHC.Show
 import GHC.Num
 import GHC.List ( length, replicate )
-import Numeric          ( showHex )
+import Data.Int.Show ( showHex )
 
 #include "MachDeps.h"
 

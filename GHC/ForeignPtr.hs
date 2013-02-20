@@ -87,7 +87,7 @@ data ForeignPtr a = ForeignPtr Addr# ForeignPtrContents
         -- object, because that ensures that whatever the finalizer is
         -- attached to is kept alive.
 
-INSTANCE_TYPEABLE1(ForeignPtr,foreignPtrTc,"ForeignPtr")
+--INSTANCE_TYPEABLE1(ForeignPtr,foreignPtrTc,"ForeignPtr")
 
 data Finalizers
   = NoFinalizers

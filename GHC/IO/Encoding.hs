@@ -30,7 +30,7 @@ module GHC.IO.Encoding (
     ) where
 
 import GHC.Base
-import GHC.IO.Exception
+--import GHC.IO.Exception
 import GHC.IO.Buffer
 import GHC.IO.Encoding.Failure
 import GHC.IO.Encoding.Types
@@ -47,7 +47,7 @@ import qualified GHC.IO.Encoding.UTF32  as UTF32
 import GHC.Word
 
 import Data.IORef
-import Data.Char (toUpper)
+--import Data.Char (toUpper) FIXME when base-unicode is created
 import Data.List
 import Data.Maybe
 import System.IO.Unsafe (unsafePerformIO)

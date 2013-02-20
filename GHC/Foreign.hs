@@ -49,7 +49,8 @@ import Control.Monad
 import Data.Tuple (fst)
 import Data.Maybe
 
-import {-# SOURCE #-} System.Posix.Internals (puts)
+--import {-# SOURCE #-} System.Posix.Internals (puts)
+import {-# SOURCE #-} Foreign.C.Puts (puts)
 import GHC.Show ( show )
 
 import Foreign.Marshal.Alloc
@@ -61,13 +62,15 @@ import GHC.Num
 import GHC.Base
 
 import GHC.IO
-import GHC.IO.Exception
+--import GHC.IO.Exception
 import GHC.IO.Buffer
 import GHC.IO.Encoding.Types
+import GHC.IO.Encoding.Failure
 
 
 c_DEBUG_DUMP :: Bool
 c_DEBUG_DUMP = False
+
 
 putDebugMsg :: String -> IO ()
 putDebugMsg | c_DEBUG_DUMP = puts
@@ -143,14 +146,14 @@ withCStringLen enc = withEncodedCString enc False
 -- whether or not a character is encodable will, in general, depend on the
 -- context in which it occurs.
 charIsRepresentable :: TextEncoding -> Char -> IO Bool
-charIsRepresentable enc c = withCString enc [c] (fmap (== [c]) . peekCString enc) `catchException` (\e -> let _ = e :: IOException in return False)
+charIsRepresentable enc c = withCString enc [c] (fmap (== [c]) . peekCString enc) `catchException` (\e -> let _ = e :: CodingError in return False)
 
 -- auxiliary definitions
 -- ----------------------
 
 -- C's end of string character
 nUL :: CChar
-nUL  = 0
+nUL  = fromInteger 0
 
 -- Size of a CChar in bytes
 cCharSize :: Int
@@ -248,7 +251,7 @@ tryFillBufferAndCall encoder null_terminate from0 to_p to_sz_bytes act = do
                -- Awesome, we had enough buffer
                let bytes = bufferElems to'
                withBuffer to' $ \to_ptr -> do
-                   when null_terminate $ pokeElemOff to_ptr (bufR to') 0
+                   when null_terminate $ pokeElemOff to_ptr (bufR to') (fromInteger 0)
                    fmap Just $ act (castPtr to_ptr, bytes) -- NB: the length information is specified as being in *bytes*
        else case why of -- We didn't consume all of the input
               InputUnderflow  -> recover encoder from' to' >>= go (iteration + 1) -- These conditions are equally bad
