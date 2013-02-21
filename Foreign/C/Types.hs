@@ -90,7 +90,7 @@ import GHC.Base
 import GHC.Enum
 import GHC.Real
 import GHC.Show
---import GHC.Read
+import GHC.Read
 import GHC.Num
 #else
 import Control.Monad    ( liftM )

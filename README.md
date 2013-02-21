@@ -51,10 +51,6 @@ accepted:
    * `IOFail`, `ErrnoError`, `OOMException`, `CodingError`
  * `GHC.Unicode` does some foreign calls. To avoid pulling in all of `Foreign.C.Types`, a simple `type CInt = HTYPE_INT` ought to suffice.
 
-Some changes are debatable:
-
- * Removing of `Read` from `base-pure`. Probably not needed.
-
 Some changes are just work-arounds due to GHC having the package name `base` hardcoded:
 
  * Lots of `fromInteger` and `negate`, to explicitly use the `Num` cass from `pure-base`

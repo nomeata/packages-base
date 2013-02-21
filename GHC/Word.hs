@@ -36,7 +36,7 @@ import GHC.Base
 import GHC.Enum
 import GHC.Num
 import GHC.Real
---import GHC.Read
+import GHC.Read
 --import GHC.Arr
 import GHC.Show
 import GHC.Err
@@ -116,10 +116,8 @@ instance Ix Word8 where
     inRange (m,n) i     = m <= i && i <= n
 -}
 
-{-
 instance Read Word8 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
--}
 
 instance Bits Word8 where
     {-# INLINE shift #-}
@@ -262,10 +260,8 @@ instance Ix Word16 where
     inRange (m,n) i     = m <= i && i <= n
 -}
 
-{-
 instance Read Word16 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
--}
 
 instance Bits Word16 where
     {-# INLINE shift #-}
@@ -511,14 +507,12 @@ instance Ix Word32 where
     inRange (m,n) i     = m <= i && i <= n
 -}
 
-{-
 instance Read Word32 where  
 #if WORD_SIZE_IN_BITS < 33
     readsPrec p s = [(fromInteger x, r) | (x, r) <- readsPrec p s]
 #else
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
 #endif
--}
 
 ------------------------------------------------------------------------
 -- type Word64
@@ -760,8 +754,6 @@ instance Ix Word64 where
     inRange (m,n) i     = m <= i && i <= n
 -}
 
-{-
 instance Read Word64 where
     readsPrec p s = [(fromInteger x, r) | (x, r) <- readsPrec p s]
--}
 

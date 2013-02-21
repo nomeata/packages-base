@@ -31,7 +31,7 @@ module Data.Either (
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
 import GHC.Show
---import GHC.Read
+import GHC.Read
 #endif
 
 import Data.Typeable
@@ -56,6 +56,7 @@ data  Either a b  =  Left a | Right b
   deriving (Eq, Ord)
 
 instance (Show a, Show b) => Show (Either a b)
+instance (Read a, Read b) => Read (Either a b)
 
 instance Functor (Either a) where
     fmap _ (Left x) = Left x

@@ -62,7 +62,7 @@ module Foreign.Ptr (
 import GHC.Ptr
 import GHC.Base
 import GHC.Num
---import GHC.Read
+import GHC.Read
 import GHC.Real
 import GHC.Show
 import GHC.Enum

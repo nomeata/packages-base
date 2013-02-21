@@ -35,7 +35,7 @@ import GHC.Base
 import GHC.Enum
 import GHC.Num
 import GHC.Real
---import GHC.Read
+import GHC.Read
 --import GHC.Arr
 import GHC.Err
 import GHC.Word hiding (uncheckedShiftL64#, uncheckedShiftRL64#)
@@ -130,10 +130,8 @@ instance Ix Int8 where
     inRange (m,n) i     = m <= i && i <= n
 -}
 
-{-
 instance Read Int8 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
--}
 
 instance Bits Int8 where
     {-# INLINE shift #-}
@@ -289,10 +287,8 @@ instance Ix Int16 where
     inRange (m,n) i     = m <= i && i <= n
 -}
 
-{-
 instance Read Int16 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
--}
 
 instance Bits Int16 where
     {-# INLINE shift #-}
@@ -451,10 +447,8 @@ instance Integral Int32 where
                                             I32# (narrow32Int# m))
     toInteger (I32# x#)              = smallInteger x#
 
-{-
 instance Read Int32 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
--}
 
 instance Bits Int32 where
     {-# INLINE shift #-}
@@ -654,10 +648,8 @@ x# `modInt64#` y#
     !zero = intToInt64# 0#
     !r# = x# `remInt64#` y#
 
-{-
 instance Read Int64 where
     readsPrec p s = [(fromInteger x, r) | (x, r) <- readsPrec p s]
--}
 
 instance Bits Int64 where
     {-# INLINE shift #-}
@@ -793,10 +785,8 @@ instance Integral Int64 where
                                            (I64# d, I64# m)
     toInteger (I64# x#)              = smallInteger x#
 
-{-
 instance Read Int64 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
--}
 
 instance Bits Int64 where
     {-# INLINE shift #-}

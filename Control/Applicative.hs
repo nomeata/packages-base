@@ -62,7 +62,6 @@ import Control.Monad (liftM, ap, MonadPlus(..))
 import Data.Functor (Functor(..), (<$>), (<$))
 import Data.Monoid (Monoid(..))
 
-{-
 import Text.ParserCombinators.ReadP
 #ifndef __NHC__
   (ReadP)
@@ -72,7 +71,6 @@ import Text.ParserCombinators.ReadP
 #endif
 
 import Text.ParserCombinators.ReadPrec (ReadPrec)
--}
 
 #ifdef __GLASGOW_HASKELL__
 --import GHC.Conc (STM, retry, orElse)
@@ -223,7 +221,6 @@ instance Applicative (Either e) where
     Left  e <*> _ = Left e
     Right f <*> r = fmap f r
 
-{-
 instance Applicative ReadP where
     pure = return
     (<*>) = ap
@@ -239,7 +236,6 @@ instance Applicative ReadPrec where
 instance Alternative ReadPrec where
     empty = mzero
     (<|>) = mplus
--}
 
 instance Arrow a => Applicative (ArrowMonad a) where
    pure x = ArrowMonad (arr (const x))
