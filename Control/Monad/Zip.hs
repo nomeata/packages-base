@@ -1,4 +1,4 @@
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -17,7 +17,9 @@
 
 module Control.Monad.Zip where
 
-import Prelude
+import GHC.Base
+import Data.List
+import Data.Tuple
 import Control.Monad (liftM)
 
 -- | `MonadZip` type class. Minimal definition: `mzip` or `mzipWith`
