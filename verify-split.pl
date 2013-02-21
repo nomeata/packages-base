@@ -15,10 +15,13 @@ OUT: while (defined (my $file = $rule->match)) {
 	$file =~ s!^./!!;
 	next if $file =~ m!^tests/!;
 	next if $file =~ m!^\.!;
+	next if $file =~ m!^dist!;
 	for my $pkg (@packages) {
 		if ($file =~ m!^$pkg/(.*)!) {
-			$files{$1} ||= [];
-			push @{$files{$1}}, $pkg;
+			my $file = $1;
+			next OUT if $file =~ m!^dist!;
+			$files{$file} ||= [];
+			push @{$files{$file}}, $pkg;
 			next OUT;
 		}
 	}
