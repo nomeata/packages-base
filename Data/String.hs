@@ -21,7 +21,7 @@ module Data.String (
 
  -- * Functions on strings
  , lines
- , words
+-- , words
  , unlines
  , unwords
  ) where
@@ -30,7 +30,7 @@ module Data.String (
 import GHC.Base
 #endif
 
-import Data.List (lines, words, unlines, unwords)
+import Data.List (lines, {- words, -} unlines, unwords)
 
 -- | Class for string-like datastructures; used by the overloaded string
 --   extension (-foverloaded-strings in GHC).
