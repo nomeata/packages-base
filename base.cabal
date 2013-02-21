@@ -44,7 +44,7 @@ Library {
             GHC.Conc.Signal,
             GHC.Conc.Sync,
             GHC.ConsoleHandler,
-            GHC.Constants,
+            -- GHC.Constants,
             GHC.Desugar,
             GHC.Enum,
             GHC.Environment,
