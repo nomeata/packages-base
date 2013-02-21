@@ -40,6 +40,7 @@ These packages have been introduced so far:
  * base-pure: Basic stuff without `IO`, `Foreign` or floating point arithmetic. 
  * base-st: The `ST` monad.
  * base-io: The `IO` monad.
+ * base-concurrent: Concurrency.
  * base-foreign: Everything related to `Foreign`.
 
 Some changes are intended to end up in the final libraries, if this approach is

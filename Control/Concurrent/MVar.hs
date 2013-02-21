@@ -157,6 +157,7 @@ import GHC.MVar ( MVar(..), newEmptyMVar, newMVar, takeMVar, putMVar,
                 )
 import qualified GHC.MVar
 import GHC.Weak
+import GHC.IO
 #endif
 
 #ifdef __GLASGOW_HASKELL__
@@ -165,7 +166,7 @@ import GHC.Base
 import Prelude
 #endif
 
-import Control.Exception.Base
+--import Control.Exception.Base
 
 {-|
   This is a combination of 'takeMVar' and 'putMVar'; ie. it takes the value

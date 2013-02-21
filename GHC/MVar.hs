@@ -32,6 +32,7 @@ module GHC.MVar (
 
 import GHC.Base
 import Data.Maybe
+import GHC.IO
 
 data MVar a = MVar (MVar# RealWorld a)
 {- ^
