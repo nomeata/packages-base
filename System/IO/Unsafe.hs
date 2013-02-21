@@ -25,10 +25,12 @@ module System.IO.Unsafe (
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
+import GHC.Show
+import Data.Typeable
 import GHC.IO
 import GHC.IORef
 import GHC.Exception
-import Control.Exception
+--import Control.Exception
 #endif
 
 #ifdef __HUGS__
@@ -40,6 +42,12 @@ unsafeDupablePerformIO = unsafePerformIO
 import NHC.Internal (unsafePerformIO, unsafeInterleaveIO)
 unsafeDupablePerformIO = unsafePerformIO
 #endif
+
+data NonTermination = NonTermination
+instance Typeable NonTermination
+instance Show NonTermination where
+    showsPrec _ NonTermination = showString "<<loop>>"
+instance Exception NonTermination
 
 -- | A slightly faster version of `System.IO.fixIO` that may not be
 -- safe to use with multiple threads.  The unsafety arises when used

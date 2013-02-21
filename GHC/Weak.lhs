@@ -34,6 +34,7 @@ module GHC.Weak (
     ) where
 
 import GHC.Base
+import GHC.IO
 import Data.Maybe
 import Data.Typeable
 
@@ -97,8 +98,8 @@ by the compiler.
 -}
 data Weak v = Weak (Weak# v)
 
-#include "Typeable.h"
-INSTANCE_TYPEABLE1(Weak,weakTc,"Weak")
+-- #include "Typeable.h"
+-- INSTANCE_TYPEABLE1(Weak,weakTc,"Weak")
 
 -- | Establishes a weak pointer to @k@, with value @v@ and a finalizer.
 --
