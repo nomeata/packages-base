@@ -44,7 +44,9 @@ import GHC.Num
 import GHC.Show
 import GHC.Real
 import System.IO.Unsafe (unsafePerformIO)
-import System.Posix.Internals
+--import System.Posix.Internals
+import Foreign.C.Puts
+import GHC.Err
 
 c_DEBUG_DUMP :: Bool
 c_DEBUG_DUMP = False
@@ -69,18 +71,22 @@ localeEncodingName = unsafePerformIO $ do
 -- value -1, which is a possible return value from iconv_open.
 type IConv = CLong -- ToDo: (#type iconv_t)
 
-foreign import ccall unsafe "hs_iconv_open"
-    hs_iconv_open :: CString -> CString -> IO IConv
+--foreign import ccall unsafe "hs_iconv_open"
+hs_iconv_open :: CString -> CString -> IO IConv
+hs_iconv_open = undefined
 
-foreign import ccall unsafe "hs_iconv_close"
-    hs_iconv_close :: IConv -> IO CInt
+--foreign import ccall unsafe "hs_iconv_close"
+hs_iconv_close :: IConv -> IO CInt
+hs_iconv_close = undefined
 
-foreign import ccall unsafe "hs_iconv"
-    hs_iconv :: IConv -> Ptr CString -> Ptr CSize -> Ptr CString -> Ptr CSize
-	  -> IO CSize
+--foreign import ccall unsafe "hs_iconv"
+hs_iconv :: IConv -> Ptr CString -> Ptr CSize -> Ptr CString -> Ptr CSize
+      -> IO CSize
+hs_iconv = undefined
 
-foreign import ccall unsafe "localeEncoding"
-    c_localeEncoding :: IO CString
+--foreign import ccall unsafe "localeEncoding"
+c_localeEncoding :: IO CString
+c_localeEncoding = undefined
 
 haskellChar :: String
 #ifdef WORDS_BIGENDIAN
@@ -156,13 +162,13 @@ iconvRecode iconv_t
 	  new_inleft'  = fromIntegral new_inleft `shiftR` iscale
 	  new_outleft' = fromIntegral new_outleft `shiftR` oscale
 	  new_input  
-            | new_inleft == 0  = input { bufL = 0, bufR = 0 }
+            | new_inleft == fromInteger 0  = input { bufL = 0, bufR = 0 }
 	    | otherwise        = input { bufL = iw - new_inleft' }
 	  new_output = output{ bufR = os - new_outleft' }
       iconv_trace ("iconv res=" ++ show res)
       iconv_trace ("iconvRecode after,  input=" ++ show (summaryBuffer new_input))
       iconv_trace ("iconvRecode after,  output=" ++ show (summaryBuffer new_output))
-      if (res /= -1)
+      if (res /= negate (fromInteger 1))
 	then do -- all input translated
 	   return (InputUnderflow, new_input, new_output)
 	else do
@@ -180,7 +186,7 @@ iconvRecode iconv_t
            -- one element left in the output, we have to special case this.
           | e == eILSEQ -> return (if new_outleft' == 0 then OutputUnderflow else InvalidSequence, new_input, new_output)
           | otherwise -> do
-              iconv_trace ("iconv returned error: " ++ show (errnoToIOError "iconv" e Nothing Nothing))
+              iconv_trace ("iconv returned error: " ++ show (ErrnoError "iconv" e Nothing))
               throwErrno "iconvRecoder"
 
 #endif /* !mingw32_HOST_OS */

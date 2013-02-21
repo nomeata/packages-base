@@ -19,14 +19,23 @@
 --  // For GHC, we can use DeriveDataTypeable + StandaloneDeriving to
 --  // generate the instances.
 
-#define INSTANCE_TYPEABLE0(tycon,tcname,str) deriving instance Typeable tycon
-#define INSTANCE_TYPEABLE1(tycon,tcname,str) deriving instance Typeable1 tycon
-#define INSTANCE_TYPEABLE2(tycon,tcname,str) deriving instance Typeable2 tycon
-#define INSTANCE_TYPEABLE3(tycon,tcname,str) deriving instance Typeable3 tycon
-#define INSTANCE_TYPEABLE4(tycon,tcname,str) deriving instance Typeable4 tycon
-#define INSTANCE_TYPEABLE5(tycon,tcname,str) deriving instance Typeable5 tycon
-#define INSTANCE_TYPEABLE6(tycon,tcname,str) deriving instance Typeable6 tycon
-#define INSTANCE_TYPEABLE7(tycon,tcname,str) deriving instance Typeable7 tycon
+-- // #define INSTANCE_TYPEABLE0(tycon,tcname,str) deriving instance Typeable tycon
+-- // #define INSTANCE_TYPEABLE1(tycon,tcname,str) deriving instance Typeable1 tycon
+-- // #define INSTANCE_TYPEABLE2(tycon,tcname,str) deriving instance Typeable2 tycon
+-- // #define INSTANCE_TYPEABLE3(tycon,tcname,str) deriving instance Typeable3 tycon
+-- // #define INSTANCE_TYPEABLE4(tycon,tcname,str) deriving instance Typeable4 tycon
+-- // #define INSTANCE_TYPEABLE5(tycon,tcname,str) deriving instance Typeable5 tycon
+-- // #define INSTANCE_TYPEABLE6(tycon,tcname,str) deriving instance Typeable6 tycon
+-- // #define INSTANCE_TYPEABLE7(tycon,tcname,str) deriving instance Typeable7 tycon
+
+#define INSTANCE_TYPEABLE0(tycon,tcname,str) instance Typeable tycon
+#define INSTANCE_TYPEABLE1(tycon,tcname,str) instance Typeable1 tycon
+#define INSTANCE_TYPEABLE2(tycon,tcname,str) instance Typeable2 tycon
+#define INSTANCE_TYPEABLE3(tycon,tcname,str) instance Typeable3 tycon
+#define INSTANCE_TYPEABLE4(tycon,tcname,str) instance Typeable4 tycon
+#define INSTANCE_TYPEABLE5(tycon,tcname,str) instance Typeable5 tycon
+#define INSTANCE_TYPEABLE6(tycon,tcname,str) instance Typeable6 tycon
+#define INSTANCE_TYPEABLE7(tycon,tcname,str) instance Typeable7 tycon
 
 #else /* !__GLASGOW_HASKELL__ */
 

@@ -1,0 +1,1 @@
+../../Foreign/StablePtr.hs

@@ -1,0 +1,1 @@
+../../GHC/Stable.lhs

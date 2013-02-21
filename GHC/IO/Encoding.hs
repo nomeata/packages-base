@@ -30,7 +30,7 @@ module GHC.IO.Encoding (
     ) where
 
 import GHC.Base
-import GHC.IO.Exception
+--import GHC.IO.Exception
 import GHC.IO.Buffer
 import GHC.IO.Encoding.Failure
 import GHC.IO.Encoding.Types
@@ -45,9 +45,10 @@ import qualified GHC.IO.Encoding.UTF8   as UTF8
 import qualified GHC.IO.Encoding.UTF16  as UTF16
 import qualified GHC.IO.Encoding.UTF32  as UTF32
 import GHC.Word
+import GHC.IO.Encoding.Failure
 
 import Data.IORef
-import Data.Char (toUpper)
+--import Data.Char (toUpper) FIXME when base-unicode is created
 import Data.List
 import Data.Maybe
 import System.IO.Unsafe (unsafePerformIO)
@@ -205,7 +206,7 @@ mkTextEncoding e = case mb_coding_failure_mode of
         _             -> Nothing
 
 mkTextEncoding' :: CodingFailureMode -> String -> IO TextEncoding
-mkTextEncoding' cfm enc = case [toUpper c | c <- enc, c /= '-'] of
+mkTextEncoding' cfm enc = case [{- FIXME toUpper-} c | c <- enc, c /= '-'] of
     "UTF8"    -> return $ UTF8.mkUTF8 cfm
     "UTF16"   -> return $ UTF16.mkUTF16 cfm
     "UTF16LE" -> return $ UTF16.mkUTF16le cfm
@@ -227,7 +228,3 @@ latin1_encode input output = fmap (\(_why,input',output') -> (input',output')) $
 latin1_decode :: Buffer Word8 -> CharBuffer -> IO (Buffer Word8, CharBuffer)
 latin1_decode input output = fmap (\(_why,input',output') -> (input',output')) $ Latin1.latin1_decode input output
 --latin1_decode = unsafePerformIO $ do mkTextDecoder Iconv.latin1 >>= return.encode
-
-unknownEncodingErr :: String -> IO a    
-unknownEncodingErr e = ioException (IOError Nothing NoSuchThing "mkTextEncoding"
-                                            ("unknown encoding:" ++ e)  Nothing Nothing)

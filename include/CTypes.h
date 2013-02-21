@@ -47,8 +47,8 @@ INSTANCE_REALFLOAT(T)
 #endif
 
 #define INSTANCE_READ(T,B) \
-instance Read T where { \
-   readsPrec p s = fakeMap (\(x, t) -> (T x, t)) (readsPrec p s) }
+{- instance Read T where { \
+    readsPrec p s = fakeMap (\(x, t) -> (T x, t)) (readsPrec p s) } -}
 
 #define INSTANCE_SHOW(T,B) \
 instance Show T where { \
@@ -182,32 +182,32 @@ instance Storable T where { \
 
 #define ARITHMETIC_TYPE(T,C,S,B) \
 newtype T = T B deriving (ARITHMETIC_CLASSES); \
---INSTANCE_READ(T,B); \
+INSTANCE_READ(T,B); \
 INSTANCE_SHOW(T,B); \
 INSTANCE_TYPEABLE0(T,C,S) ;
 
 #define INTEGRAL_TYPE(T,C,S,B) \
 newtype T = T B deriving (ARITHMETIC_CLASSES, INTEGRAL_CLASSES); \
---INSTANCE_READ(T,B); \
+INSTANCE_READ(T,B); \
 INSTANCE_SHOW(T,B); \
 INSTANCE_TYPEABLE0(T,C,S) ;
 
 #define INTEGRAL_TYPE_WITH_CTYPE(T,THE_CTYPE,C,S,B) \
 newtype {-# CTYPE "THE_CTYPE" #-} T = T B deriving (ARITHMETIC_CLASSES, INTEGRAL_CLASSES); \
---INSTANCE_READ(T,B); \
+INSTANCE_READ(T,B); \
 INSTANCE_SHOW(T,B); \
 INSTANCE_TYPEABLE0(T,C,S) ;
 
 #define FLOATING_TYPE(T,C,S,B) \
 newtype T = T B deriving (ARITHMETIC_CLASSES, FLOATING_CLASSES); \
---INSTANCE_READ(T,B); \
+INSTANCE_READ(T,B); \
 INSTANCE_SHOW(T,B); \
 INSTANCE_TYPEABLE0(T,C,S) ;
 
 #define INSTANCE_READ(T,B) \
-instance Read T where { \
+{- instance Read T where { \
    readsPrec            = unsafeCoerce# (readsPrec :: Int -> ReadS B); \
-   readList             = unsafeCoerce# (readList  :: ReadS [B]); }
+   readList             = unsafeCoerce# (readList  :: ReadS [B]); } -}
 
 #define INSTANCE_SHOW(T,B) \
 instance Show T where { \

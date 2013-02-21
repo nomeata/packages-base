@@ -403,7 +403,7 @@ withCAStringLen str f    =
 -- C's end of string character
 --
 nUL :: CChar
-nUL  = 0
+nUL  = fromInteger 0
 
 -- allocate an array to hold the list and pair it with the number of elements
 newArrayLen        :: Storable a => [a] -> IO (Ptr a, Int)
@@ -501,7 +501,7 @@ withCWStringLen str f    =
 -- ----------------------
 
 wNUL :: CWchar
-wNUL = 0
+wNUL = fromInteger 0
 
 cWcharsToChars :: [CWchar] -> [Char]
 charsToCWchars :: [Char] -> [CWchar]

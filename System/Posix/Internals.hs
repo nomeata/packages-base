@@ -51,8 +51,8 @@ import GHC.Num
 import GHC.Real
 import GHC.IO
 import GHC.IO.IOMode
-import GHC.IO.Exception
-import GHC.IO.Device
+--import GHC.IO.Exception
+--import GHC.IO.Device
 #ifndef mingw32_HOST_OS
 import {-# SOURCE #-} GHC.IO.Encoding (getFileSystemEncoding)
 import qualified GHC.Foreign as GHC

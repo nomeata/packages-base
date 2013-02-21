@@ -482,8 +482,6 @@ funTc = mkTyCon3 "ghc-prim" "GHC.Types" "->"
 --
 -------------------------------------------------------------
 
-{-
-
 #include "Typeable.h"
 
 INSTANCE_TYPEABLE0((),unitTc,"()")
@@ -571,7 +569,6 @@ INSTANCE_TYPEABLE0(Word64,word64Tc,"Word64")
 
 INSTANCE_TYPEABLE0(TyCon,tyconTc,"TyCon")
 INSTANCE_TYPEABLE0(TypeRep,typeRepTc,"TypeRep")
--}
 
 #ifdef __GLASGOW_HASKELL__
 {-

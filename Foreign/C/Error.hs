@@ -51,14 +51,7 @@ module Foreign.C.Error (
   getErrno,             -- :: IO Errno
   resetErrno,           -- :: IO ()
 
-  -- conversion of an "errno" value into IO error
-  --
-  errnoToIOError,       -- :: String       -- location
-                        -- -> Errno        -- errno
-                        -- -> Maybe Handle -- handle
-                        -- -> Maybe String -- filename
-                        -- -> IOError
-
+  ErrnoError(..),
   -- throw current "errno" value
   --
   throwErrno,           -- ::                String               -> IO a
@@ -109,19 +102,23 @@ import Foreign.C.Types
 import Foreign.C.String
 import Control.Monad            ( void )
 import Data.Maybe
+import GHC.Exception
+import Data.Typeable
+import GHC.Show
+import GHC.Err
 
 #if __GLASGOW_HASKELL__
 import GHC.IO
-import GHC.IO.Exception
-import GHC.IO.Handle.Types
+--import GHC.IO.Exception
+--import GHC.IO.Handle.Types
 import GHC.Num
 import GHC.Base
 #elif __HUGS__
 import Hugs.Prelude             ( Handle, IOError, ioError )
 import System.IO.Unsafe         ( unsafePerformIO )
 #else
-import System.IO                ( Handle )
-import System.IO.Error          ( IOError, ioError )
+--import System.IO                ( Handle )
+--import System.IO.Error          ( IOError, ioError )
 import System.IO.Unsafe         ( unsafePerformIO )
 import Foreign.Storable         ( Storable(poke,peek) )
 #endif
@@ -165,108 +162,108 @@ eOK, e2BIG, eACCES, eADDRINUSE, eADDRNOTAVAIL, eADV, eAFNOSUPPORT, eAGAIN,
 -- the cCONST_XXX identifiers are cpp symbols whose value is computed by
 -- configure 
 --
-eOK             = Errno 0
+eOK             = Errno (fromInteger 0)
 #ifdef __NHC__
 #include "Errno.hs"
 #else
-e2BIG           = Errno (CONST_E2BIG)
-eACCES          = Errno (CONST_EACCES)
-eADDRINUSE      = Errno (CONST_EADDRINUSE)
-eADDRNOTAVAIL   = Errno (CONST_EADDRNOTAVAIL)
-eADV            = Errno (CONST_EADV)
-eAFNOSUPPORT    = Errno (CONST_EAFNOSUPPORT)
-eAGAIN          = Errno (CONST_EAGAIN)
-eALREADY        = Errno (CONST_EALREADY)
-eBADF           = Errno (CONST_EBADF)
-eBADMSG         = Errno (CONST_EBADMSG)
-eBADRPC         = Errno (CONST_EBADRPC)
-eBUSY           = Errno (CONST_EBUSY)
-eCHILD          = Errno (CONST_ECHILD)
-eCOMM           = Errno (CONST_ECOMM)
-eCONNABORTED    = Errno (CONST_ECONNABORTED)
-eCONNREFUSED    = Errno (CONST_ECONNREFUSED)
-eCONNRESET      = Errno (CONST_ECONNRESET)
-eDEADLK         = Errno (CONST_EDEADLK)
-eDESTADDRREQ    = Errno (CONST_EDESTADDRREQ)
-eDIRTY          = Errno (CONST_EDIRTY)
-eDOM            = Errno (CONST_EDOM)
-eDQUOT          = Errno (CONST_EDQUOT)
-eEXIST          = Errno (CONST_EEXIST)
-eFAULT          = Errno (CONST_EFAULT)
-eFBIG           = Errno (CONST_EFBIG)
-eFTYPE          = Errno (CONST_EFTYPE)
-eHOSTDOWN       = Errno (CONST_EHOSTDOWN)
-eHOSTUNREACH    = Errno (CONST_EHOSTUNREACH)
-eIDRM           = Errno (CONST_EIDRM)
-eILSEQ          = Errno (CONST_EILSEQ)
-eINPROGRESS     = Errno (CONST_EINPROGRESS)
-eINTR           = Errno (CONST_EINTR)
-eINVAL          = Errno (CONST_EINVAL)
-eIO             = Errno (CONST_EIO)
-eISCONN         = Errno (CONST_EISCONN)
-eISDIR          = Errno (CONST_EISDIR)
-eLOOP           = Errno (CONST_ELOOP)
-eMFILE          = Errno (CONST_EMFILE)
-eMLINK          = Errno (CONST_EMLINK)
-eMSGSIZE        = Errno (CONST_EMSGSIZE)
-eMULTIHOP       = Errno (CONST_EMULTIHOP)
-eNAMETOOLONG    = Errno (CONST_ENAMETOOLONG)
-eNETDOWN        = Errno (CONST_ENETDOWN)
-eNETRESET       = Errno (CONST_ENETRESET)
-eNETUNREACH     = Errno (CONST_ENETUNREACH)
-eNFILE          = Errno (CONST_ENFILE)
-eNOBUFS         = Errno (CONST_ENOBUFS)
-eNODATA         = Errno (CONST_ENODATA)
-eNODEV          = Errno (CONST_ENODEV)
-eNOENT          = Errno (CONST_ENOENT)
-eNOEXEC         = Errno (CONST_ENOEXEC)
-eNOLCK          = Errno (CONST_ENOLCK)
-eNOLINK         = Errno (CONST_ENOLINK)
-eNOMEM          = Errno (CONST_ENOMEM)
-eNOMSG          = Errno (CONST_ENOMSG)
-eNONET          = Errno (CONST_ENONET)
-eNOPROTOOPT     = Errno (CONST_ENOPROTOOPT)
-eNOSPC          = Errno (CONST_ENOSPC)
-eNOSR           = Errno (CONST_ENOSR)
-eNOSTR          = Errno (CONST_ENOSTR)
-eNOSYS          = Errno (CONST_ENOSYS)
-eNOTBLK         = Errno (CONST_ENOTBLK)
-eNOTCONN        = Errno (CONST_ENOTCONN)
-eNOTDIR         = Errno (CONST_ENOTDIR)
-eNOTEMPTY       = Errno (CONST_ENOTEMPTY)
-eNOTSOCK        = Errno (CONST_ENOTSOCK)
-eNOTTY          = Errno (CONST_ENOTTY)
-eNXIO           = Errno (CONST_ENXIO)
-eOPNOTSUPP      = Errno (CONST_EOPNOTSUPP)
-ePERM           = Errno (CONST_EPERM)
-ePFNOSUPPORT    = Errno (CONST_EPFNOSUPPORT)
-ePIPE           = Errno (CONST_EPIPE)
-ePROCLIM        = Errno (CONST_EPROCLIM)
-ePROCUNAVAIL    = Errno (CONST_EPROCUNAVAIL)
-ePROGMISMATCH   = Errno (CONST_EPROGMISMATCH)
-ePROGUNAVAIL    = Errno (CONST_EPROGUNAVAIL)
-ePROTO          = Errno (CONST_EPROTO)
-ePROTONOSUPPORT = Errno (CONST_EPROTONOSUPPORT)
-ePROTOTYPE      = Errno (CONST_EPROTOTYPE)
-eRANGE          = Errno (CONST_ERANGE)
-eREMCHG         = Errno (CONST_EREMCHG)
-eREMOTE         = Errno (CONST_EREMOTE)
-eROFS           = Errno (CONST_EROFS)
-eRPCMISMATCH    = Errno (CONST_ERPCMISMATCH)
-eRREMOTE        = Errno (CONST_ERREMOTE)
-eSHUTDOWN       = Errno (CONST_ESHUTDOWN)
-eSOCKTNOSUPPORT = Errno (CONST_ESOCKTNOSUPPORT)
-eSPIPE          = Errno (CONST_ESPIPE)
-eSRCH           = Errno (CONST_ESRCH)
-eSRMNT          = Errno (CONST_ESRMNT)
-eSTALE          = Errno (CONST_ESTALE)
-eTIME           = Errno (CONST_ETIME)
-eTIMEDOUT       = Errno (CONST_ETIMEDOUT)
-eTOOMANYREFS    = Errno (CONST_ETOOMANYREFS)
-eTXTBSY         = Errno (CONST_ETXTBSY)
-eUSERS          = Errno (CONST_EUSERS)
-eWOULDBLOCK     = Errno (CONST_EWOULDBLOCK)
-eXDEV           = Errno (CONST_EXDEV)
+e2BIG           = Errno (fromInteger (CONST_E2BIG))
+eACCES          = Errno (fromInteger (CONST_EACCES))
+eADDRINUSE      = Errno (fromInteger (CONST_EADDRINUSE))
+eADDRNOTAVAIL   = Errno (fromInteger (CONST_EADDRNOTAVAIL))
+eADV            = Errno (fromInteger (CONST_EADV))
+eAFNOSUPPORT    = Errno (fromInteger (CONST_EAFNOSUPPORT))
+eAGAIN          = Errno (fromInteger (CONST_EAGAIN))
+eALREADY        = Errno (fromInteger (CONST_EALREADY))
+eBADF           = Errno (fromInteger (CONST_EBADF))
+eBADMSG         = Errno (fromInteger (CONST_EBADMSG))
+eBADRPC         = Errno (fromInteger (CONST_EBADRPC))
+eBUSY           = Errno (fromInteger (CONST_EBUSY))
+eCHILD          = Errno (fromInteger (CONST_ECHILD))
+eCOMM           = Errno (fromInteger (CONST_ECOMM))
+eCONNABORTED    = Errno (fromInteger (CONST_ECONNABORTED))
+eCONNREFUSED    = Errno (fromInteger (CONST_ECONNREFUSED))
+eCONNRESET      = Errno (fromInteger (CONST_ECONNRESET))
+eDEADLK         = Errno (fromInteger (CONST_EDEADLK))
+eDESTADDRREQ    = Errno (fromInteger (CONST_EDESTADDRREQ))
+eDIRTY          = Errno (fromInteger (CONST_EDIRTY))
+eDOM            = Errno (fromInteger (CONST_EDOM))
+eDQUOT          = Errno (fromInteger (CONST_EDQUOT))
+eEXIST          = Errno (fromInteger (CONST_EEXIST))
+eFAULT          = Errno (fromInteger (CONST_EFAULT))
+eFBIG           = Errno (fromInteger (CONST_EFBIG))
+eFTYPE          = Errno (fromInteger (CONST_EFTYPE))
+eHOSTDOWN       = Errno (fromInteger (CONST_EHOSTDOWN))
+eHOSTUNREACH    = Errno (fromInteger (CONST_EHOSTUNREACH))
+eIDRM           = Errno (fromInteger (CONST_EIDRM))
+eILSEQ          = Errno (fromInteger (CONST_EILSEQ))
+eINPROGRESS     = Errno (fromInteger (CONST_EINPROGRESS))
+eINTR           = Errno (fromInteger (CONST_EINTR))
+eINVAL          = Errno (fromInteger (CONST_EINVAL))
+eIO             = Errno (fromInteger (CONST_EIO))
+eISCONN         = Errno (fromInteger (CONST_EISCONN))
+eISDIR          = Errno (fromInteger (CONST_EISDIR))
+eLOOP           = Errno (fromInteger (CONST_ELOOP))
+eMFILE          = Errno (fromInteger (CONST_EMFILE))
+eMLINK          = Errno (fromInteger (CONST_EMLINK))
+eMSGSIZE        = Errno (fromInteger (CONST_EMSGSIZE))
+eMULTIHOP       = Errno (fromInteger (CONST_EMULTIHOP))
+eNAMETOOLONG    = Errno (fromInteger (CONST_ENAMETOOLONG))
+eNETDOWN        = Errno (fromInteger (CONST_ENETDOWN))
+eNETRESET       = Errno (fromInteger (CONST_ENETRESET))
+eNETUNREACH     = Errno (fromInteger (CONST_ENETUNREACH))
+eNFILE          = Errno (fromInteger (CONST_ENFILE))
+eNOBUFS         = Errno (fromInteger (CONST_ENOBUFS))
+eNODATA         = Errno (fromInteger (CONST_ENODATA))
+eNODEV          = Errno (fromInteger (CONST_ENODEV))
+eNOENT          = Errno (fromInteger (CONST_ENOENT))
+eNOEXEC         = Errno (fromInteger (CONST_ENOEXEC))
+eNOLCK          = Errno (fromInteger (CONST_ENOLCK))
+eNOLINK         = Errno (fromInteger (CONST_ENOLINK))
+eNOMEM          = Errno (fromInteger (CONST_ENOMEM))
+eNOMSG          = Errno (fromInteger (CONST_ENOMSG))
+eNONET          = Errno (fromInteger (CONST_ENONET))
+eNOPROTOOPT     = Errno (fromInteger (CONST_ENOPROTOOPT))
+eNOSPC          = Errno (fromInteger (CONST_ENOSPC))
+eNOSR           = Errno (fromInteger (CONST_ENOSR))
+eNOSTR          = Errno (fromInteger (CONST_ENOSTR))
+eNOSYS          = Errno (fromInteger (CONST_ENOSYS))
+eNOTBLK         = Errno (fromInteger (CONST_ENOTBLK))
+eNOTCONN        = Errno (fromInteger (CONST_ENOTCONN))
+eNOTDIR         = Errno (fromInteger (CONST_ENOTDIR))
+eNOTEMPTY       = Errno (fromInteger (CONST_ENOTEMPTY))
+eNOTSOCK        = Errno (fromInteger (CONST_ENOTSOCK))
+eNOTTY          = Errno (fromInteger (CONST_ENOTTY))
+eNXIO           = Errno (fromInteger (CONST_ENXIO))
+eOPNOTSUPP      = Errno (fromInteger (CONST_EOPNOTSUPP))
+ePERM           = Errno (fromInteger (CONST_EPERM))
+ePFNOSUPPORT    = Errno (fromInteger (CONST_EPFNOSUPPORT))
+ePIPE           = Errno (fromInteger (CONST_EPIPE))
+ePROCLIM        = Errno (fromInteger (CONST_EPROCLIM))
+ePROCUNAVAIL    = Errno (fromInteger (CONST_EPROCUNAVAIL))
+ePROGMISMATCH   = Errno (fromInteger (CONST_EPROGMISMATCH))
+ePROGUNAVAIL    = Errno (fromInteger (CONST_EPROGUNAVAIL))
+ePROTO          = Errno (fromInteger (CONST_EPROTO))
+ePROTONOSUPPORT = Errno (fromInteger (CONST_EPROTONOSUPPORT))
+ePROTOTYPE      = Errno (fromInteger (CONST_EPROTOTYPE))
+eRANGE          = Errno (fromInteger (CONST_ERANGE))
+eREMCHG         = Errno (fromInteger (CONST_EREMCHG))
+eREMOTE         = Errno (fromInteger (CONST_EREMOTE))
+eROFS           = Errno (fromInteger (CONST_EROFS))
+eRPCMISMATCH    = Errno (fromInteger (CONST_ERPCMISMATCH))
+eRREMOTE        = Errno (fromInteger (CONST_ERREMOTE))
+eSHUTDOWN       = Errno (fromInteger (CONST_ESHUTDOWN))
+eSOCKTNOSUPPORT = Errno (fromInteger (CONST_ESOCKTNOSUPPORT))
+eSPIPE          = Errno (fromInteger (CONST_ESPIPE))
+eSRCH           = Errno (fromInteger (CONST_ESRCH))
+eSRMNT          = Errno (fromInteger (CONST_ESRMNT))
+eSTALE          = Errno (fromInteger (CONST_ESTALE))
+eTIME           = Errno (fromInteger (CONST_ETIME))
+eTIMEDOUT       = Errno (fromInteger (CONST_ETIMEDOUT))
+eTOOMANYREFS    = Errno (fromInteger (CONST_ETOOMANYREFS))
+eTXTBSY         = Errno (fromInteger (CONST_ETXTBSY))
+eUSERS          = Errno (fromInteger (CONST_EUSERS))
+eWOULDBLOCK     = Errno (fromInteger (CONST_EWOULDBLOCK))
+eXDEV           = Errno (fromInteger (CONST_EXDEV))
 #endif
 
 -- | Yield 'True' if the given 'Errno' value is valid on the system.
@@ -277,7 +274,7 @@ isValidErrno               :: Errno -> Bool
 --
 -- the configure script sets all invalid "errno"s to -1
 --
-isValidErrno (Errno errno)  = errno /= -1
+isValidErrno (Errno errno)  = errno /= negate (fromInteger 1)
 
 
 -- access to the current thread's "errno" value
@@ -295,7 +292,9 @@ getErrno = do e <- peek _errno; return (Errno e)
 foreign import ccall unsafe "errno.h &errno" _errno :: Ptr CInt
 #else
 getErrno = do e <- get_errno; return (Errno e)
-foreign import ccall unsafe "HsBase.h __hscore_get_errno" get_errno :: IO CInt
+--foreign import ccall unsafe "HsBase.h __hscore_get_errno" get_errno :: IO CInt
+get_errno :: IO CInt
+get_errno = undefined
 #endif
 
 -- | Reset the current thread\'s @errno@ value to 'eOK'.
@@ -304,10 +303,12 @@ resetErrno :: IO ()
 
 -- Again, setting errno has to be done via a C function.
 #ifdef __NHC__
-resetErrno = poke _errno 0
+resetErrno = poke _errno (fromInteger 0)
 #else
-resetErrno = set_errno 0
-foreign import ccall unsafe "HsBase.h __hscore_set_errno" set_errno :: CInt -> IO ()
+resetErrno = set_errno (fromInteger 0)
+--foreign import ccall unsafe "HsBase.h __hscore_set_errno" set_errno :: CInt -> IO ()
+set_errno :: CInt -> IO ()
+set_errno = undefined
 #endif
 
 -- throw current "errno" value
@@ -320,7 +321,7 @@ throwErrno     :: String        -- ^ textual description of the error location
 throwErrno loc  =
   do
     errno <- getErrno
-    ioError (errnoToIOError loc errno Nothing Nothing)
+    throwIO (ErrnoError loc errno Nothing)
 
 
 -- guards for IO operations that may fail
@@ -402,36 +403,36 @@ throwErrnoIfRetryMayBlock_ pred loc f on_block
 -- if the 'IO' action returns a result of @-1@.
 --
 throwErrnoIfMinus1 :: (Eq a, Num a) => String -> IO a -> IO a
-throwErrnoIfMinus1  = throwErrnoIf (== -1)
+throwErrnoIfMinus1  = throwErrnoIf (== negate (fromInteger 1))
 
 -- | as 'throwErrnoIfMinus1', but discards the result.
 --
 throwErrnoIfMinus1_ :: (Eq a, Num a) => String -> IO a -> IO ()
-throwErrnoIfMinus1_  = throwErrnoIf_ (== -1)
+throwErrnoIfMinus1_  = throwErrnoIf_ (== negate (fromInteger 1))
 
 -- | Throw an 'IOError' corresponding to the current value of 'getErrno'
 -- if the 'IO' action returns a result of @-1@, but retries in case of
 -- an interrupted operation.
 --
 throwErrnoIfMinus1Retry :: (Eq a, Num a) => String -> IO a -> IO a
-throwErrnoIfMinus1Retry  = throwErrnoIfRetry (== -1)
+throwErrnoIfMinus1Retry  = throwErrnoIfRetry (== negate (fromInteger 1))
 
 -- | as 'throwErrnoIfMinus1', but discards the result.
 --
 throwErrnoIfMinus1Retry_ :: (Eq a, Num a) => String -> IO a -> IO ()
-throwErrnoIfMinus1Retry_  = throwErrnoIfRetry_ (== -1)
+throwErrnoIfMinus1Retry_  = throwErrnoIfRetry_ (== negate (fromInteger 1))
 
 -- | as 'throwErrnoIfMinus1Retry', but checks for operations that would block.
 --
 throwErrnoIfMinus1RetryMayBlock :: (Eq a, Num a)
                                 => String -> IO a -> IO b -> IO a
-throwErrnoIfMinus1RetryMayBlock  = throwErrnoIfRetryMayBlock (== -1)
+throwErrnoIfMinus1RetryMayBlock  = throwErrnoIfRetryMayBlock (== negate (fromInteger 1))
 
 -- | as 'throwErrnoIfMinus1RetryMayBlock', but discards the result.
 --
 throwErrnoIfMinus1RetryMayBlock_ :: (Eq a, Num a)
                                  => String -> IO a -> IO b -> IO ()
-throwErrnoIfMinus1RetryMayBlock_  = throwErrnoIfRetryMayBlock_ (== -1)
+throwErrnoIfMinus1RetryMayBlock_  = throwErrnoIfRetryMayBlock_ (== negate (fromInteger 1))
 
 -- | Throw an 'IOError' corresponding to the current value of 'getErrno'
 -- if the 'IO' action returns 'nullPtr'.
@@ -457,7 +458,7 @@ throwErrnoPath :: String -> FilePath -> IO a
 throwErrnoPath loc path =
   do
     errno <- getErrno
-    ioError (errnoToIOError loc errno Nothing (Just path))
+    throwIO (ErrnoError loc errno (Just path))
 
 -- | as 'throwErrnoIf', but exceptions include the given path when
 --   appropriate.
@@ -484,136 +485,20 @@ throwErrnoPathIfNull  = throwErrnoPathIf (== nullPtr)
 --   appropriate.
 --
 throwErrnoPathIfMinus1 :: (Eq a, Num a) => String -> FilePath -> IO a -> IO a
-throwErrnoPathIfMinus1 = throwErrnoPathIf (== -1)
+throwErrnoPathIfMinus1 = throwErrnoPathIf (== negate (fromInteger 1))
 
 -- | as 'throwErrnoIfMinus1_', but exceptions include the given path when
 --   appropriate.
 --
 throwErrnoPathIfMinus1_ :: (Eq a, Num a) => String -> FilePath -> IO a -> IO ()
-throwErrnoPathIfMinus1_  = throwErrnoPathIf_ (== -1)
+throwErrnoPathIfMinus1_  = throwErrnoPathIf_ (== negate (fromInteger 1))
 
 -- conversion of an "errno" value into IO error
 -- --------------------------------------------
 
--- | Construct an 'IOError' based on the given 'Errno' value.
--- The optional information can be used to improve the accuracy of
--- error messages.
---
-errnoToIOError  :: String       -- ^ the location where the error occurred
-                -> Errno        -- ^ the error number
-                -> Maybe Handle -- ^ optional handle associated with the error
-                -> Maybe String -- ^ optional filename associated with the error
-                -> IOError
-errnoToIOError loc errno maybeHdl maybeName = unsafePerformIO $ do
-    str <- strerror errno >>= peekCString
-#if __GLASGOW_HASKELL__
-    return (IOError maybeHdl errType loc str (Just errno') maybeName)
-    where
-    Errno errno' = errno
-    errType
-        | errno == eOK             = OtherError
-        | errno == e2BIG           = ResourceExhausted
-        | errno == eACCES          = PermissionDenied
-        | errno == eADDRINUSE      = ResourceBusy
-        | errno == eADDRNOTAVAIL   = UnsupportedOperation
-        | errno == eADV            = OtherError
-        | errno == eAFNOSUPPORT    = UnsupportedOperation
-        | errno == eAGAIN          = ResourceExhausted
-        | errno == eALREADY        = AlreadyExists
-        | errno == eBADF           = InvalidArgument
-        | errno == eBADMSG         = InappropriateType
-        | errno == eBADRPC         = OtherError
-        | errno == eBUSY           = ResourceBusy
-        | errno == eCHILD          = NoSuchThing
-        | errno == eCOMM           = ResourceVanished
-        | errno == eCONNABORTED    = OtherError
-        | errno == eCONNREFUSED    = NoSuchThing
-        | errno == eCONNRESET      = ResourceVanished
-        | errno == eDEADLK         = ResourceBusy
-        | errno == eDESTADDRREQ    = InvalidArgument
-        | errno == eDIRTY          = UnsatisfiedConstraints
-        | errno == eDOM            = InvalidArgument
-        | errno == eDQUOT          = PermissionDenied
-        | errno == eEXIST          = AlreadyExists
-        | errno == eFAULT          = OtherError
-        | errno == eFBIG           = PermissionDenied
-        | errno == eFTYPE          = InappropriateType
-        | errno == eHOSTDOWN       = NoSuchThing
-        | errno == eHOSTUNREACH    = NoSuchThing
-        | errno == eIDRM           = ResourceVanished
-        | errno == eILSEQ          = InvalidArgument
-        | errno == eINPROGRESS     = AlreadyExists
-        | errno == eINTR           = Interrupted
-        | errno == eINVAL          = InvalidArgument
-        | errno == eIO             = HardwareFault
-        | errno == eISCONN         = AlreadyExists
-        | errno == eISDIR          = InappropriateType
-        | errno == eLOOP           = InvalidArgument
-        | errno == eMFILE          = ResourceExhausted
-        | errno == eMLINK          = ResourceExhausted
-        | errno == eMSGSIZE        = ResourceExhausted
-        | errno == eMULTIHOP       = UnsupportedOperation
-        | errno == eNAMETOOLONG    = InvalidArgument
-        | errno == eNETDOWN        = ResourceVanished
-        | errno == eNETRESET       = ResourceVanished
-        | errno == eNETUNREACH     = NoSuchThing
-        | errno == eNFILE          = ResourceExhausted
-        | errno == eNOBUFS         = ResourceExhausted
-        | errno == eNODATA         = NoSuchThing
-        | errno == eNODEV          = UnsupportedOperation
-        | errno == eNOENT          = NoSuchThing
-        | errno == eNOEXEC         = InvalidArgument
-        | errno == eNOLCK          = ResourceExhausted
-        | errno == eNOLINK         = ResourceVanished
-        | errno == eNOMEM          = ResourceExhausted
-        | errno == eNOMSG          = NoSuchThing
-        | errno == eNONET          = NoSuchThing
-        | errno == eNOPROTOOPT     = UnsupportedOperation
-        | errno == eNOSPC          = ResourceExhausted
-        | errno == eNOSR           = ResourceExhausted
-        | errno == eNOSTR          = InvalidArgument
-        | errno == eNOSYS          = UnsupportedOperation
-        | errno == eNOTBLK         = InvalidArgument
-        | errno == eNOTCONN        = InvalidArgument
-        | errno == eNOTDIR         = InappropriateType
-        | errno == eNOTEMPTY       = UnsatisfiedConstraints
-        | errno == eNOTSOCK        = InvalidArgument
-        | errno == eNOTTY          = IllegalOperation
-        | errno == eNXIO           = NoSuchThing
-        | errno == eOPNOTSUPP      = UnsupportedOperation
-        | errno == ePERM           = PermissionDenied
-        | errno == ePFNOSUPPORT    = UnsupportedOperation
-        | errno == ePIPE           = ResourceVanished
-        | errno == ePROCLIM        = PermissionDenied
-        | errno == ePROCUNAVAIL    = UnsupportedOperation
-        | errno == ePROGMISMATCH   = ProtocolError
-        | errno == ePROGUNAVAIL    = UnsupportedOperation
-        | errno == ePROTO          = ProtocolError
-        | errno == ePROTONOSUPPORT = ProtocolError
-        | errno == ePROTOTYPE      = ProtocolError
-        | errno == eRANGE          = UnsupportedOperation
-        | errno == eREMCHG         = ResourceVanished
-        | errno == eREMOTE         = IllegalOperation
-        | errno == eROFS           = PermissionDenied
-        | errno == eRPCMISMATCH    = ProtocolError
-        | errno == eRREMOTE        = IllegalOperation
-        | errno == eSHUTDOWN       = IllegalOperation
-        | errno == eSOCKTNOSUPPORT = UnsupportedOperation
-        | errno == eSPIPE          = UnsupportedOperation
-        | errno == eSRCH           = NoSuchThing
-        | errno == eSRMNT          = UnsatisfiedConstraints
-        | errno == eSTALE          = ResourceVanished
-        | errno == eTIME           = TimeExpired
-        | errno == eTIMEDOUT       = TimeExpired
-        | errno == eTOOMANYREFS    = ResourceExhausted
-        | errno == eTXTBSY         = ResourceBusy
-        | errno == eUSERS          = ResourceExhausted
-        | errno == eWOULDBLOCK     = OtherError
-        | errno == eXDEV           = UnsupportedOperation
-        | otherwise                = OtherError
-#else
-    return (userError (loc ++ ": " ++ str ++ maybe "" (": "++) maybeName))
-#endif
+data ErrnoError = ErrnoError String Errno (Maybe String)
 
-foreign import ccall unsafe "string.h" strerror :: Errno -> IO (Ptr CChar)
+instance Typeable ErrnoError
+instance Show ErrnoError
+instance Exception ErrnoError
 

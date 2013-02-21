@@ -126,10 +126,10 @@ utf32_decode seen_bom
 
 
 bom0, bom1, bom2, bom3 :: Word8
-bom0 = 0
-bom1 = 0
-bom2 = 0xfe
-bom3 = 0xff
+bom0 = fromInteger 0
+bom1 = fromInteger 0
+bom2 = fromInteger 0xfe
+bom3 = fromInteger 0xff
 
 -- choose UTF-32BE by default for UTF-32 output
 utf32_native_decode :: DecodeBuffer
