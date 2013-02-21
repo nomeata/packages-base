@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE CPP, NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
@@ -113,3 +114,6 @@ read :: Read a => String -> a
 read s = either error id (readEither s)
 #endif
 
+
+ifThenElse True a b = a
+ifThenElse False a b = b

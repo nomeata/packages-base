@@ -57,11 +57,18 @@ Library {
         GHC.Int,
         GHC.List,
         GHC.Num,
+        GHC.Read,
         GHC.Real,
         GHC.Show,
         GHC.Unicode,
         GHC.Word,
         Unsafe.Coerce
+        Text.ParserCombinators.ReadP
+        Text.ParserCombinators.ReadPrec
+        Text.Read
+        Text.Read.Lex
+        Text.Show
+        Text.Show.Functions
     include-dirs: include
 }
 

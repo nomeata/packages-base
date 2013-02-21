@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE CPP, NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
@@ -68,14 +69,18 @@ data Lexeme
   | Symbol String       -- ^ Haskell symbol, e.g. @>>@, @:%@
   | Number Number
   | EOF
- deriving (Eq, Show)
+ deriving (Eq)
+
+instance Show Lexeme
 
 data Number = MkNumber Int              -- Base
                        Digits           -- Integral part
             | MkDecimal Digits          -- Integral part
                         (Maybe Digits)  -- Fractional part
                         (Maybe Integer) -- Exponent
- deriving (Eq, Show)
+ deriving (Eq)
+
+instance Show Number
 
 numberToInteger :: Number -> Maybe Integer
 numberToInteger (MkNumber base iPart) = Just (val (fromIntegral base) 0 iPart)
@@ -478,16 +483,18 @@ valDecDig c
 readIntP :: Num a => a -> (Char -> Bool) -> (Char -> Int) -> ReadP a
 readIntP base isDigit valDigit =
   do s <- munch1 isDigit
-     return (val base 0 (map valDigit s))
+     return (val base (fromInteger 0) (map valDigit s))
 
 readIntP' :: (Eq a, Num a) => a -> ReadP a
 readIntP' base = readIntP base isDigit valDigit
  where
   isDigit  c = maybe False (const True) (valDig base c)
-  valDigit c = maybe 0     id           (valDig base c)
+  valDigit c = maybe (fromInteger 0)     id           (valDig base c)
 
 readOctP, readDecP, readHexP :: (Eq a, Num a) => ReadP a
-readOctP = readIntP' 8
-readDecP = readIntP' 10
-readHexP = readIntP' 16
+readOctP = readIntP' (fromInteger 8)
+readDecP = readIntP' (fromInteger 10)
+readHexP = readIntP' (fromInteger 16)
 
+ifThenElse True a b = a
+ifThenElse False a b = b

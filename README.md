@@ -60,3 +60,5 @@ Some changes are just work-arounds due to GHC having the package name `base` har
  * Lots of `fromInteger` and `negate`, to explicitly use the `Num` cass from `pure-base`
  * Changes from `deriving` to proper (but empty) class declarations.
  * Replacing every `foreign import` by a regular definition with `... = undefined`
+ * Packages with do-notation have a `RebindableSyntax` to pick up the proper `Monad` instance. This requires implementing `ifThenElse` there locally.
+ * I did not pay attention to Safe and Trustworthy attributes; these will have to be recovered

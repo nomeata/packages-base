@@ -1,5 +1,5 @@
-{-# LANGUAGE Safe #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 -- This module deliberately declares orphan instances:
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -22,7 +22,8 @@
 
 module Text.Show.Functions () where
 
-import Prelude
+import GHC.Base
+import GHC.Show
 
 #ifndef __NHC__
 instance Show (a -> b) where

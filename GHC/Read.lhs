@@ -2,6 +2,7 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP, NoImplicitPrelude, StandaloneDeriving, PatternGuards,
              ScopedTypeVariables #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 -----------------------------------------------------------------------------
@@ -68,11 +69,11 @@ import Data.Maybe
 import {-# SOURCE #-} GHC.Unicode       ( isDigit )
 import GHC.Num
 import GHC.Real
-import GHC.Float
+--import GHC.Float
 import GHC.Show
 import GHC.Base
 import GHC.Err
-import GHC.Arr
+--import GHC.Arr
 \end{code}
 
 
@@ -429,6 +430,7 @@ instance Read a => Read [a] where
   readListPrec = readListPrecDefault
   readList     = readListDefault
 
+{-
 instance  (Ix a, Read a, Read b) => Read (Array a b)  where
     readPrec = parens $ prec appPrec $
                do L.Ident "array" <- lexP
@@ -438,6 +440,7 @@ instance  (Ix a, Read a, Read b) => Read (Array a b)  where
 
     readListPrec = readListPrecDefault
     readList     = readListDefault
+-}
 
 instance Read L.Lexeme where
   readPrec     = lexP
@@ -472,6 +475,7 @@ convertInt (L.Number n)
  | Just i <- L.numberToInteger n = return (fromInteger i)
 convertInt _ = pfail
 
+{-
 convertFrac :: forall a . RealFloat a => L.Lexeme -> ReadPrec a
 convertFrac (L.Ident "NaN")      = return (0 / 0)
 convertFrac (L.Ident "Infinity") = return (1 / 0)
@@ -480,6 +484,7 @@ convertFrac (L.Number n) = let resRange = floatRange (undefined :: a)
                               Nothing -> return (1 / 0)
                               Just rat -> return $ fromRational rat
 convertFrac _            = pfail
+-}
 
 instance Read Int where
   readPrec     = readNumber convertInt
@@ -494,6 +499,7 @@ instance Read Integer where
   readListPrec = readListPrecDefault
   readList     = readListDefault
 
+{-
 instance Read Float where
   readPrec     = readNumber convertFrac
   readListPrec = readListPrecDefault
@@ -503,6 +509,7 @@ instance Read Double where
   readPrec     = readNumber convertFrac
   readListPrec = readListPrecDefault
   readList     = readListDefault
+-}
 
 instance (Integral a, Read a) => Read (Ratio a) where
   readPrec =
@@ -687,4 +694,7 @@ instance (Read a, Read b, Read c, Read d, Read e, Read f, Read g, Read h,
 
 readp :: Read a => ReadP a
 readp = readPrec_to_P readPrec minPrec
+
+ifThenElse True a b = a
+ifThenElse False a b = b
 \end{code}

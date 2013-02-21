@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE CPP, NoImplicitPrelude #-}
 #ifndef __NHC__
 {-# LANGUAGE Rank2Types #-}
@@ -542,3 +543,5 @@ Here follow the properties:
 >    readP_to_S (readS_to_P r) s =~. r s
 -}
 
+ifThenElse True a b = a
+ifThenElse False a b = b

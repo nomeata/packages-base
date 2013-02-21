@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE CPP, NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
@@ -163,3 +164,5 @@ readPrec_to_S (P f) n = readP_to_S (f n)
 readS_to_Prec :: (Int -> ReadS a) -> ReadPrec a
 readS_to_Prec f = P (\n -> readS_to_P (f n))
 
+ifThenElse True a b = a
+ifThenElse False a b = b
