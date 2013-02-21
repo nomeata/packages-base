@@ -1,4 +1,5 @@
 {-# LANGUAGE Unsafe #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -21,8 +22,10 @@
 module Control.Monad.ST.Unsafe (
         -- * Unsafe operations
         unsafeInterleaveST,
+{-
         unsafeIOToST,
         unsafeSTToIO
+-}
     ) where
 
 import Control.Monad.ST.Imp

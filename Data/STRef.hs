@@ -1,4 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE CPP #-}
 
 -----------------------------------------------------------------------------
@@ -25,7 +27,7 @@ module Data.STRef (
         modifySTRef'    -- :: STRef s a -> (a -> a) -> ST s ()
  ) where
 
-import Prelude
+import Prelude.Pure
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.ST

@@ -1,4 +1,5 @@
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -25,7 +26,7 @@ module Data.STRef.Lazy (
 
 import Control.Monad.ST.Lazy.Safe
 import qualified Data.STRef as ST
-import Prelude
+import Prelude.Pure
 
 newSTRef    :: a -> ST s (ST.STRef s a)
 readSTRef   :: ST.STRef s a -> ST s a

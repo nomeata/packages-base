@@ -1,0 +1,1 @@
+../../../../Control/Monad/ST/Strict.hs

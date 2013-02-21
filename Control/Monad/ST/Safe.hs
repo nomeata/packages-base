@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -24,9 +25,11 @@ module Control.Monad.ST.Safe (
         runST,          -- :: (forall s. ST s a) -> a
         fixST,          -- :: (a -> ST s a) -> ST s a
 
+{-
         -- * Converting 'ST' to 'IO'
         RealWorld,              -- abstract
         stToIO,                 -- :: ST RealWorld a -> IO a
+-}
     ) where
 
 import Control.Monad.ST.Imp

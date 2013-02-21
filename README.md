@@ -38,6 +38,7 @@ Changes so far
 These packages have been introduced so far:
 
  * base-pure: Basic stuff without `IO`, `Foreign` or floating point arithmetic. 
+ * base-st: The `ST` monad
  * base-io: The `IO` and `ST` monads. `ST` could be separated as well.
  * base-foreign: Everything related to `Foreign`.
 

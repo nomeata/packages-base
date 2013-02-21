@@ -1,4 +1,5 @@
 {-# LANGUAGE Unsafe #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 
@@ -25,15 +26,21 @@ module Control.Monad.ST.Imp (
         runST,          -- :: (forall s. ST s a) -> a
         fixST,          -- :: (a -> ST s a) -> ST s a
 
+{-
         -- * Converting 'ST' to 'IO'
         RealWorld,              -- abstract
         stToIO,                 -- :: ST RealWorld a -> IO a
+-}
 
         -- * Unsafe operations
         unsafeInterleaveST,     -- :: ST s a -> ST s a
+{-
         unsafeIOToST,           -- :: IO a -> ST s a
         unsafeSTToIO            -- :: ST s a -> IO a
+-}
     ) where
+
+import Prelude.Pure
 
 #if !defined(__GLASGOW_HASKELL__)
 import Control.Monad.Fix
@@ -43,8 +50,8 @@ import Control.Monad.Fix
 
 #if defined(__GLASGOW_HASKELL__)
 import GHC.ST           ( ST, runST, fixST, unsafeInterleaveST )
-import GHC.Base         ( RealWorld )
-import GHC.IO           ( stToIO, unsafeIOToST, unsafeSTToIO )
+--import GHC.Base         ( RealWorld )
+--import GHC.IO           ( stToIO, unsafeIOToST, unsafeSTToIO )
 #elif defined(__HUGS__)
 import Data.Typeable
 import Hugs.ST

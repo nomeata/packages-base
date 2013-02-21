@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -27,9 +28,11 @@ module Control.Monad.ST.Lazy.Safe (
         -- * Converting between strict and lazy 'ST'
         strictToLazyST, lazyToStrictST,
 
+{-
         -- * Converting 'ST' To 'IO'
         RealWorld,
         stToIO,
+-}
     ) where
 
 import Control.Monad.ST.Lazy.Imp

@@ -1,4 +1,5 @@
 {-# LANGUAGE Unsafe #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE CPP, MagicHash, UnboxedTuples, Rank2Types #-}
 {-# OPTIONS_HADDOCK hide #-}
 
@@ -28,16 +29,20 @@ module Control.Monad.ST.Lazy.Imp (
         -- * Converting between strict and lazy 'ST'
         strictToLazyST, lazyToStrictST,
 
+{-
         -- * Converting 'ST' To 'IO'
         RealWorld,
         stToIO,
+-}        
 
         -- * Unsafe operations
         unsafeInterleaveST,
+{-
         unsafeIOToST
+-}        
     ) where
 
-import Prelude
+import Prelude.Pure
 
 import Control.Monad.Fix
 
@@ -142,12 +147,14 @@ lazyToStrictST (ST m) = GHC.ST.ST $ \s ->
         case (m (S# s)) of (a, S# s') -> (# s', a #)
 #endif
 
+{-
 -- | A monad transformer embedding lazy state transformers in the 'IO'
 -- monad.  The 'RealWorld' parameter indicates that the internal state
 -- used by the 'ST' computation is a special one supplied by the 'IO'
 -- monad, and thus distinct from those used by invocations of 'runST'.
 stToIO :: ST RealWorld a -> IO a
 stToIO = ST.stToIO . lazyToStrictST
+-}
 
 -- ---------------------------------------------------------------------------
 -- Strict <--> Lazy
@@ -157,6 +164,7 @@ unsafeInterleaveST :: ST s a -> ST s a
 unsafeInterleaveST = strictToLazyST . ST.unsafeInterleaveST . lazyToStrictST
 #endif
 
+{-
 unsafeIOToST :: IO a -> ST s a
 unsafeIOToST = strictToLazyST . ST.unsafeIOToST
-
+-}

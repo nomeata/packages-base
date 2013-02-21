@@ -1,4 +1,5 @@
 {-# LANGUAGE Unsafe #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -25,6 +26,7 @@ module Control.Monad.ST.Lazy (
         -- * Converting between strict and lazy 'ST'
         strictToLazyST, lazyToStrictST,
 
+{-
         -- * Converting 'ST' To 'IO'
         RealWorld,
         stToIO,
@@ -32,20 +34,9 @@ module Control.Monad.ST.Lazy (
         -- * Unsafe Functions
         unsafeInterleaveST,
         unsafeIOToST
+-}
     ) where
 
+import Prelude.Pure
 import Control.Monad.ST.Lazy.Safe
 import qualified Control.Monad.ST.Lazy.Unsafe as U
-
-{-# DEPRECATED unsafeInterleaveST, unsafeIOToST
-              "Please import from Control.Monad.ST.Lazy.Unsafe instead; This will be removed in the next release"
- #-}
-
-{-# INLINE unsafeInterleaveST #-}
-unsafeInterleaveST :: ST s a -> ST s a
-unsafeInterleaveST = U.unsafeInterleaveST
-
-{-# INLINE unsafeIOToST #-}
-unsafeIOToST :: IO a -> ST s a
-unsafeIOToST = U.unsafeIOToST
-
