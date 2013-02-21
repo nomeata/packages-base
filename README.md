@@ -24,6 +24,13 @@ How to test
     ghc-pkg recache --package-db=/tmp/base-split/
     cabal install base-*/ --disable-library-profiling --package-db=clear --package-db=global --package-db=/tmp/base-split/ --prefix=/tmp/base-split/ --disable-documentation --force-reinstalls
 
+You can also check whether the split makes sense, i.e. whether every file is in
+exactly one of the splitted packages, by running
+
+    ./verify-split.pl
+
+(On Debian or Ubuntu, install `libfile-find-rule-perl` first.)
+
 
 Changes so far
 --------------
