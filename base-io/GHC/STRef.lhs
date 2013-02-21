@@ -1,1 +1,0 @@
-../../GHC/STRef.lhs

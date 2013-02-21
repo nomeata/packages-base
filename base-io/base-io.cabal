@@ -17,12 +17,10 @@ source-repository head
     location: http://darcs.haskell.org/packages/base.git/
 
 Library {
-    build-depends: rts, ghc-prim, base-pure
+    build-depends: rts, ghc-prim, base-pure, base-st
     exposed-modules:
         GHC.IO.Fail,
         GHC.IO,
-        GHC.ST,
-        GHC.STRef
         GHC.IORef,
         GHC.Weak
         System.IO.Unsafe

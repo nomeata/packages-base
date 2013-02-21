@@ -38,8 +38,8 @@ Changes so far
 These packages have been introduced so far:
 
  * base-pure: Basic stuff without `IO`, `Foreign` or floating point arithmetic. 
- * base-st: The `ST` monad
- * base-io: The `IO` and `ST` monads. `ST` could be separated as well.
+ * base-st: The `ST` monad.
+ * base-io: The `IO` monad.
  * base-foreign: Everything related to `Foreign`.
 
 Some changes are intended to end up in the final libraries, if this approach is
@@ -51,6 +51,7 @@ accepted:
  * Introduction of new `Exceptions` that used to be `IOExceptions`, but need to exist before `IOHandles` exist:
    * `IOFail`, `ErrnoError`, `OOMException`, `CodingError`
  * `GHC.Unicode` does some foreign calls. To avoid pulling in all of `Foreign.C.Types`, a simple `type CInt = HTYPE_INT` ought to suffice.
+ * `IO`-`ST`-conversion functions are no longer provided by the modules in `base-st` packages. These most likely need to be added to a module in `base-io` somewhere.
 
 Some changes are just work-arounds due to GHC having the package name `base` hardcoded:
 
