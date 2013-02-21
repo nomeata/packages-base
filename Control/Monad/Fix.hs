@@ -1,5 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -25,14 +26,18 @@ module Control.Monad.Fix (
         fix     -- :: (a -> a) -> a
   ) where
 
-import Prelude
-import System.IO
+import GHC.Base
+import Data.Maybe
+import Data.List
+import Data.Either
+
+-- import System.IO
 import Data.Function (fix)
 #ifdef __HUGS__
 import Hugs.Prelude (MonadFix(mfix))
 #endif
 #if defined(__GLASGOW_HASKELL__)
-import GHC.ST
+--import GHC.ST
 #endif
 
 #ifndef __HUGS__
@@ -74,8 +79,10 @@ instance MonadFix [] where
                []    -> []
                (x:_) -> x : mfix (tail . f)
 
+{-
 instance MonadFix IO where
     mfix = fixIO 
+-}
 
 instance MonadFix ((->) r) where
     mfix f = \ r -> let a = f a r in a
@@ -85,8 +92,10 @@ instance MonadFix (Either e) where
              where unRight (Right x) = x
                    unRight (Left  _) = error "mfix Either: Left"
 
+{-
 #if defined(__GLASGOW_HASKELL__)
 instance MonadFix (ST s) where
         mfix = fixST
 #endif
+-}
 

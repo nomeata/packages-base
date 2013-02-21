@@ -1,6 +1,6 @@
 \begin{code}
 {-# LANGUAGE Trustworthy #-}
-{-# LANGUAGE NoImplicitPrelude, BangPatterns, MagicHash #-}
+{-# LANGUAGE NoImplicitPrelude, BangPatterns, MagicHash, CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 -----------------------------------------------------------------------------

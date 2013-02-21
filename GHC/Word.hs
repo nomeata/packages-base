@@ -36,11 +36,11 @@ import GHC.Base
 import GHC.Enum
 import GHC.Num
 import GHC.Real
-import GHC.Read
-import GHC.Arr
+--import GHC.Read
+--import GHC.Arr
 import GHC.Show
 import GHC.Err
-import GHC.Float ()     -- for RealFrac methods
+--import GHC.Float ()     -- for RealFrac methods
 
 ------------------------------------------------------------------------
 -- type Word8
@@ -61,22 +61,21 @@ instance Num Word8 where
     (W8# x#) * (W8# y#)    = W8# (narrow8Word# (x# `timesWord#` y#))
     negate (W8# x#)        = W8# (narrow8Word# (int2Word# (negateInt# (word2Int# x#))))
     abs x                  = x
-    signum 0               = 0
-    signum _               = 1
+    signum n = if n == fromInteger 0 then fromInteger 0 else fromInteger 1
     fromInteger i          = W8# (narrow8Word# (integerToWord i))
 
 instance Real Word8 where
-    toRational x = toInteger x % 1
+    toRational x = toInteger x % fromInteger 1
 
 instance Enum Word8 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Word8"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Word8"
     toEnum i@(I# i#)
-        | i >= 0 && i <= fromIntegral (maxBound::Word8)
+        | i >= fromInteger 0 && i <= fromIntegral (maxBound::Word8)
                         = W8# (int2Word# i#)
         | otherwise     = toEnumError "Word8" i (minBound::Word8, maxBound::Word8)
     fromEnum (W8# x#)   = I# (word2Int# x#)
@@ -85,38 +84,42 @@ instance Enum Word8 where
 
 instance Integral Word8 where
     quot    (W8# x#) y@(W8# y#)
-        | y /= 0                  = W8# (x# `quotWord#` y#)
+        | y /= fromInteger 0                  = W8# (x# `quotWord#` y#)
         | otherwise               = divZeroError
     rem     (W8# x#) y@(W8# y#)
-        | y /= 0                  = W8# (x# `remWord#` y#)
+        | y /= fromInteger 0                  = W8# (x# `remWord#` y#)
         | otherwise               = divZeroError
     div     (W8# x#) y@(W8# y#)
-        | y /= 0                  = W8# (x# `quotWord#` y#)
+        | y /= fromInteger 0                  = W8# (x# `quotWord#` y#)
         | otherwise               = divZeroError
     mod     (W8# x#) y@(W8# y#)
-        | y /= 0                  = W8# (x# `remWord#` y#)
+        | y /= fromInteger 0                  = W8# (x# `remWord#` y#)
         | otherwise               = divZeroError
     quotRem (W8# x#) y@(W8# y#)
-        | y /= 0                  = case x# `quotRemWord#` y# of
+        | y /= fromInteger 0                  = case x# `quotRemWord#` y# of
                                     (# q, r #) ->
                                         (W8# q, W8# r)
         | otherwise               = divZeroError
     divMod  (W8# x#) y@(W8# y#)
-        | y /= 0                  = (W8# (x# `quotWord#` y#), W8# (x# `remWord#` y#))
+        | y /= fromInteger 0                  = (W8# (x# `quotWord#` y#), W8# (x# `remWord#` y#))
         | otherwise               = divZeroError
     toInteger (W8# x#)            = smallInteger (word2Int# x#)
 
 instance Bounded Word8 where
-    minBound = 0
-    maxBound = 0xFF
+    minBound = fromInteger 0
+    maxBound = fromInteger 0xFF
 
+{-
 instance Ix Word8 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
+{-
 instance Read Word8 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
+-}
 
 instance Bits Word8 where
     {-# INLINE shift #-}
@@ -204,8 +207,7 @@ instance Num Word16 where
     (W16# x#) * (W16# y#)  = W16# (narrow16Word# (x# `timesWord#` y#))
     negate (W16# x#)       = W16# (narrow16Word# (int2Word# (negateInt# (word2Int# x#))))
     abs x                  = x
-    signum 0               = 0
-    signum _               = 1
+    signum n = if n == fromInteger 0 then fromInteger 0 else fromInteger 1
     fromInteger i          = W16# (narrow16Word# (integerToWord i))
 
 instance Real Word16 where
@@ -213,13 +215,13 @@ instance Real Word16 where
 
 instance Enum Word16 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Word16"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Word16"
     toEnum i@(I# i#)
-        | i >= 0 && i <= fromIntegral (maxBound::Word16)
+        | i >= fromInteger 0 && i <= fromIntegral (maxBound::Word16)
                         = W16# (int2Word# i#)
         | otherwise     = toEnumError "Word16" i (minBound::Word16, maxBound::Word16)
     fromEnum (W16# x#)  = I# (word2Int# x#)
@@ -228,38 +230,42 @@ instance Enum Word16 where
 
 instance Integral Word16 where
     quot    (W16# x#) y@(W16# y#)
-        | y /= 0                    = W16# (x# `quotWord#` y#)
+        | y /= fromInteger 0                    = W16# (x# `quotWord#` y#)
         | otherwise                 = divZeroError
     rem     (W16# x#) y@(W16# y#)
-        | y /= 0                    = W16# (x# `remWord#` y#)
+        | y /= fromInteger 0                    = W16# (x# `remWord#` y#)
         | otherwise                 = divZeroError
     div     (W16# x#) y@(W16# y#)
-        | y /= 0                    = W16# (x# `quotWord#` y#)
+        | y /= fromInteger 0                    = W16# (x# `quotWord#` y#)
         | otherwise                 = divZeroError
     mod     (W16# x#) y@(W16# y#)
-        | y /= 0                    = W16# (x# `remWord#` y#)
+        | y /= fromInteger 0                    = W16# (x# `remWord#` y#)
         | otherwise                 = divZeroError
     quotRem (W16# x#) y@(W16# y#)
-        | y /= 0                  = case x# `quotRemWord#` y# of
+        | y /= fromInteger 0                  = case x# `quotRemWord#` y# of
                                     (# q, r #) ->
                                         (W16# q, W16# r)
         | otherwise                 = divZeroError
     divMod  (W16# x#) y@(W16# y#)
-        | y /= 0                    = (W16# (x# `quotWord#` y#), W16# (x# `remWord#` y#))
+        | y /= fromInteger 0                    = (W16# (x# `quotWord#` y#), W16# (x# `remWord#` y#))
         | otherwise                 = divZeroError
     toInteger (W16# x#)             = smallInteger (word2Int# x#)
 
 instance Bounded Word16 where
-    minBound = 0
-    maxBound = 0xFFFF
+    minBound = fromInteger 0
+    maxBound = fromInteger 0xFFFF
 
+{-
 instance Ix Word16 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
+{-
 instance Read Word16 where
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
+-}
 
 instance Bits Word16 where
     {-# INLINE shift #-}
@@ -381,19 +387,18 @@ instance Num Word32 where
     (W32# x#) * (W32# y#)  = W32# (narrow32Word# (x# `timesWord#` y#))
     negate (W32# x#)       = W32# (narrow32Word# (int2Word# (negateInt# (word2Int# x#))))
     abs x                  = x
-    signum 0               = 0
-    signum _               = 1
+    signum n = if n == fromInteger 0 then fromInteger 0 else fromInteger 1
     fromInteger i          = W32# (narrow32Word# (integerToWord i))
 
 instance Enum Word32 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Word32"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Word32"
     toEnum i@(I# i#)
-        | i >= 0
+        | i >= fromInteger 0
 #if WORD_SIZE_IN_BITS > 32
           && i <= fromIntegral (maxBound::Word32)
 #endif
@@ -416,24 +421,24 @@ instance Enum Word32 where
 
 instance Integral Word32 where
     quot    (W32# x#) y@(W32# y#)
-        | y /= 0                    = W32# (x# `quotWord#` y#)
+        | y /= fromInteger 0                    = W32# (x# `quotWord#` y#)
         | otherwise                 = divZeroError
     rem     (W32# x#) y@(W32# y#)
-        | y /= 0                    = W32# (x# `remWord#` y#)
+        | y /= fromInteger 0                    = W32# (x# `remWord#` y#)
         | otherwise                 = divZeroError
     div     (W32# x#) y@(W32# y#)
-        | y /= 0                    = W32# (x# `quotWord#` y#)
+        | y /= fromInteger 0                    = W32# (x# `quotWord#` y#)
         | otherwise                 = divZeroError
     mod     (W32# x#) y@(W32# y#)
-        | y /= 0                    = W32# (x# `remWord#` y#)
+        | y /= fromInteger 0                    = W32# (x# `remWord#` y#)
         | otherwise                 = divZeroError
     quotRem (W32# x#) y@(W32# y#)
-        | y /= 0                  = case x# `quotRemWord#` y# of
+        | y /= fromInteger 0                  = case x# `quotRemWord#` y# of
                                     (# q, r #) ->
                                         (W32# q, W32# r)
         | otherwise                 = divZeroError
     divMod  (W32# x#) y@(W32# y#)
-        | y /= 0                    = (W32# (x# `quotWord#` y#), W32# (x# `remWord#` y#))
+        | y /= fromInteger 0                    = (W32# (x# `quotWord#` y#), W32# (x# `remWord#` y#))
         | otherwise                 = divZeroError
     toInteger (W32# x#)
 #if WORD_SIZE_IN_BITS == 32
@@ -496,20 +501,24 @@ instance Real Word32 where
     toRational x = toInteger x % 1
 
 instance Bounded Word32 where
-    minBound = 0
-    maxBound = 0xFFFFFFFF
+    minBound = fromInteger 0
+    maxBound = fromInteger 0xFFFFFFFF
 
+{-
 instance Ix Word32 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
+{-
 instance Read Word32 where  
 #if WORD_SIZE_IN_BITS < 33
     readsPrec p s = [(fromInteger x, r) | (x, r) <- readsPrec p s]
 #else
     readsPrec p s = [(fromIntegral (x::Int), r) | (x, r) <- readsPrec p s]
 #endif
+-}
 
 ------------------------------------------------------------------------
 -- type Word64
@@ -536,8 +545,7 @@ instance Num Word64 where
     (W64# x#) * (W64# y#)  = W64# (int64ToWord64# (word64ToInt64# x# `timesInt64#` word64ToInt64# y#))
     negate (W64# x#)       = W64# (int64ToWord64# (negateInt64# (word64ToInt64# x#)))
     abs x                  = x
-    signum 0               = 0
-    signum _               = 1
+    signum n = if n == fromInteger 0 then fromInteger 0 else fromInteger 1
     fromInteger i          = W64# (integerToWord64 i)
 
 instance Enum Word64 where
@@ -644,16 +652,15 @@ instance Num Word64 where
     (W64# x#) * (W64# y#)  = W64# (x# `timesWord#` y#)
     negate (W64# x#)       = W64# (int2Word# (negateInt# (word2Int# x#)))
     abs x                  = x
-    signum 0               = 0
-    signum _               = 1
+    signum n = if n == fromInteger 0 then fromInteger 0 else fromInteger 1
     fromInteger i          = W64# (integerToWord i)
 
 instance Enum Word64 where
     succ x
-        | x /= maxBound = x + 1
+        | x /= maxBound = x + fromInteger 1
         | otherwise     = succError "Word64"
     pred x
-        | x /= minBound = x - 1
+        | x /= minBound = x - fromInteger 1
         | otherwise     = predError "Word64"
     toEnum i@(I# i#)
         | i >= 0        = W64# (int2Word# i#)
@@ -669,24 +676,24 @@ instance Enum Word64 where
 
 instance Integral Word64 where
     quot    (W64# x#) y@(W64# y#)
-        | y /= 0                    = W64# (x# `quotWord#` y#)
+        | y /= fromInteger 0                    = W64# (x# `quotWord#` y#)
         | otherwise                 = divZeroError
     rem     (W64# x#) y@(W64# y#)
-        | y /= 0                    = W64# (x# `remWord#` y#)
+        | y /= fromInteger 0                    = W64# (x# `remWord#` y#)
         | otherwise                 = divZeroError
     div     (W64# x#) y@(W64# y#)
-        | y /= 0                    = W64# (x# `quotWord#` y#)
+        | y /= fromInteger 0                    = W64# (x# `quotWord#` y#)
         | otherwise                 = divZeroError
     mod     (W64# x#) y@(W64# y#)
-        | y /= 0                    = W64# (x# `remWord#` y#)
+        | y /= fromInteger 0                    = W64# (x# `remWord#` y#)
         | otherwise                 = divZeroError
     quotRem (W64# x#) y@(W64# y#)
-        | y /= 0                  = case x# `quotRemWord#` y# of
+        | y /= fromInteger 0                  = case x# `quotRemWord#` y# of
                                     (# q, r #) ->
                                         (W64# q, W64# r)
         | otherwise                 = divZeroError
     divMod  (W64# x#) y@(W64# y#)
-        | y /= 0                    = (W64# (x# `quotWord#` y#), W64# (x# `remWord#` y#))
+        | y /= fromInteger 0                    = (W64# (x# `quotWord#` y#), W64# (x# `remWord#` y#))
         | otherwise                 = divZeroError
     toInteger (W64# x#)
         | i# >=# 0#                 = smallInteger i#
@@ -743,14 +750,18 @@ instance Real Word64 where
     toRational x = toInteger x % 1
 
 instance Bounded Word64 where
-    minBound = 0
-    maxBound = 0xFFFFFFFFFFFFFFFF
+    minBound = fromInteger 0
+    maxBound = fromInteger 0xFFFFFFFFFFFFFFFF
 
+{-
 instance Ix Word64 where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
+-}
 
+{-
 instance Read Word64 where
     readsPrec p s = [(fromInteger x, r) | (x, r) <- readsPrec p s]
+-}
 

@@ -1,0 +1,64 @@
+name:           base-pure
+version:        0.1
+license:        BSD3
+license-file:   LICENSE
+maintainer:     libraries@haskell.org
+bug-reports: http://hackage.haskell.org/trac/ghc/newticket?component=libraries/base
+synopsis:       Basic libraries (pure ones)
+description:
+    TODO
+cabal-version:  >=1.6
+build-type: Simple
+
+Flag integer-simple
+    Description: Use integer-simple
+
+Library {
+    if flag(integer-simple)
+        build-depends: integer-simple
+    else
+        build-depends: integer-gmp
+        cpp-options: -DOPTIMISE_INTEGER_GCD_LCM
+    build-depends: ghc-prim
+    exposed-modules:
+        Control.Applicative,
+        Control.Arrow,
+        Control.Category,
+        Control.Monad.Fix,
+        Control.Monad,
+        Data.Bits,
+        Data.Bool,
+        Data.Either,
+        Data.Eq,
+        Data.Foldable,
+        Data.Function,
+        Data.Functor,
+        Data.Int,
+        Data.Int.Show,
+        Data.List,
+        Data.Maybe,
+        Data.Monoid,
+        Data.Ord,
+        Data.Ratio,
+        Data.Traversable,
+        Data.Tuple,
+        Data.Typeable,
+        Data.Typeable.Internal,
+        Data.Word,
+        GHC.Base,
+        GHC.Char,
+        GHC.Enum,
+        GHC.Err,
+        GHC.Exception,
+        GHC.Fingerprint,
+        GHC.Fingerprint.Type,
+        GHC.Int,
+        GHC.List,
+        GHC.Num,
+        GHC.Real,
+        GHC.Show,
+        GHC.Word,
+        Unsafe.Coerce
+    include-dirs: include
+}
+

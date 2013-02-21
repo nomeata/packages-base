@@ -1,5 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -45,18 +46,23 @@ module Control.Applicative (
     optional,
     ) where
 
-import Prelude hiding (id,(.))
+import Data.List
+import Data.Tuple
+import Data.Maybe
+import Data.Either
+import GHC.Base hiding (id, (.))
 
 import Control.Category
 import Control.Arrow
 import Control.Monad (liftM, ap, MonadPlus(..))
 #ifndef __NHC__
-import Control.Monad.ST.Safe (ST)
-import qualified Control.Monad.ST.Lazy.Safe as Lazy (ST)
+--import Control.Monad.ST.Safe (ST)
+--import qualified Control.Monad.ST.Lazy.Safe as Lazy (ST)
 #endif
-import Data.Functor ((<$>), (<$))
+import Data.Functor (Functor(..), (<$>), (<$))
 import Data.Monoid (Monoid(..))
 
+{-
 import Text.ParserCombinators.ReadP
 #ifndef __NHC__
   (ReadP)
@@ -66,9 +72,10 @@ import Text.ParserCombinators.ReadP
 #endif
 
 import Text.ParserCombinators.ReadPrec (ReadPrec)
+-}
 
 #ifdef __GLASGOW_HASKELL__
-import GHC.Conc (STM, retry, orElse)
+--import GHC.Conc (STM, retry, orElse)
 #endif
 
 infixl 3 <|>
@@ -177,6 +184,7 @@ instance Alternative [] where
     empty = []
     (<|>) = (++)
 
+{-
 instance Applicative IO where
     pure = return
     (<*>) = ap
@@ -200,6 +208,7 @@ instance Alternative STM where
     empty = retry
     (<|>) = orElse
 #endif
+-}
 
 instance Applicative ((->) a) where
     pure = const
@@ -214,6 +223,7 @@ instance Applicative (Either e) where
     Left  e <*> _ = Left e
     Right f <*> r = fmap f r
 
+{-
 instance Applicative ReadP where
     pure = return
     (<*>) = ap
@@ -229,6 +239,7 @@ instance Applicative ReadPrec where
 instance Alternative ReadPrec where
     empty = mzero
     (<|>) = mplus
+-}
 
 instance Arrow a => Applicative (ArrowMonad a) where
    pure x = ArrowMonad (arr (const x))

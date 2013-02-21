@@ -1,5 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -14,8 +15,6 @@
 -- http://hackage.haskell.org/trac/ghc/ticket/1773
 
 module Control.Category where
-
-import qualified Prelude
 
 infixr 9 .
 infixr 1 >>>, <<<
@@ -39,8 +38,8 @@ class Category cat where
  #-}
 
 instance Category (->) where
-    id = Prelude.id
-    (.) = (Prelude..)
+    id x = x
+    f . g = \x -> f (g x)
 
 -- | Right-to-left composition
 (<<<) :: Category cat => cat b c -> cat a b -> cat a c

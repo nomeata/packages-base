@@ -44,7 +44,8 @@ When an exception of type @e@ is thrown, behind the scenes it is
 encapsulated in a @SomeException@.
 -}
 data SomeException = forall e . Exception e => SomeException e
-    deriving Typeable
+
+instance Typeable SomeException
 
 instance Show SomeException where
     showsPrec p (SomeException e) = showsPrec p e
@@ -166,7 +167,8 @@ throw e = raise# (toException e)
 -- |This is thrown when the user calls 'error'. The @String@ is the
 -- argument given to 'error'.
 data ErrorCall = ErrorCall String
-    deriving Typeable
+
+instance Typeable ErrorCall
 
 instance Exception ErrorCall
 
@@ -183,7 +185,9 @@ data ArithException
   | DivideByZero
   | Denormal
   | RatioZeroDenominator
-  deriving (Eq, Ord, Typeable)
+  deriving (Eq, Ord)
+
+instance Typeable ArithException
 
 instance Exception ArithException
 

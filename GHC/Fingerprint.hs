@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE NoImplicitPrelude
            , BangPatterns
            , ForeignFunctionInterface
@@ -16,18 +17,55 @@
 
 module GHC.Fingerprint (
         Fingerprint(..), fingerprint0, 
-        fingerprintData,
+        -- fingerprintData,
         fingerprintString,
         fingerprintFingerprints
    ) where
 
-import GHC.IO
+import GHC.Base
+import GHC.Fingerprint.Type
+import GHC.Num
+import GHC.Word
+import Data.Bits
+import GHC.Real
+import Data.List
+
+fingerprint0 :: Fingerprint
+fingerprint0 = Fingerprint (fromInteger 0)
+
+fingerprintFingerprints :: [Fingerprint] -> Fingerprint
+fingerprintFingerprints = Fingerprint . fnv1a . splitWords . map (\(Fingerprint h) -> h)
+
+fingerprintString :: String -> Fingerprint
+fingerprintString = Fingerprint . fnv1a . splitWords . map (fromIntegral . ord)
+
+
+-- | from http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param 
+fnv1a :: [Word8] -> Word32
+fnv1a = go offset_basis
+  where
+    offset_basis = fromInteger 2166136261
+    prime = fromInteger 16777619
+    go hash [] = hash
+    go hash (w:ws) = go ((hash `xor` fromIntegral w) * prime) ws
+
+splitWords :: [Word32] -> [Word8]
+splitWords = concatMap f
+  where f w32 = [fromIntegral (w32 `shiftR` 24),
+                 fromIntegral (w32 `shiftR` 16),
+                 fromIntegral (w32 `shiftR` 8),
+                 fromIntegral w32]
+
+
+
+{-
+--import GHC.IO
 import GHC.Base
 import GHC.Num
 import GHC.List
 import GHC.Real
-import Foreign
-import Foreign.C
+--import Foreign
+--import Foreign.C
 
 import GHC.Fingerprint.Type
 
@@ -76,3 +114,4 @@ foreign import ccall unsafe "MD5Update"
 foreign import ccall unsafe "MD5Final"
    c_MD5Final  :: Ptr Word8 -> Ptr MD5Context -> IO ()
 
+-}

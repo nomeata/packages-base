@@ -1,5 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -58,26 +59,27 @@ module Data.Foldable (
     find
     ) where
 
-import Prelude hiding (foldl, foldr, foldl1, foldr1, mapM_, sequence_,
+import Data.Function
+import GHC.Base hiding (foldl, foldr, foldl1, foldr1, mapM_, sequence_,
                 elem, notElem, concat, concatMap, and, or, any, all,
                 sum, product, maximum, minimum)
-import qualified Prelude (foldl, foldr, foldl1, foldr1)
-import qualified Data.List as List (foldl')
+import qualified Data.List as List (foldr, foldl, foldl1, foldr1, foldl')
 import Control.Applicative
 import Control.Monad (MonadPlus(..))
-import Data.Maybe (fromMaybe, listToMaybe)
+import Data.Maybe (Maybe(..), fromMaybe, listToMaybe)
 import Data.Monoid
+import GHC.Num
 
 #ifdef __NHC__
 import Control.Arrow (ArrowZero(..)) -- work around nhc98 typechecker problem
 #endif
 
 #ifdef __GLASGOW_HASKELL__
-import GHC.Exts (build)
+--import GHC.Exts (build)
 #endif
 
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Arr
+--import GHC.Arr
 #elif defined(__HUGS__)
 import Hugs.Array
 #elif defined(__NHC__)
@@ -175,17 +177,19 @@ instance Foldable Maybe where
     foldl f z (Just x) = f z x
 
 instance Foldable [] where
-    foldr = Prelude.foldr
-    foldl = Prelude.foldl
+    foldr = List.foldr
+    foldl = List.foldl
     foldl' = List.foldl'
-    foldr1 = Prelude.foldr1
-    foldl1 = Prelude.foldl1
+    foldr1 = List.foldr1
+    foldl1 = List.foldl1
 
+{-
 instance Ix i => Foldable (Array i) where
-    foldr f z = Prelude.foldr f z . elems
-    foldl f z = Prelude.foldl f z . elems
-    foldr1 f = Prelude.foldr1 f . elems
-    foldl1 f = Prelude.foldl1 f . elems
+    foldr f z = List.foldr f z . elems
+    foldl f z = List.foldl f z . elems
+    foldr1 f = List.foldr1 f . elems
+    foldl1 f = List.foldl1 f . elems
+-}
 
 -- | Monadic fold over the elements of a structure,
 -- associating to the right, i.e. from right to left.
@@ -245,10 +249,10 @@ msum = foldr mplus mzero
 toList :: Foldable t => t a -> [a]
 {-# INLINE toList #-}
 #ifdef __GLASGOW_HASKELL__
-toList t = build (\ c n -> foldr c n t)
+--toList t = build (\ c n -> foldr c n t)
 #else
-toList = foldr (:) []
 #endif
+toList = foldr (:) []
 
 -- | The concatenation of all the elements of a container of lists.
 concat :: Foldable t => t [a] -> [a]

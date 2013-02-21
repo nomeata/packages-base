@@ -1,4 +1,5 @@
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE CPP, BangPatterns #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -16,15 +17,24 @@
 
 module Data.Function
   ( -- * "Prelude" re-exports
-    id, const, (.), flip, ($)
+    id, const, (.), flip, ($), ($!)
     -- * Other combinators
   , fix
   , on
   ) where
 
-import Prelude
+import GHC.Base
 
 infixl 0 `on`
+
+
+($!)    :: (a -> b) -> a -> b
+#ifdef __GLASGOW_HASKELL__
+f $! x  = let !vx = x in f vx  -- see #2273
+#elif !defined(__HUGS__)
+f $! x  = x `seq` f x
+#endif
+
 
 -- | @'fix' f@ is the least fixed point of the function @f@,
 -- i.e. the least defined @x@ such that @f x = x@.

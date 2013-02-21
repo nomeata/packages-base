@@ -1,5 +1,6 @@
-{-# LANGUAGE Safe #-}
+{- # LANGUAGE Safe #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -36,7 +37,9 @@ module Data.Ratio
 
   ) where
 
-import Prelude
+import GHC.Base
+import GHC.Num
+import Data.Functor
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Real         -- The basic defns for Ratio
@@ -75,8 +78,8 @@ approxRational          :: (RealFrac a) => a -> a -> Rational
 approxRational rat eps  =  simplest (rat-eps) (rat+eps)
         where simplest x y | y < x      =  simplest y x
                            | x == y     =  xr
-                           | x > 0      =  simplest' n d n' d'
-                           | y < 0      =  - simplest' (-n') d' (-n) d
+                           | x > fromInteger 0      =  simplest' n d n' d'
+                           | y < fromInteger 0      =  negate (simplest' (negate n') d' (-n) d)
                            | otherwise  =  0 :% 1
                                         where xr  = toRational x
                                               n   = numerator xr

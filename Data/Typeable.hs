@@ -47,7 +47,7 @@ module Data.Typeable
 
         -- * Type representations
         TypeRep,        -- abstract, instance of: Eq, Show, Typeable
-        showsTypeRep,
+        --showsTypeRep,
 
         TyCon,          -- abstract, instance of: Eq, Show, Typeable
         tyConString,    -- :: TyCon   -> String
@@ -67,7 +67,7 @@ module Data.Typeable
         funResultTy,    -- :: TypeRep -> TypeRep   -> Maybe TypeRep
         typeRepTyCon,   -- :: TypeRep -> TyCon
         typeRepArgs,    -- :: TypeRep -> [TypeRep]
-        typeRepKey,     -- :: TypeRep -> IO TypeRepKey
+        --typeRepKey,     -- :: TypeRep -> IO TypeRepKey
         TypeRepKey,     -- abstract, instance of Eq, Ord
 
         -- * The other Typeable classes
@@ -104,12 +104,14 @@ import Data.Maybe
 import GHC.Base
 import GHC.Err          (undefined)
 
+import GHC.Fingerprint
+{-
 import {-# SOURCE #-} GHC.Fingerprint
    -- loop: GHC.Fingerprint -> Foreign.Ptr -> Data.Typeable
    -- Better to break the loop here, because we want non-SOURCE imports
    -- of Data.Typeable as much as possible so we can optimise the derived
    -- instances.
-
+-}
 #endif
 
 #ifdef __HUGS__
@@ -134,14 +136,17 @@ import Array    ( Array )
 
 #include "Typeable.h"
 
+{-
 {-# DEPRECATED typeRepKey "TypeRep itself is now an instance of Ord" #-}
 -- | (DEPRECATED) Returns a unique key associated with a 'TypeRep'.
 -- This function is deprecated because 'TypeRep' itself is now an
 -- instance of 'Ord', so mappings can be made directly with 'TypeRep'
 -- as the key.
 --
+
 typeRepKey :: TypeRep -> IO TypeRepKey
 typeRepKey (TypeRep f _ _) = return (TypeRepKey f)
+-}
 
         -- 
         -- let fTy = mkTyCon "Foo" in show (mkTyConApp (mkTyCon ",,")

@@ -31,7 +31,7 @@ module Data.Either (
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
 import GHC.Show
-import GHC.Read
+--import GHC.Read
 #endif
 
 import Data.Typeable
@@ -53,7 +53,9 @@ used to hold an error value and the 'Right' constructor is used to
 hold a correct value (mnemonic: \"right\" also means \"correct\").
 -}
 data  Either a b  =  Left a | Right b
-  deriving (Eq, Ord, Read, Show)
+  deriving (Eq, Ord)
+
+instance (Show a, Show b) => Show (Either a b)
 
 instance Functor (Either a) where
     fmap _ (Left x) = Left x
@@ -72,7 +74,7 @@ either f _ (Left x)     =  f x
 either _ g (Right y)    =  g y
 #endif  /* __GLASGOW_HASKELL__ */
 
-INSTANCE_TYPEABLE2(Either,eitherTc,"Either")
+-- INSTANCE_TYPEABLE2(Either,eitherTc,"Either")
 
 -- | Extracts from a list of 'Either' all the 'Left' elements
 -- All the 'Left' elements are extracted in order.

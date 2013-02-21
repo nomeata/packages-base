@@ -14,8 +14,8 @@ module GHC.Fingerprint.Type (Fingerprint(..)) where
 import GHC.Base
 import GHC.Word
 
--- Using 128-bit MD5 fingerprints for now.
+-- Using 32-bit FNV hashes
 
-data Fingerprint = Fingerprint {-# UNPACK #-} !Word64 {-# UNPACK #-} !Word64
+data Fingerprint = Fingerprint {-# UNPACK #-} !Word32
   deriving (Eq, Ord)
 

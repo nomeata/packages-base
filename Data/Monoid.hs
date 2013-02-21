@@ -40,8 +40,8 @@ module Data.Monoid (
 import GHC.Base hiding (Any)
 import GHC.Enum
 import GHC.Num
-import GHC.Read
-import GHC.Show
+--import GHC.Read
+--import GHC.Show
 import Data.Maybe
 #else
 import Prelude
@@ -144,7 +144,7 @@ instance Monoid Ordering where
 
 -- | The dual of a monoid, obtained by swapping the arguments of 'mappend'.
 newtype Dual a = Dual { getDual :: a }
-        deriving (Eq, Ord, Read, Show, Bounded)
+        deriving (Eq, Ord)
 
 instance Monoid a => Monoid (Dual a) where
         mempty = Dual mempty
@@ -159,7 +159,7 @@ instance Monoid (Endo a) where
 
 -- | Boolean monoid under conjunction.
 newtype All = All { getAll :: Bool }
-        deriving (Eq, Ord, Read, Show, Bounded)
+        deriving (Eq, Ord)
 
 instance Monoid All where
         mempty = All True
@@ -167,7 +167,7 @@ instance Monoid All where
 
 -- | Boolean monoid under disjunction.
 newtype Any = Any { getAny :: Bool }
-        deriving (Eq, Ord, Read, Show, Bounded)
+        deriving (Eq, Ord)
 
 instance Monoid Any where
         mempty = Any False
@@ -175,18 +175,18 @@ instance Monoid Any where
 
 -- | Monoid under addition.
 newtype Sum a = Sum { getSum :: a }
-        deriving (Eq, Ord, Read, Show, Bounded)
+        deriving (Eq, Ord)
 
 instance Num a => Monoid (Sum a) where
-        mempty = Sum 0
+        mempty = Sum (fromInteger 0)
         Sum x `mappend` Sum y = Sum (x + y)
 
 -- | Monoid under multiplication.
 newtype Product a = Product { getProduct :: a }
-        deriving (Eq, Ord, Read, Show, Bounded)
+        deriving (Eq, Ord)
 
 instance Num a => Monoid (Product a) where
-        mempty = Product 1
+        mempty = Product (fromInteger 1)
         Product x `mappend` Product y = Product (x * y)
 
 -- $MaybeExamples
@@ -235,7 +235,7 @@ instance Monoid a => Monoid (Maybe a) where
 
 -- | Maybe monoid returning the leftmost non-Nothing value.
 newtype First a = First { getFirst :: Maybe a }
-        deriving (Eq, Ord, Read, Show)
+        deriving (Eq, Ord)
 
 instance Monoid (First a) where
         mempty = First Nothing
@@ -244,7 +244,7 @@ instance Monoid (First a) where
 
 -- | Maybe monoid returning the rightmost non-Nothing value.
 newtype Last a = Last { getLast :: Maybe a }
-        deriving (Eq, Ord, Read, Show)
+        deriving (Eq, Ord)
 
 instance Monoid (Last a) where
         mempty = Last Nothing
