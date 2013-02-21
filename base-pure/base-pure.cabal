@@ -70,6 +70,7 @@ Library {
         Text.Read.Lex
         Text.Show
         Text.Show.Functions
+        Prelude.Pure
     include-dirs: include
 }
 
