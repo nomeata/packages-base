@@ -48,17 +48,17 @@ module Data.Char
 
     -- * String representations
     , showLitChar       -- :: Char -> ShowS
-    , lexLitChar        -- :: ReadS String
-    , readLitChar       -- :: ReadS Char 
+    -- , lexLitChar        -- :: ReadS String
+    -- , readLitChar       -- :: ReadS Char 
     ) where
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
-import GHC.Arr (Ix)
+--import GHC.Arr (Ix)
 import GHC.Char
 import GHC.Real (fromIntegral)
 import GHC.Show
-import GHC.Read (Read, readLitChar, lexLitChar)
+--import GHC.Read (Read, readLitChar, lexLitChar)
 import GHC.Unicode
 import GHC.Num
 import GHC.Enum
@@ -129,7 +129,11 @@ data GeneralCategory
         | Surrogate             -- ^ Cs: Other, Surrogate
         | PrivateUse            -- ^ Co: Other, Private Use
         | NotAssigned           -- ^ Cn: Other, Not Assigned
-        deriving (Eq, Ord, Enum, Read, Show, Bounded, Ix)
+        deriving (Eq, Ord)
+
+instance Enum GeneralCategory
+instance Show GeneralCategory
+instance Bounded GeneralCategory
 
 -- | The Unicode general category of the character.
 generalCategory :: Char -> GeneralCategory

@@ -33,7 +33,7 @@ module GHC.Unicode (
 import GHC.Base
 import GHC.Char
 import GHC.Real        (fromIntegral)
-import Foreign.C.Types (CInt(..))
+--import Foreign.C.Types (CInt(..))
 
 #include "HsBaseConfig.h"
 
@@ -145,6 +145,12 @@ isLower    c = iswlower (fromIntegral (ord c)) /= 0
 toLower c = chr (fromIntegral (towlower (fromIntegral (ord c))))
 toUpper c = chr (fromIntegral (towupper (fromIntegral (ord c))))
 toTitle c = chr (fromIntegral (towtitle (fromIntegral (ord c))))
+
+-- Cheap replacement for Foreign.C.Types:
+-- type CInt = HTYPE_INT
+-- Would work once GHC accepts base-pure:GHC.Int.Int32 for ffi. Until then:
+type CInt = Int
+
 
 foreign import ccall unsafe "u_iswalpha"
   iswalpha :: CInt -> CInt

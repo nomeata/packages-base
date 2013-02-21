@@ -49,6 +49,7 @@ accepted:
  * A pure implemenation of `GHC.Fingerprint` (but not this one, see [http://www.haskell.org/pipermail/glasgow-haskell-users/2013-February/023784.html] and follow ups)
  * Introduction of new `Exceptions` that used to be `IOExceptions`, but need to exist before `IOHandles` exist:
    * `IOFail`, `ErrnoError`, `OOMException`, `CodingError`
+ * `GHC.Unicode` does some foreign calls. To avoid pulling in all of `Foreign.C.Types`, a simple `type CInt = HTYPE_INT` ought to suffice.
 
 Some changes are debatable:
 

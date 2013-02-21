@@ -153,7 +153,7 @@ module Data.List
 
    -- ** Functions on strings
    , lines             -- :: String   -> [String]
-   --, words             -- :: String   -> [String]
+   , words             -- :: String   -> [String]
    , unlines           -- :: [String] -> String
    , unwords           -- :: [String] -> String
 
@@ -215,7 +215,7 @@ import Prelude
 #endif
 
 import Data.Maybe
---import Data.Char        ( isSpace )
+import Data.Char        ( isSpace )
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Num
@@ -1087,7 +1087,6 @@ unlines [] = []
 unlines (l:ls) = l ++ '\n' : unlines ls
 #endif
 
-{-
 -- | 'words' breaks a string up into a list of words, which were delimited
 -- by white space.
 words                   :: String -> [String]
@@ -1096,7 +1095,6 @@ words s                 =  case dropWhile {-partain:Char.-}isSpace s of
                                 s' -> w : words s''
                                       where (w, s'') =
                                              break {-partain:Char.-}isSpace s'
--}
 
 -- | 'unwords' is an inverse operation to 'words'.
 -- It joins words with separating spaces.

@@ -28,6 +28,7 @@ Library {
         Control.Monad,
         Data.Bits,
         Data.Bool,
+        Data.Char,
         Data.Either,
         Data.Eq,
         Data.Foldable,
@@ -58,6 +59,7 @@ Library {
         GHC.Num,
         GHC.Real,
         GHC.Show,
+        GHC.Unicode,
         GHC.Word,
         Unsafe.Coerce
     include-dirs: include
