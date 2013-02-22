@@ -2,6 +2,7 @@
 {-# LANGUAGE CPP, DeriveDataTypeable #-}
 #ifdef __GLASGOW_HASKELL__
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 #endif
 
 -----------------------------------------------------------------------------
@@ -45,11 +46,13 @@ module Data.Complex
 
         )  where
 
-import Prelude
+import Prelude.Pure
+import GHC.Float
+import Data.Ratio
 
 import Data.Typeable
 #ifdef __GLASGOW_HASKELL__
-import Data.Data (Data)
+-- import Data.Data (Data) Should this be below or above base-float
 #endif
 
 #ifdef __HUGS__
@@ -70,7 +73,9 @@ data Complex a
   = !a :+ !a    -- ^ forms a complex number from its real and imaginary
                 -- rectangular components.
 # if __GLASGOW_HASKELL__
-        deriving (Eq, Show, Read, Data)
+        deriving (Eq{-, Data -})
+instance Show (Complex a)
+instance Read (Complex a)
 # else
         deriving (Eq, Show, Read)
 # endif
@@ -89,7 +94,7 @@ imagPart (_ :+ y) =  y
 -- | The conjugate of a complex number.
 {-# SPECIALISE conjugate :: Complex Double -> Complex Double #-}
 conjugate        :: (RealFloat a) => Complex a -> Complex a
-conjugate (x:+y) =  x :+ (-y)
+conjugate (x:+y) =  x :+ (negate y)
 
 -- | Form a complex number from polar components of magnitude and phase.
 {-# SPECIALISE mkPolar :: Double -> Double -> Complex Double #-}
@@ -123,8 +128,8 @@ magnitude (x:+y) =  scaleFloat k
 -- If the magnitude is zero, then so is the phase.
 {-# SPECIALISE phase :: Complex Double -> Double #-}
 phase :: (RealFloat a) => Complex a -> a
-phase (0 :+ 0)   = 0            -- SLPJ July 97 from John Peterson
-phase (x:+y)     = atan2 y x
+--phase (0 :+ 0)   = 0            -- SLPJ July 97 from John Peterson
+phase (x:+y)     = if (x == fromInteger 0 && y == fromInteger 0) then fromInteger 0 else atan2 y x
 
 
 -- -----------------------------------------------------------------------------
@@ -140,12 +145,14 @@ instance  (RealFloat a) => Num (Complex a)  where
     (x:+y) - (x':+y')   =  (x-x') :+ (y-y')
     (x:+y) * (x':+y')   =  (x*x'-y*y') :+ (x*y'+y*x')
     negate (x:+y)       =  negate x :+ negate y
-    abs z               =  magnitude z :+ 0
-    signum (0:+0)       =  0
-    signum z@(x:+y)     =  x/r :+ y/r  where r = magnitude z
-    fromInteger n       =  fromInteger n :+ 0
+    abs z               =  magnitude z :+ fromInteger 0
+    --signum (0:+0)       =  0
+    signum z@(x:+y)     =  if x == fromInteger 0 && y == fromInteger 0
+                           then fromInteger 0
+                           else x/r :+ y/r  where r = magnitude z
+    fromInteger n       =  fromInteger n :+ fromInteger 0
 #ifdef __HUGS__
-    fromInt n           =  fromInt n :+ 0
+    fromInt n           =  fromInt n :+ fromInteger 0
 #endif
 
 instance  (RealFloat a) => Fractional (Complex a)  where
@@ -154,31 +161,33 @@ instance  (RealFloat a) => Fractional (Complex a)  where
     (x:+y) / (x':+y')   =  (x*x''+y*y'') / d :+ (y*x''-x*y'') / d
                            where x'' = scaleFloat k x'
                                  y'' = scaleFloat k y'
-                                 k   = - max (exponent x') (exponent y')
+                                 k   = negate (max (exponent x') (exponent y'))
                                  d   = x'*x'' + y'*y''
 
-    fromRational a      =  fromRational a :+ 0
+    fromRational a      =  fromRational a :+ fromInteger 0
 #ifdef __HUGS__
-    fromDouble a        =  fromDouble a :+ 0
+    fromDouble a        =  fromDouble a :+ fromInteger 0
 #endif
 
 instance  (RealFloat a) => Floating (Complex a) where
     {-# SPECIALISE instance Floating (Complex Float) #-}
     {-# SPECIALISE instance Floating (Complex Double) #-}
-    pi             =  pi :+ 0
+    pi             =  pi :+ fromInteger 0
     exp (x:+y)     =  expx * cos y :+ expx * sin y
                       where expx = exp x
     log z          =  log (magnitude z) :+ phase z
 
-    sqrt (0:+0)    =  0
-    sqrt z@(x:+y)  =  u :+ (if y < 0 then -v else v)
-                      where (u,v) = if x < 0 then (v',u') else (u',v')
-                            v'    = abs y / (u'*2)
-                            u'    = sqrt ((magnitude z + abs x) / 2)
+    --sqrt (0:+0)    =  0
+    sqrt z@(x:+y)  =  if x == fromInteger 0 && y == fromInteger 0
+                      then fromInteger 0
+                      else u :+ (if y < fromInteger 0 then negate v else v)
+                      where (u,v) = if x < fromInteger 0 then (v',u') else (u',v')
+                            v'    = abs y / (u'*fromInteger 2)
+                            u'    = sqrt ((magnitude z + abs x) / fromInteger 2)
 
     sin (x:+y)     =  sin x * cosh y :+ cos x * sinh y
-    cos (x:+y)     =  cos x * cosh y :+ (- sin x * sinh y)
-    tan (x:+y)     =  (sinx*coshy:+cosx*sinhy)/(cosx*coshy:+(-sinx*sinhy))
+    cos (x:+y)     =  cos x * cosh y :+ (negate (sin x) * sinh y)
+    tan (x:+y)     =  (sinx*coshy:+cosx*sinhy)/(cosx*coshy:+(negate sinx*sinhy))
                       where sinx  = sin x
                             cosx  = cos x
                             sinhy = sinh y
@@ -192,15 +201,15 @@ instance  (RealFloat a) => Floating (Complex a) where
                             sinhx = sinh x
                             coshx = cosh x
 
-    asin z@(x:+y)  =  y':+(-x')
-                      where  (x':+y') = log (((-y):+x) + sqrt (1 - z*z))
-    acos z         =  y'':+(-x'')
-                      where (x'':+y'') = log (z + ((-y'):+x'))
-                            (x':+y')   = sqrt (1 - z*z)
-    atan z@(x:+y)  =  y':+(-x')
-                      where (x':+y') = log (((1-y):+x) / sqrt (1+z*z))
+    asin z@(x:+y)  =  y':+(negate x')
+                      where  (x':+y') = log (((negate y):+x) + sqrt (fromInteger 1 - z*z))
+    acos z         =  y'':+(negate x'')
+                      where (x'':+y'') = log (z + ((negate y'):+x'))
+                            (x':+y')   = sqrt (fromInteger 1 - z*z)
+    atan z@(x:+y)  =  y':+(negate x')
+                      where (x':+y') = log (((fromInteger 1-y):+x) / sqrt (fromInteger 1+z*z))
 
-    asinh z        =  log (z + sqrt (1+z*z))
-    acosh z        =  log (z + (z+1) * sqrt ((z-1)/(z+1)))
-    atanh z        =  0.5 * log ((1.0+z) / (1.0-z))
+    asinh z        =  log (z + sqrt (fromInteger 1+z*z))
+    acosh z        =  log (z + (z+fromInteger 1) * sqrt ((z-fromInteger 1)/(z+fromInteger 1)))
+    atanh z        =  (fromRational (1%2)) * log (((fromRational (1%0))+z) / ((fromRational (1%0))-z))
 

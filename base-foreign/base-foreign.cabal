@@ -27,7 +27,7 @@ Flag integer-simple
     Description: Use integer-simple
 
 Library {
-    build-depends: rts, ghc-prim, base-pure, base-io
+    build-depends: rts, ghc-prim, base-pure, base-st, base-io, base-float
     exposed-modules:
         Foreign.Concurrent,
         GHC.Foreign,

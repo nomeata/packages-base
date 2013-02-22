@@ -38,10 +38,12 @@ Changes so far
 These packages have been introduced so far:
 
  * base-pure: Basic stuff without `IO`, `Foreign` or floating point arithmetic. 
- * base-st: The `ST` monad.
- * base-io: The `IO` monad.
- * base-concurrent: Concurrency.
- * base-foreign: Everything related to `Foreign`.
+ * base-st: The `ST` monad, uses base-pure.
+ * base-array: Arrays, uses base-st.
+ * base-float: Floating point types, uses base-array.
+ * base-io: The `IO` monad, uses base-st.
+ * base-concurrent: Currently just `MVar`, uses base-io.
+ * base-foreign: Everything related to `Foreign`, uses base-io and base-float (for the `Storable` instances for `Double` and `Float`).
 
 Some changes are intended to end up in the final libraries, if this approach is
 accepted:

@@ -1,5 +1,6 @@
 \begin{code}
 {-# LANGUAGE Unsafe #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE NoImplicitPrelude, NoBangPatterns, MagicHash, UnboxedTuples #-}
 {-# OPTIONS_GHC -funbox-strict-fields #-}
 {-# OPTIONS_HADDOCK hide #-}
@@ -230,7 +231,7 @@ instance  Ix Int  where
     inRange (I# m,I# n) (I# i) =  m <=# i && i <=# n
 
 instance Ix Word where
-    range (m,n)         = [m..n]
+    range (m,n)         = enumFromTo m n
     unsafeIndex (m,_) i = fromIntegral (i - m)
     inRange (m,n) i     = m <= i && i <= n
 
@@ -847,4 +848,7 @@ unsafeThawSTArray :: Ix i => Array i e -> ST s (STArray s i e)
 unsafeThawSTArray (Array l u n arr#) = ST $ \s1# ->
     case unsafeThawArray# arr# s1#      of { (# s2#, marr# #) ->
     (# s2#, STArray l u n marr# #) }
+
+ifThenElse True a b = a
+ifThenElse False a b = b
 \end{code}

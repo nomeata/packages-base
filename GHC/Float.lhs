@@ -6,6 +6,8 @@
            , UnboxedTuples
            , ForeignFunctionInterface
            , RankNTypes
+           , RebindableSyntax
+           , ScopedTypeVariables
   #-}
 -- We believe we could deorphan this module, by moving lots of things
 -- around, but we haven't got there yet:
@@ -89,7 +91,7 @@ class  (Fractional a) => Floating a  where
     {-# INLINE tanh #-}
     x ** y              =  exp (log x * y)
     logBase x y         =  log y / log x
-    sqrt x              =  x ** 0.5
+    sqrt x              =  x ** (fromRational (1%2))
     tan  x              =  sin  x / cos  x
     tanh x              =  sinh x / cosh x
 
@@ -116,12 +118,12 @@ class  (RealFrac a, Floating a) => RealFloat a  where
     -- are both zero or else @b^(d-1) <= 'abs' m < b^d@, where @d@ is
     -- the value of @'floatDigits' x@.
     -- In particular, @'decodeFloat' 0 = (0,0)@. If the type
-    -- contains a negative zero, also @'decodeFloat' (-0.0) = (0,0)@.
+    -- contains a negative zero, also @'decodeFloat' (-(fromRational (0%1))) = (0,0)@.
     -- /The result of/ @'decodeFloat' x@ /is unspecified if either of/
     -- @'isNaN' x@ /or/ @'isInfinite' x@ /is/ 'True'.
     decodeFloat         :: a -> (Integer,Int)
     -- | 'encodeFloat' performs the inverse of 'decodeFloat' in the
-    -- sense that for finite @x@ with the exception of @-0.0@,
+    -- sense that for finite @x@ with the exception of @-(fromRational (0%1))@,
     -- @'uncurry' 'encodeFloat' ('decodeFloat' x) = x@.
     -- @'encodeFloat' m n@ is one of the two closest representable
     -- floating-point numbers to @m*b^^n@ (or @&#177;Infinity@ if overflow
@@ -137,7 +139,7 @@ class  (RealFrac a, Floating a) => RealFloat a  where
     -- The behaviour is unspecified on infinite or @NaN@ values.
     exponent            :: a -> Int
     -- | The first component of 'decodeFloat', scaled to lie in the open
-    -- interval (@-1@,@1@), either @0.0@ or of absolute value @>= 1\/b@,
+    -- interval (@-1@,@1@), either @(fromRational (0%1))@ or of absolute value @>= 1\/b@,
     -- where @b@ is the floating-point radix.
     -- The behaviour is unspecified on infinite or @NaN@ values.
     significand         :: a -> a
@@ -188,19 +190,19 @@ class  (RealFrac a, Floating a) => RealFloat a  where
                                  -- for smaller than l - d.
                                  -- Add a little extra to keep clear
                                  -- from the boundary cases.
-                                 isFix = x == 0 || isNaN x || isInfinite x
+                                 isFix = x == fromInteger 0 || isNaN x || isInfinite x
 
     atan2 y x
-      | x > 0            =  atan (y/x)
-      | x == 0 && y > 0  =  pi/2
-      | x <  0 && y > 0  =  pi + atan (y/x)
-      |(x <= 0 && y < 0)            ||
-       (x <  0 && isNegativeZero y) ||
+      | x > fromInteger 0            =  atan (y/x)
+      | x == fromInteger 0 && y > fromInteger 0  =  pi/fromInteger 2
+      | x <  fromInteger 0 && y > fromInteger 0  =  pi + atan (y/x)
+      |(x <= fromInteger 0 && y < fromInteger 0)            ||
+       (x <  fromInteger 0 && isNegativeZero y) ||
        (isNegativeZero x && isNegativeZero y)
-                         = -atan2 (-y) x
-      | y == 0 && (x < 0 || isNegativeZero x)
+                         = negate (atan2 (negate y) x)
+      | y == fromInteger 0 && (x < fromInteger 0 || isNegativeZero x)
                           =  pi    -- must be after the previous test on zero y
-      | x==0 && y==0      =  y     -- must be after the other double zero tests
+      | x==fromInteger 0 && y==fromInteger 0      =  y     -- must be after the other double zero tests
       | otherwise         =  x + y -- x or y is a NaN, return a NaN (via +)
 \end{code}
 
@@ -247,10 +249,10 @@ instance  Num Float  where
     (-)         x y     =  minusFloat x y
     negate      x       =  negateFloat x
     (*)         x y     =  timesFloat x y
-    abs x | x >= 0.0    =  x
+    abs x | x >= (fromRational (0%1))    =  x
           | otherwise   =  negateFloat x
-    signum x | x == 0.0  = 0
-             | x > 0.0   = 1
+    signum x | x == (fromRational (0%1))  = 0
+             | x > (fromRational (0%1))   = 1
              | otherwise = negate 1
 
     {-# INLINE fromInteger #-}
@@ -281,7 +283,7 @@ instance  Fractional Float  where
           where
             minEx       = FLT_MIN_EXP
             mantDigs    = FLT_MANT_DIG
-    recip x             =  1.0 / x
+    recip x             =  (fromRational (1%1)) / x
 
 -- RULES for Integer and Int
 {-# RULES
@@ -314,7 +316,7 @@ instance  RealFrac Float  where
                 n = I# n#
             in
             if n >= 0
-            then (fromIntegral m * (2 ^ n), 0.0)
+            then (fromIntegral m * (2 ^ n), (fromRational (0%1)))
             else let i = if m >= 0 then                m `shiftR` negate n
                                    else negate (negate m `shiftR` negate n)
                      f = m - (i `shiftL` negate n)
@@ -325,22 +327,22 @@ instance  RealFrac Float  where
 
     round x     = case properFraction x of
                      (n,r) -> let
-                                m         = if r < 0.0 then n - 1 else n + 1
-                                half_down = abs r - 0.5
+                                m         = if r < (fromRational (0%1)) then n - 1 else n + 1
+                                half_down = abs r - (fromRational (1%2))
                               in
-                              case (compare half_down 0.0) of
+                              case (compare half_down (fromRational (0%1))) of
                                 LT -> n
                                 EQ -> if even n then n else m
                                 GT -> m
 
     ceiling x   = case properFraction x of
-                    (n,r) -> if r > 0.0 then n + 1 else n
+                    (n,r) -> if r > (fromRational (0%1)) then n + 1 else n
 
     floor x     = case properFraction x of
-                    (n,r) -> if r < 0.0 then n - 1 else n
+                    (n,r) -> if r < (fromRational (0%1)) then n - 1 else n
 
 instance  Floating Float  where
-    pi                  =  3.141592653589793238
+    pi                  =  fromRational (3141592653589793238 % 1000000000000000000)
     exp x               =  expFloat x
     log x               =  logFloat x
     sqrt x              =  sqrtFloat x
@@ -356,9 +358,9 @@ instance  Floating Float  where
     (**) x y            =  powerFloat x y
     logBase x y         =  log y / log x
 
-    asinh x = log (x + sqrt (1.0+x*x))
-    acosh x = log (x + (x+1.0) * sqrt ((x-1.0)/(x+1.0)))
-    atanh x = 0.5 * log ((1.0+x) / (1.0-x))
+    asinh x = log (x + sqrt ((fromRational (1%1))+x*x))
+    acosh x = log (x + (x+(fromRational (1%1))) * sqrt ((x-(fromRational (1%1)))/(x+(fromRational (1%1)))))
+    atanh x = (fromRational (1%2)) * log (((fromRational (1%1))+x) / ((fromRational (1%1))-x))
 
 instance  RealFloat Float  where
     floatRadix _        =  FLT_RADIX        -- from float.h
@@ -414,10 +416,10 @@ instance  Num Double  where
     (-)         x y     =  minusDouble x y
     negate      x       =  negateDouble x
     (*)         x y     =  timesDouble x y
-    abs x | x >= 0.0    =  x
+    abs x | x >= (fromRational (0%1))    =  x
           | otherwise   =  negateDouble x
-    signum x | x == 0.0  = 0
-             | x > 0.0   = 1
+    signum x | x == (fromRational (0%1))  = 0
+             | x > (fromRational (0%1))   = 1
              | otherwise = negate 1
 
     {-# INLINE fromInteger #-}
@@ -449,10 +451,10 @@ instance  Fractional Double  where
           where
             minEx       = DBL_MIN_EXP
             mantDigs    = DBL_MANT_DIG
-    recip x             =  1.0 / x
+    recip x             =  (fromRational (1%1)) / x
 
 instance  Floating Double  where
-    pi                  =  3.141592653589793238
+    pi                  =  fromRational (3141592653589793238 % 1000000000000000000)
     exp x               =  expDouble x
     log x               =  logDouble x
     sqrt x              =  sqrtDouble x
@@ -468,9 +470,9 @@ instance  Floating Double  where
     (**) x y            =  powerDouble x y
     logBase x y         =  log y / log x
 
-    asinh x = log (x + sqrt (1.0+x*x))
-    acosh x = log (x + (x+1.0) * sqrt ((x-1.0)/(x+1.0)))
-    atanh x = 0.5 * log ((1.0+x) / (1.0-x))
+    asinh x = log (x + sqrt ((fromRational (1%1))+x*x))
+    acosh x = log (x + (x+(fromRational (1%1))) * sqrt ((x-(fromRational (1%1)))/(x+(fromRational (1%1)))))
+    atanh x = (fromRational (1%2)) * log (((fromRational (1%1))+x) / ((fromRational (1%1))-x))
 
 -- RULES for Integer and Int
 {-# RULES
@@ -495,7 +497,7 @@ instance  RealFrac Double  where
     properFraction x
       = case (decodeFloat x)      of { (m,n) ->
         if n >= 0 then
-            (fromInteger m * 2 ^ n, 0.0)
+            (fromInteger m * 2 ^ n, (fromRational (0%1)))
         else
             case (quotRem m (2^(negate n))) of { (w,r) ->
             (fromInteger w, encodeFloat r n)
@@ -507,19 +509,19 @@ instance  RealFrac Double  where
 
     round x     = case properFraction x of
                      (n,r) -> let
-                                m         = if r < 0.0 then n - 1 else n + 1
-                                half_down = abs r - 0.5
+                                m         = if r < (fromRational (0%1)) then n - 1 else n + 1
+                                half_down = abs r - (fromRational (1%2))
                               in
-                              case (compare half_down 0.0) of
+                              case (compare half_down (fromRational (0%1))) of
                                 LT -> n
                                 EQ -> if even n then n else m
                                 GT -> m
 
     ceiling x   = case properFraction x of
-                    (n,r) -> if r > 0.0 then n + 1 else n
+                    (n,r) -> if r > (fromRational (0%1)) then n + 1 else n
 
     floor x     = case properFraction x of
-                    (n,r) -> if r < 0.0 then n - 1 else n
+                    (n,r) -> if r < (fromRational (0%1)) then n - 1 else n
 
 instance  RealFloat Double  where
     floatRadix _        =  FLT_RADIX        -- from float.h
@@ -566,7 +568,7 @@ instance  Show Double  where
 The @Enum@ instances for Floats and Doubles are slightly unusual.
 The @toEnum@ function truncates numbers to Int.  The definitions
 of @enumFrom@ and @enumFromThen@ allow floats to be used in arithmetic
-series: [0,0.1 .. 1.0].  However, roundoff errors make these somewhat
+series: [0,0.1 .. (fromRational (1%1))].  However, roundoff errors make these somewhat
 dubious.  This example may have either 10 or 11 elements, depending on
 how 0.1 is represented.
 
@@ -761,7 +763,7 @@ floatToDigits base x =
         -- k1 is larger than logBase 10 x. If k1 > 1 + logBase 10 x,
         -- we get a leading zero-digit we don't want.
         -- With the approximation 3/10, this happened for
-        -- 0.5^1030, 0.5^1040, ..., 0.5^1070 and values close above.
+        -- (fromRational (1%2))^1030, (fromRational (1%2))^1040, ..., (fromRational (1%2))^1070 and values close above.
         -- The approximation 8651/28738 guarantees k1 < 1 + logBase 10 x
         -- for IEEE-ish floating point types with exponent fields
         -- <= 17 bits and mantissae of several thousand bits, earlier
@@ -998,8 +1000,8 @@ fromRat'' minEx@(I# me#) mantDigs@(I# md#) n d =
                                         then encodeFloat n' (minEx-mantDigs)
                                         else encodeFloat (n' + 1) (minEx-mantDigs)
                                 _  -> encodeFloat (n' + 1) (minEx-mantDigs)
-                         | ld'# ># (ln# +# 1#)  -> encodeFloat 0 0 -- result of shift < 0.5
-                         | otherwise ->  -- first bit of n shifted to 0.5 place
+                         | ld'# ># (ln# +# 1#)  -> encodeFloat 0 0 -- result of shift < (fromRational (1%2))
+                         | otherwise ->  -- first bit of n shifted to (fromRational (1%2)) place
                            case integerLog2IsPowerOf2# n of
                             (# _, 0# #) -> encodeFloat 0 0  -- round to even
                             (# _, _ #)  -> encodeFloat 1 (minEx - mantDigs)
@@ -1443,4 +1445,9 @@ exponents returned by decodeFloat.
 \begin{code}
 clamp :: Int -> Int -> Int
 clamp bd k = max (-bd) (min bd k)
+\end{code}
+
+\begin{code}
+ifThenElse True a b = a
+ifThenElse False a b = b
 \end{code}

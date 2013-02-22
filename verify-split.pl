@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Find::Rule;
 
-my @packages = ("base-pure", "base-st", "base-io", "base-concurrent", "base-foreign");
+my @packages = qw/base-pure base-st base-io base-array base-float base-concurrent base-foreign/;
 
 my %files;
 #$files{$_} = {} for @packages;
