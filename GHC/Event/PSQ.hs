@@ -90,6 +90,8 @@ module GHC.Event.PSQ
 
 import Data.Maybe (Maybe(..))
 import GHC.Base
+import GHC.IO
+import GHC.Float
 import GHC.Num (Num(..))
 import GHC.Show (Show(showsPrec))
 import GHC.Event.Unique (Unique)

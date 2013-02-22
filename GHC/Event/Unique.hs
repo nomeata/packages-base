@@ -10,6 +10,7 @@ module GHC.Event.Unique
 
 import Data.Int (Int64)
 import GHC.Base
+import GHC.IO
 import GHC.Conc.Sync (TVar, atomically, newTVarIO, readTVar, writeTVar)
 import GHC.Num (Num(..))
 import GHC.Show (Show(..))

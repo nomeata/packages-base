@@ -58,7 +58,7 @@ module Prelude.Pure (
     -- ** Numbers
 
     -- *** Numeric types
-    Int, Integer, Float, Double,
+    Int, Integer, -- Float, Double,
     Rational,
 
     -- *** Numeric type classes

@@ -74,6 +74,7 @@ import GHC.Num
 import GHC.List
 import GHC.Err
 import GHC.Base
+import GHC.IO
 #else
 import Control.Monad (zipWithM_)
 #endif

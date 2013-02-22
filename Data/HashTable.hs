@@ -22,6 +22,7 @@
 module Data.HashTable
       {-# DEPRECATED "Data.HashTable will be removed in GHC 7.8. Please use an alternative, e.g. the hashtables package, instead." #-}
       (
+{-
         -- * Basic hash table operations
         HashTable, new, newHint, insert, delete, lookup, update,
         -- * Converting to and from lists
@@ -32,8 +33,9 @@ module Data.HashTable
         prime,
         -- * Diagnostics
         longestChain
+-}
  ) where
-
+{-
 -- This module is imported by Data.Dynamic, which is pretty low down in the
 -- module hierarchy, so don't import "high-level" modules
 
@@ -534,3 +536,4 @@ longestChain = mapReduce id (maximumBy lengthCmp)
         lengthCmp []   _     = LT
         lengthCmp _    []    = GT
 
+-}

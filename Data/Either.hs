@@ -75,7 +75,7 @@ either f _ (Left x)     =  f x
 either _ g (Right y)    =  g y
 #endif  /* __GLASGOW_HASKELL__ */
 
--- INSTANCE_TYPEABLE2(Either,eitherTc,"Either")
+INSTANCE_TYPEABLE2(Either,eitherTc,"Either")
 
 -- | Extracts from a list of 'Either' all the 'Left' elements
 -- All the 'Left' elements are extracted in order.

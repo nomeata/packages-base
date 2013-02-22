@@ -118,6 +118,7 @@ import Control.Monad
 -- Imports for the instances
 import Data.Int              -- So we can give Data instance for Int8, ...
 import Data.Word             -- So we can give Data instance for Word8, ...
+import GHC.Float
 #ifdef __GLASGOW_HASKELL__
 import GHC.Real( Ratio(..) ) -- So we can give Data instance for Ratio
 --import GHC.IOBase            -- So we can give Data instance for IO, Handle
@@ -126,7 +127,7 @@ import GHC.ForeignPtr        -- So we can give Data instance for ForeignPtr
 --import GHC.Stable            -- So we can give Data instance for StablePtr
 --import GHC.ST                -- So we can give Data instance for ST
 --import GHC.Conc              -- So we can give Data instance for MVar & Co.
-import GHC.Arr               -- So we can give Data instance for Array
+--import GHC.Arr               -- So we can give Data instance for Array
 #else
 # ifdef __HUGS__
 import Hugs.Prelude( Ratio(..) )
@@ -1327,6 +1328,7 @@ instance Typeable a => Data (ForeignPtr a) where
   dataTypeOf _ = mkNoRepType "GHC.ForeignPtr.ForeignPtr"
 
 
+{-
 ------------------------------------------------------------------------------
 -- The Data instance for Array preserves data abstraction at the cost of 
 -- inefficiency. We omit reflection services for the sake of data abstraction.
@@ -1336,4 +1338,4 @@ instance (Typeable a, Data b, Ix a) => Data (Array a b)
   toConstr _   = error "Data.Data.toConstr(Array)"
   gunfold _ _  = error "Data.Data.gunfold(Array)"
   dataTypeOf _ = mkNoRepType "Data.Array.Array"
-
+-}

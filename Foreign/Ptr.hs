@@ -61,6 +61,7 @@ module Foreign.Ptr (
 #ifdef __GLASGOW_HASKELL__
 import GHC.Ptr
 import GHC.Base
+import GHC.IO
 import GHC.Num
 import GHC.Read
 import GHC.Real

@@ -43,6 +43,7 @@ import Hugs.IORef
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
+import GHC.IO
 import GHC.STRef
 import GHC.IORef hiding (atomicModifyIORef)
 import qualified GHC.IORef

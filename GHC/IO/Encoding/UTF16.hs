@@ -42,7 +42,7 @@ module GHC.IO.Encoding.UTF16 (
 import GHC.Base
 import GHC.Real
 import GHC.Num
--- import GHC.IO
+import GHC.IO
 import GHC.IO.Buffer
 import GHC.IO.Encoding.Failure
 import GHC.IO.Encoding.Types

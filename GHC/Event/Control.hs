@@ -31,6 +31,7 @@ module GHC.Event.Control
 import Control.Monad (when)
 import Foreign.ForeignPtr (ForeignPtr)
 import GHC.Base
+import GHC.IO
 import GHC.Conc.Signal (Signal)
 import GHC.Real (fromIntegral)
 import GHC.Show (Show)

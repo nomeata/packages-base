@@ -577,7 +577,7 @@ openTempFile' loc tmp_dir template binary mode = do
       r <- openNewFile filepath binary mode
       case r of
         FileExists -> findTempName (x + 1)
-        OpenNewError errno -> ioError (errnoToIOError loc errno Nothing (Just tmp_dir))
+        OpenNewError errno -> throwIO (ErrnoError loc errno (Just tmp_dir))
         NewFileCreated fd -> do
           (fD,fd_type) <- FD.mkFD fd ReadWriteMode Nothing{-no stat-}
                                False{-is_socket-}

@@ -25,9 +25,9 @@ module GHC.IO.Encoding.Types (
   ) where
 
 import GHC.Base
+import GHC.IO
 import GHC.Word
 import GHC.Show
--- import GHC.IO
 import GHC.IO.Buffer
 
 -- -----------------------------------------------------------------------------

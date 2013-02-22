@@ -27,6 +27,8 @@ import Data.Monoid (Monoid(..))
 import Foreign.C.Error (eINTR, getErrno, throwErrno)
 import System.Posix.Types (Fd)
 import GHC.Base
+import GHC.IO
+import GHC.Float
 import GHC.Num (Num(..))
 import GHC.Show (Show(..))
 import GHC.List (filter, null)

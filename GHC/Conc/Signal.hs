@@ -19,7 +19,7 @@ import Foreign.Ptr (Ptr, castPtr)
 import GHC.Arr (inRange)
 import GHC.Base
 import GHC.Conc.Sync (forkIO)
-import GHC.IO (mask_, unsafePerformIO)
+import GHC.IO (IO, mask_, unsafePerformIO)
 import GHC.IOArray (IOArray, boundsIOArray, newIOArray,
                     unsafeReadIOArray, unsafeWriteIOArray)
 import GHC.Real (fromIntegral)

@@ -16,6 +16,7 @@ module GHC.Event.Poll
 
 #if !defined(HAVE_POLL_H)
 import GHC.Base
+import GHC.IO
 
 new :: IO E.Backend
 new = error "Poll back end not implemented for this platform"
@@ -35,6 +36,7 @@ import Foreign.C.Types (CInt(..), CShort(..), CULong(..))
 import Foreign.Ptr (Ptr)
 import Foreign.Storable (Storable(..))
 import GHC.Base
+import GHC.IO
 import GHC.Conc.Sync (withMVar)
 import GHC.Err (undefined)
 import GHC.Num (Num(..))

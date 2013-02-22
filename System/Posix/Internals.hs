@@ -47,14 +47,15 @@ import System.IO.Error
 
 #if __GLASGOW_HASKELL__
 import GHC.Base
+import GHC.IO
 import GHC.Num
 import GHC.Real
 import GHC.IO
 import GHC.IO.IOMode
---import GHC.IO.Exception
---import GHC.IO.Device
+import GHC.IO.Exception
+import GHC.IO.Device
 #ifndef mingw32_HOST_OS
-import {-# SOURCE #-} GHC.IO.Encoding (getFileSystemEncoding)
+import GHC.IO.Encoding (getFileSystemEncoding)
 import qualified GHC.Foreign as GHC
 #endif
 #elif __HUGS__

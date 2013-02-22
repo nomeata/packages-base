@@ -47,7 +47,7 @@ module Data.Typeable
 
         -- * Type representations
         TypeRep,        -- abstract, instance of: Eq, Show, Typeable
-        --showsTypeRep,
+        showsTypeRep,
 
         TyCon,          -- abstract, instance of: Eq, Show, Typeable
         tyConString,    -- :: TyCon   -> String

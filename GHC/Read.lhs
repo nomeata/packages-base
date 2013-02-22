@@ -475,17 +475,6 @@ convertInt (L.Number n)
  | Just i <- L.numberToInteger n = return (fromInteger i)
 convertInt _ = pfail
 
-{-
-convertFrac :: forall a . RealFloat a => L.Lexeme -> ReadPrec a
-convertFrac (L.Ident "NaN")      = return (0 / 0)
-convertFrac (L.Ident "Infinity") = return (1 / 0)
-convertFrac (L.Number n) = let resRange = floatRange (undefined :: a)
-                           in case L.numberToRangedRational resRange n of
-                              Nothing -> return (1 / 0)
-                              Just rat -> return $ fromRational rat
-convertFrac _            = pfail
--}
-
 instance Read Int where
   readPrec     = readNumber convertInt
   readListPrec = readListPrecDefault
@@ -498,18 +487,6 @@ instance Read Integer where
   readPrec     = readNumber convertInt
   readListPrec = readListPrecDefault
   readList     = readListDefault
-
-{-
-instance Read Float where
-  readPrec     = readNumber convertFrac
-  readListPrec = readListPrecDefault
-  readList     = readListDefault
-
-instance Read Double where
-  readPrec     = readNumber convertFrac
-  readListPrec = readListPrecDefault
-  readList     = readListDefault
--}
 
 instance (Integral a, Read a) => Read (Ratio a) where
   readPrec =

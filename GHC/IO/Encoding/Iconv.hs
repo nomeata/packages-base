@@ -36,6 +36,7 @@ import Foreign.Safe
 import Foreign.C
 import Data.Maybe
 import GHC.Base
+import GHC.IO
 import GHC.IO.Buffer
 import GHC.IO.Encoding.Failure
 import GHC.IO.Encoding.Types

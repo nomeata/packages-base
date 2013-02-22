@@ -33,6 +33,7 @@ import Foreign.ForeignPtr (ForeignPtr, withForeignPtr)
 import Foreign.Ptr (Ptr, nullPtr, plusPtr)
 import Foreign.Storable (Storable(..))
 import GHC.Base
+import GHC.IO
 import GHC.Err (undefined)
 import GHC.ForeignPtr (mallocPlainForeignPtrBytes, newForeignPtr_)
 import GHC.Num (Num(..))

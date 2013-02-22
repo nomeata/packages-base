@@ -105,7 +105,7 @@ module GHC.Base
   ) 
         where
 
-import GHC.Types
+import GHC.Types (Bool(..), Char(..), Int(..), Ordering(..), Word(..))
 import GHC.Classes
 import GHC.CString
 import GHC.Prim

@@ -58,6 +58,8 @@ import GHC.Int
 import GHC.Word
 import GHC.Ptr
 import GHC.Base
+import GHC.IO
+import GHC.Float
 \end{code}
 
 \begin{code}

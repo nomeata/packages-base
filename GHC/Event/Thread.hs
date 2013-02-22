@@ -13,14 +13,13 @@ module GHC.Event.Thread
 
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.Maybe (Maybe(..))
-import Foreign.C.Error (eBADF, errnoToIOError)
+import Foreign.C.Error (ErrnoError(..), eBADF)
 import Foreign.Ptr (Ptr)
 import GHC.Base
 import GHC.Conc.Sync (TVar, ThreadId, ThreadStatus(..), atomically, forkIO,
                       labelThread, modifyMVar_, newTVar, sharedCAF,
                       threadStatus, writeTVar)
-import GHC.IO (mask_, onException)
-import GHC.IO.Exception (ioError)
+import GHC.IO (IO, throwIO, mask_, onException)
 import GHC.MVar (MVar, newEmptyMVar, newMVar, putMVar, takeMVar)
 import GHC.Event.Internal (eventIs, evtClose)
 import GHC.Event.Manager (Event, EventManager, evtRead, evtWrite, loop,
@@ -91,7 +90,7 @@ threadWait evt fd = mask_ $ do
   reg <- registerFd mgr (\reg e -> unregisterFd_ mgr reg >> putMVar m e) fd evt
   evt' <- takeMVar m `onException` unregisterFd_ mgr reg
   if evt' `eventIs` evtClose
-    then ioError $ errnoToIOError "threadWait" eBADF Nothing Nothing
+    then throwIO $ ErrnoError "threadWait" eBADF Nothing
     else return ()
 
 -- | Retrieve the system event manager.

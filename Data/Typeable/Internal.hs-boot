@@ -5,7 +5,7 @@ module Data.Typeable.Internal (
     Typeable(typeOf),
     TypeRep,
     TyCon,
-    --mkTyCon,
+    mkTyCon,
     mkTyConApp
   ) where
 
@@ -17,9 +17,9 @@ data TyCon
 #include "MachDeps.h"
 
 #if WORD_SIZE_IN_BITS < 64
---mkTyCon :: Word64# -> Word64# -> String -> String -> String -> TyCon
+mkTyCon :: Word64# -> Word64# -> String -> String -> String -> TyCon
 #else
---mkTyCon :: Word#   -> Word#   -> String -> String -> String -> TyCon
+mkTyCon :: Word#   -> Word#   -> String -> String -> String -> TyCon
 #endif
 
 mkTyConApp   :: TyCon -> [TypeRep] -> TypeRep

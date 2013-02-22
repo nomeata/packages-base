@@ -5,6 +5,7 @@
            , MagicHash
            , UnboxedTuples
            , ForeignFunctionInterface
+           , RankNTypes
   #-}
 -- We believe we could deorphan this module, by moving lots of things
 -- around, but we haven't got there yet:
@@ -27,6 +28,7 @@
 -----------------------------------------------------------------------------
 
 #include "ieee-flpt.h"
+#include "Typeable.h"
 
 -- #hide
 module GHC.Float( module GHC.Float, Float(..), Double(..), Float#, Double#
@@ -37,9 +39,14 @@ import Data.Maybe
 
 import Data.Bits
 import GHC.Base
+import GHC.Err
+import GHC.Types (Float(..), Double(..))
 import GHC.List
 import GHC.Enum
 import GHC.Show
+import GHC.Read
+import Text.ParserCombinators.ReadPrec (ReadPrec, pfail)
+import qualified Text.Read.Lex as L
 import GHC.Num
 import GHC.Real
 import GHC.Arr
@@ -47,6 +54,9 @@ import GHC.Float.RealFracMethods
 import GHC.Float.ConversionUtils
 import GHC.Integer.Logarithms ( integerLogBase# )
 import GHC.Integer.Logarithms.Internals
+import GHC.Int
+import GHC.Word
+import Data.Typeable
 
 infixr 8  **
 \end{code}
@@ -202,6 +212,36 @@ class  (RealFrac a, Floating a) => RealFloat a  where
 %*********************************************************
 
 \begin{code}
+INSTANCE_TYPEABLE0(Float,floatTc,"Float")
+
+instance Read Float where
+  readPrec     = readNumber convertFrac
+  readListPrec = readListPrecDefault
+  readList     = readListDefault
+
+readNumber :: Num a => (L.Lexeme -> ReadPrec a) -> ReadPrec a
+-- Read a signed number
+readNumber convert =
+  parens
+  ( do x <- lexP
+       case x of
+         L.Symbol "-" -> do y <- lexP
+                            n <- convert y
+                            return (negate n)
+
+         _   -> convert x
+  )
+
+convertFrac :: forall a . RealFloat a => L.Lexeme -> ReadPrec a
+convertFrac (L.Ident "NaN")      = return (0 / 0)
+convertFrac (L.Ident "Infinity") = return (1 / 0)
+convertFrac (L.Number n) = let resRange = floatRange (undefined :: a)
+                           in case L.numberToRangedRational resRange n of
+                              Nothing -> return (1 / 0)
+                              Just rat -> return $ fromRational rat
+convertFrac _            = pfail
+
+
 instance  Num Float  where
     (+)         x y     =  plusFloat x y
     (-)         x y     =  minusFloat x y
@@ -362,6 +402,13 @@ instance  Show Float  where
 %*********************************************************
 
 \begin{code}
+INSTANCE_TYPEABLE0(Double,doubleTc,"Double")
+
+instance Read Double where
+  readPrec     = readNumber convertFrac
+  readListPrec = readListPrecDefault
+  readList     = readListDefault
+
 instance  Num Double  where
     (+)         x y     =  plusDouble x y
     (-)         x y     =  minusDouble x y
@@ -1108,6 +1155,230 @@ foreign import ccall unsafe "isDoubleFinite" isDoubleFinite :: Double -> Int
 "realToFrac/Int->Double"    realToFrac   = int2Double	-- See Note [realToFrac int-to-float]
 "realToFrac/Int->Float"     realToFrac   = int2Float	-- 	..ditto
     #-}
+
+{-# RULES
+"properFraction/Float->(Int8,Float)"
+    forall x. properFraction (x :: Float) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int8) n, y) }
+"truncate/Float->Int8"
+    forall x. truncate (x :: Float) = (fromIntegral :: Int -> Int8) (truncate x)
+"floor/Float->Int8"
+    forall x. floor    (x :: Float) = (fromIntegral :: Int -> Int8) (floor x)
+"ceiling/Float->Int8"
+    forall x. ceiling  (x :: Float) = (fromIntegral :: Int -> Int8) (ceiling x)
+"round/Float->Int8"
+    forall x. round    (x :: Float) = (fromIntegral :: Int -> Int8) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Double->(Int8,Double)"
+    forall x. properFraction (x :: Double) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int8) n, y) }
+"truncate/Double->Int8"
+    forall x. truncate (x :: Double) = (fromIntegral :: Int -> Int8) (truncate x)
+"floor/Double->Int8"
+    forall x. floor    (x :: Double) = (fromIntegral :: Int -> Int8) (floor x)
+"ceiling/Double->Int8"
+    forall x. ceiling  (x :: Double) = (fromIntegral :: Int -> Int8) (ceiling x)
+"round/Double->Int8"
+    forall x. round    (x :: Double) = (fromIntegral :: Int -> Int8) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Float->(Int16,Float)"
+    forall x. properFraction (x :: Float) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int16) n, y) }
+"truncate/Float->Int16"
+    forall x. truncate (x :: Float) = (fromIntegral :: Int -> Int16) (truncate x)
+"floor/Float->Int16"
+    forall x. floor    (x :: Float) = (fromIntegral :: Int -> Int16) (floor x)
+"ceiling/Float->Int16"
+    forall x. ceiling  (x :: Float) = (fromIntegral :: Int -> Int16) (ceiling x)
+"round/Float->Int16"
+    forall x. round    (x :: Float) = (fromIntegral :: Int -> Int16) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Double->(Int16,Double)"
+    forall x. properFraction (x :: Double) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int16) n, y) }
+"truncate/Double->Int16"
+    forall x. truncate (x :: Double) = (fromIntegral :: Int -> Int16) (truncate x)
+"floor/Double->Int16"
+    forall x. floor    (x :: Double) = (fromIntegral :: Int -> Int16) (floor x)
+"ceiling/Double->Int16"
+    forall x. ceiling  (x :: Double) = (fromIntegral :: Int -> Int16) (ceiling x)
+"round/Double->Int16"
+    forall x. round    (x :: Double) = (fromIntegral :: Int -> Int16) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Float->(Int32,Float)"
+    forall x. properFraction (x :: Float) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int32) n, y) }
+"truncate/Float->Int32"
+    forall x. truncate (x :: Float) = (fromIntegral :: Int -> Int32) (truncate x)
+"floor/Float->Int32"
+    forall x. floor    (x :: Float) = (fromIntegral :: Int -> Int32) (floor x)
+"ceiling/Float->Int32"
+    forall x. ceiling  (x :: Float) = (fromIntegral :: Int -> Int32) (ceiling x)
+"round/Float->Int32"
+    forall x. round    (x :: Float) = (fromIntegral :: Int -> Int32) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Double->(Int32,Double)"
+    forall x. properFraction (x :: Double) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int32) n, y) }
+"truncate/Double->Int32"
+    forall x. truncate (x :: Double) = (fromIntegral :: Int -> Int32) (truncate x)
+"floor/Double->Int32"
+    forall x. floor    (x :: Double) = (fromIntegral :: Int -> Int32) (floor x)
+"ceiling/Double->Int32"
+    forall x. ceiling  (x :: Double) = (fromIntegral :: Int -> Int32) (ceiling x)
+"round/Double->Int32"
+    forall x. round    (x :: Double) = (fromIntegral :: Int -> Int32) (round x)
+  #-}
+
+#if WORD_SIZE_IN_BITS > 32
+{-# RULES
+"properFraction/Float->(Int64,Float)"
+    forall x. properFraction (x :: Float) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int64) n, y) }
+"truncate/Float->Int64"
+    forall x. truncate (x :: Float) = (fromIntegral :: Int -> Int64) (truncate x)
+"floor/Float->Int64"
+    forall x. floor    (x :: Float) = (fromIntegral :: Int -> Int64) (floor x)
+"ceiling/Float->Int64"
+    forall x. ceiling  (x :: Float) = (fromIntegral :: Int -> Int64) (ceiling x)
+"round/Float->Int64"
+    forall x. round    (x :: Float) = (fromIntegral :: Int -> Int64) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Double->(Int64,Double)"
+    forall x. properFraction (x :: Double) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Int64) n, y) }
+"truncate/Double->Int64"
+    forall x. truncate (x :: Double) = (fromIntegral :: Int -> Int64) (truncate x)
+"floor/Double->Int64"
+    forall x. floor    (x :: Double) = (fromIntegral :: Int -> Int64) (floor x)
+"ceiling/Double->Int64"
+    forall x. ceiling  (x :: Double) = (fromIntegral :: Int -> Int64) (ceiling x)
+"round/Double->Int64"
+    forall x. round    (x :: Double) = (fromIntegral :: Int -> Int64) (round x)
+  #-}
+
+
+#endif
+
+-- Word32 is represented in the same way as Word.
+#if WORD_SIZE_IN_BITS > 32
+-- Operations may assume and must ensure that it holds only values
+-- from its logical range.
+
+-- We can use rewrite rules for the RealFrac methods
+
+{-# RULES
+"properFraction/Float->(Word32,Float)"
+    forall x. properFraction (x :: Float) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Word32) n, y) }
+"truncate/Float->Word32"
+    forall x. truncate (x :: Float) = (fromIntegral :: Int -> Word32) (truncate x)
+"floor/Float->Word32"
+    forall x. floor    (x :: Float) = (fromIntegral :: Int -> Word32) (floor x)
+"ceiling/Float->Word32"
+    forall x. ceiling  (x :: Float) = (fromIntegral :: Int -> Word32) (ceiling x)
+"round/Float->Word32"
+    forall x. round    (x :: Float) = (fromIntegral :: Int -> Word32) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Double->(Word32,Double)"
+    forall x. properFraction (x :: Double) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Word32) n, y) }
+"truncate/Double->Word32"
+    forall x. truncate (x :: Double) = (fromIntegral :: Int -> Word32) (truncate x)
+"floor/Double->Word32"
+    forall x. floor    (x :: Double) = (fromIntegral :: Int -> Word32) (floor x)
+"ceiling/Double->Word32"
+    forall x. ceiling  (x :: Double) = (fromIntegral :: Int -> Word32) (ceiling x)
+"round/Double->Word32"
+    forall x. round    (x :: Double) = (fromIntegral :: Int -> Word32) (round x)
+  #-}
+
+#endif
+
+{-# RULES
+"properFraction/Float->(Word16,Float)"
+    forall x. properFraction (x :: Float) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Word16) n, y) }
+"truncate/Float->Word16"
+    forall x. truncate (x :: Float) = (fromIntegral :: Int -> Word16) (truncate x)
+"floor/Float->Word16"
+    forall x. floor    (x :: Float) = (fromIntegral :: Int -> Word16) (floor x)
+"ceiling/Float->Word16"
+    forall x. ceiling  (x :: Float) = (fromIntegral :: Int -> Word16) (ceiling x)
+"round/Float->Word16"
+    forall x. round    (x :: Float) = (fromIntegral :: Int -> Word16) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Double->(Word16,Double)"
+    forall x. properFraction (x :: Double) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Word16) n, y) }
+"truncate/Double->Word16"
+    forall x. truncate (x :: Double) = (fromIntegral :: Int -> Word16) (truncate x)
+"floor/Double->Word16"
+    forall x. floor    (x :: Double) = (fromIntegral :: Int -> Word16) (floor x)
+"ceiling/Double->Word16"
+    forall x. ceiling  (x :: Double) = (fromIntegral :: Int -> Word16) (ceiling x)
+"round/Double->Word16"
+    forall x. round    (x :: Double) = (fromIntegral :: Int -> Word16) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Float->(Word8,Float)"
+    forall x. properFraction (x :: Float) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Word8) n, y) }
+"truncate/Float->Word8"
+    forall x. truncate (x :: Float) = (fromIntegral :: Int -> Word8) (truncate x)
+"floor/Float->Word8"
+    forall x. floor    (x :: Float) = (fromIntegral :: Int -> Word8) (floor x)
+"ceiling/Float->Word8"
+    forall x. ceiling  (x :: Float) = (fromIntegral :: Int -> Word8) (ceiling x)
+"round/Float->Word8"
+    forall x. round    (x :: Float) = (fromIntegral :: Int -> Word8) (round x)
+  #-}
+
+{-# RULES
+"properFraction/Double->(Word8,Double)"
+    forall x. properFraction (x :: Double) =
+                      case properFraction x of {
+                        (n, y) -> ((fromIntegral :: Int -> Word8) n, y) }
+"truncate/Double->Word8"
+    forall x. truncate (x :: Double) = (fromIntegral :: Int -> Word8) (truncate x)
+"floor/Double->Word8"
+    forall x. floor    (x :: Double) = (fromIntegral :: Int -> Word8) (floor x)
+"ceiling/Double->Word8"
+    forall x. ceiling  (x :: Double) = (fromIntegral :: Int -> Word8) (ceiling x)
+"round/Double->Word8"
+    forall x. round    (x :: Double) = (fromIntegral :: Int -> Word8) (round x)
+  #-}
+
 \end{code}
 
 Note [realToFrac int-to-float]

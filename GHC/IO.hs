@@ -4,6 +4,7 @@
            , RankNTypes
            , MagicHash
            , UnboxedTuples
+           , CPP
   #-}
 {-# OPTIONS_GHC -funbox-strict-fields #-}
 {-# OPTIONS_HADDOCK hide #-}
@@ -24,7 +25,7 @@
 
 -- #hide
 module GHC.IO (
-        IO(..), unIO, failIO, liftIO,
+        IO(..), unIO, failIO, liftIO, bindIO, thenIO, returnIO,
         unsafePerformIO, unsafeInterleaveIO,
         unsafeDupablePerformIO, unsafeDupableInterleaveIO,
         noDuplicate,
@@ -42,11 +43,13 @@ module GHC.IO (
     ) where
 
 import GHC.Base
+import GHC.Types (IO(..))
 import GHC.ST
 import GHC.Exception
 import GHC.Show
 import Data.Maybe
 import GHC.IO.Fail
+import Data.Typeable
 
 -- ---------------------------------------------------------------------------
 -- The IO Monad
@@ -515,3 +518,5 @@ thenIO (IO m) k = IO $ \ s -> case m s of (# new_s, _ #) -> unIO k new_s
 unIO :: IO a -> (State# RealWorld -> (# State# RealWorld, a #))
 unIO (IO a) = a
 
+#include "Typeable.h"
+INSTANCE_TYPEABLE1(IO,ioTc,"IO")

@@ -32,8 +32,10 @@ import GHC.Show
 import GHC.Num
 import GHC.List ( length, replicate )
 import Data.Int.Show ( showHex )
+import Data.Typeable
 
 #include "MachDeps.h"
+#include "Typeable.h"
 
 ------------------------------------------------------------------------
 -- Data pointers.
@@ -48,6 +50,8 @@ data Ptr a = Ptr Addr# deriving (Eq, Ord)
 -- However this is not essential, and you can provide your own operations
 -- to access the pointer.  For example you might write small foreign
 -- functions to get or set the fields of a C @struct@.
+
+INSTANCE_TYPEABLE1(Ptr,ptrTc,"Ptr")
 
 -- |The constant 'nullPtr' contains a distinguished value of 'Ptr'
 -- that is not associated with a valid memory location.

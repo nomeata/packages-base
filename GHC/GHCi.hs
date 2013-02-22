@@ -22,7 +22,8 @@ module GHC.GHCi {-# WARNING "This is an unstable interface." #-} (
         GHCiSandboxIO(..), NoIO()
     ) where
 
-import GHC.Base (IO(), Monad, (>>=), return, id, (.))
+import GHC.Base (Monad, (>>=), return, id, (.))
+import GHC.IO
 
 -- | A monad that can execute GHCi statements by lifting them out of
 -- m into the IO monad. (e.g state monads)

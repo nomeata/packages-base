@@ -58,6 +58,7 @@ import Data.IORef (IORef, atomicModifyIORef, mkWeakIORef, newIORef, readIORef,
 import Data.Maybe (Maybe(..))
 import Data.Monoid (mappend, mconcat, mempty)
 import GHC.Base
+import GHC.IO (IO)
 import GHC.Conc.Signal (runHandlers)
 import GHC.List (filter)
 import GHC.Num (Num(..))

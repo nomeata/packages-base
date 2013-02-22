@@ -151,7 +151,7 @@ import Control.Exception.Base
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.Base
-import GHC.IO (unsafeUnmask)
+import GHC.IO (IO, unsafeUnmask)
 import Data.Maybe
 #else
 import Prelude hiding (catch)

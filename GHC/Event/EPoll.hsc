@@ -29,6 +29,7 @@ import qualified GHC.Event.Internal as E
 #include "EventConfig.h"
 #if !defined(HAVE_EPOLL)
 import GHC.Base
+import GHC.IO
 
 new :: IO E.Backend
 new = error "EPoll back end not implemented for this platform"
@@ -50,6 +51,7 @@ import Foreign.Marshal.Utils (with)
 import Foreign.Ptr (Ptr)
 import Foreign.Storable (Storable(..))
 import GHC.Base
+import GHC.IO
 import GHC.Err (undefined)
 import GHC.Num (Num(..))
 import GHC.Real (ceiling, fromIntegral)

@@ -18,6 +18,7 @@ import qualified GHC.Event.Internal as E
 #include "EventConfig.h"
 #if !defined(HAVE_KQUEUE)
 import GHC.Base
+import GHC.IO
 
 new :: IO E.Backend
 new = error "KQueue back end not implemented for this platform"
@@ -37,6 +38,7 @@ import Foreign.Marshal.Alloc (alloca)
 import Foreign.Ptr (Ptr, nullPtr)
 import Foreign.Storable (Storable(..))
 import GHC.Base
+import GHC.IO
 import GHC.Enum (toEnum)
 import GHC.Err (undefined)
 import GHC.Num (Num(..))

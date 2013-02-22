@@ -115,6 +115,7 @@ import GHC.List
 import GHC.Real
 import GHC.Num
 import GHC.Base
+import GHC.IO
 
 import {-# SOURCE #-} GHC.IO.Encoding
 import qualified GHC.Foreign as GHC

@@ -53,9 +53,11 @@ import GHC.Word
 import GHC.Ptr
 import GHC.Err
 import GHC.Base
+import GHC.IO
 import GHC.Fingerprint.Type
 import Data.Bits
 import GHC.Real
+import GHC.Float
 #else
 import Data.Int
 import Data.Word

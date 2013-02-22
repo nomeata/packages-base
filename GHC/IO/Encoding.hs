@@ -30,6 +30,7 @@ module GHC.IO.Encoding (
     ) where
 
 import GHC.Base
+import GHC.IO
 --import GHC.IO.Exception
 import GHC.IO.Buffer
 import GHC.IO.Encoding.Failure
@@ -48,7 +49,7 @@ import GHC.Word
 import GHC.IO.Encoding.Failure
 
 import Data.IORef
---import Data.Char (toUpper) FIXME when base-unicode is created
+import Data.Char (toUpper)
 import Data.List
 import Data.Maybe
 import System.IO.Unsafe (unsafePerformIO)
@@ -206,7 +207,7 @@ mkTextEncoding e = case mb_coding_failure_mode of
         _             -> Nothing
 
 mkTextEncoding' :: CodingFailureMode -> String -> IO TextEncoding
-mkTextEncoding' cfm enc = case [{- FIXME toUpper-} c | c <- enc, c /= '-'] of
+mkTextEncoding' cfm enc = case [ toUpper c | c <- enc, c /= '-'] of
     "UTF8"    -> return $ UTF8.mkUTF8 cfm
     "UTF16"   -> return $ UTF16.mkUTF16 cfm
     "UTF16LE" -> return $ UTF16.mkUTF16le cfm

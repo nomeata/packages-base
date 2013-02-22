@@ -4,7 +4,9 @@
 module GHC.Event.Clock (getMonotonicTime) where
 
 import GHC.Base
+import GHC.IO
 import GHC.Real
+import GHC.Float
 import Data.Word
 
 -- | Return monotonic time in seconds, since some unspecified starting point

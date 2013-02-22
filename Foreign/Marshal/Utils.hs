@@ -58,6 +58,7 @@ import Foreign.Marshal.Alloc    ( malloc, alloca )
 import GHC.Real                 ( fromIntegral )
 import GHC.Num
 import GHC.Base
+import GHC.IO
 import GHC.Err
 #endif
 

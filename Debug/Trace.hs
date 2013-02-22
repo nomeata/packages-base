@@ -40,6 +40,7 @@ import Control.Monad
 #ifdef __GLASGOW_HASKELL__
 import Foreign.C.String
 import GHC.Base
+import GHC.IO
 import qualified GHC.Foreign
 import GHC.IO.Encoding
 import GHC.Ptr
