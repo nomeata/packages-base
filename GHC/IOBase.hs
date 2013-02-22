@@ -1,5 +1,6 @@
 {-# LANGUAGE Unsafe #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_HADDOCK hide #-}
 
 -----------------------------------------------------------------------------
@@ -52,6 +53,7 @@ module GHC.IOBase {-# DEPRECATED "use GHC.IO instead" #-} (
     blockedOnDeadMVar, blockedIndefinitely
   ) where
 
+import Prelude.Pure
 import GHC.Base
 import GHC.Exception
 import GHC.IO
