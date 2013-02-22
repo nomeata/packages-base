@@ -7,7 +7,7 @@ open DOT, ">", "graph.dot";
 print DOT <<"";
 digraph base {
 	compound = true; 
-	clusterrank = none;
+//	clusterrank = none;
 
 @colors = qw/aquamarine chartreuse1 darkorange2 coral gold1 darksalmon darkslategray2 cyan3 firebrick1 skyblue1/;
 
@@ -65,7 +65,7 @@ for $file (<*.imports>) {
 	my ($from) = ($file =~ m!^(.*).imports!);
 	$all{$from}++;
 	for (read_file($file)) {
-		if (m!import (?:safe )?(?:{-# SOURCE #-} )?([A-Z][a-zA-Z0-9\.]*)!) {
+		if (m!import (?:safe )?(?:qualified )?(?:{-# SOURCE #-} )?([A-Z][a-zA-Z0-9\.]*)!) {
 			$all{$1}++;
 			printf DOT "\"%s\" -> \"%s\"", $from, $1;
 			#if ($seen{$1} && !($seen{$1} eq $seen{$from})) {
