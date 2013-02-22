@@ -84,7 +84,7 @@ module System.IO.Error (
   ) where
 
 #ifndef __HUGS__
-import Control.Exception.Base
+--import Control.Exception.Base
 #endif
 
 #ifndef __HUGS__
@@ -135,8 +135,8 @@ import Control.Monad (MonadPlus(mplus))
 -- Non-I\/O exceptions are not caught by this variant; to catch all
 -- exceptions, use 'Control.Exception.try' from "Control.Exception".
 tryIOError     :: IO a -> IO (Either IOError a)
-tryIOError f   =  catch (do r <- f
-                            return (Right r))
+tryIOError f   =  catchException (do r <- f
+                                     return (Right r))
                         (return . Left)
 
 #if defined(__GLASGOW_HASKELL__) || defined(__HUGS__)
@@ -398,7 +398,7 @@ ioeSetFileName e _ = e
 -- | Catch any 'IOError' that occurs in the computation and throw a
 -- modified version.
 modifyIOError :: (IOError -> IOError) -> IO a -> IO a
-modifyIOError f io = catch io (\e -> ioError (f e))
+modifyIOError f io = catchException io (\e -> ioError (f e))
 
 -- -----------------------------------------------------------------------------
 -- annotating an IOError
@@ -455,6 +455,6 @@ annotateIOError (NHC.PatternError loc) msg' _ _ =
 -- Non-I\/O exceptions are not caught by this variant; to catch all
 -- exceptions, use 'Control.Exception.catch' from "Control.Exception".
 catchIOError :: IO a -> (IOError -> IO a) -> IO a
-catchIOError = catch
+catchIOError = catchException
 #endif /* !__HUGS__ */
 
