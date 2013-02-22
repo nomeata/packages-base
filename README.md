@@ -44,6 +44,7 @@ These packages have been introduced so far:
  * base-io: The `IO` monad, uses base-st.
  * base-concurrent: Currently just `MVar`, uses base-io.
  * base-foreign: Everything related to `Foreign`, uses base-io and base-float (for the `Storable` instances for `Double` and `Float`).
+ * base-io-system: System related `IO`, including concurrency
 
 Some changes are intended to end up in the final libraries, if this approach is
 accepted:

@@ -11,7 +11,7 @@ digraph base {
 
 @colors = qw/aquamarine chartreuse1 darkorange2 coral gold1 darksalmon darkslategray2 cyan3 firebrick1 skyblue1/;
 
-my @packages = qw/base-pure base-st base-io base-array base-float base-concurrent base-foreign/;
+my @packages = qw/base-pure base-st base-io base-array base-float base-concurrent base-foreign base-io-system/;
 
 printf DOT <<'', pop @colors;
 subgraph "cluster_ghc-prim" {

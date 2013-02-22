@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE CPP #-}
 
 -----------------------------------------------------------------------------
@@ -23,7 +24,7 @@ module System.Exit
     , exitSuccess   -- :: IO a
   ) where
 
-import Prelude
+import Prelude.Pure
 
 #ifdef __GLASGOW_HASKELL__
 import GHC.IO

@@ -1,0 +1,51 @@
+name:           base-io-system
+version:        4.6.0.1
+license:        BSD3
+license-file:   LICENSE
+maintainer:     libraries@haskell.org
+bug-reports: http://hackage.haskell.org/trac/ghc/newticket?component=libraries/base
+synopsis:       Basic libraries
+description:
+    This package contains the Prelude and its support libraries,
+    and a large collection of useful libraries ranging from data
+    structures to parsing combinators and debugging utilities.
+cabal-version:  >=1.6
+build-type: Simple
+
+source-repository head
+    type:     git
+    location: http://darcs.haskell.org/packages/base.git/
+
+Library {
+    build-depends: rts, ghc-prim, base-pure, base-st, base-io, base-concurrent, base-array, base-foreign, base-float
+    exposed-modules:
+        Control.Exception
+        Control.Exception.Base
+        GHC.IOArray
+        GHC.Conc.IO
+        GHC.Conc.Sync
+        GHC.IOBase
+        GHC.IO.BufferedIO
+        GHC.IO.Device
+        GHC.IO.Exception
+        --GHC.IO.Handle
+        GHC.IO.Handle.FD
+        GHC.IO.Handle.Types
+        GHC.IO.Handle.Text
+        GHC.IO.IOMode
+        GHC.Stats
+        GHC.Event.EPoll
+        GHC.Event.Thread
+        GHC.Event.Manager
+        GHC.Event.Internal
+        GHC.Event.PSQ
+        GHC.Event.IntMap
+        GHC.Event.Control
+        GHC.Event.Clock
+        System.Exit
+        System.IO.Error
+        System.Posix.Internals
+        System.Posix.Types
+    include-dirs: include
+
+}

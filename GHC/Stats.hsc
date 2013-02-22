@@ -2,6 +2,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -funbox-strict-fields #-}
 
 -----------------------------------------------------------------------------
@@ -18,6 +19,7 @@ module GHC.Stats
     , getGCStatsEnabled
 ) where
 
+import Prelude.Pure
 import Control.Monad
 import Data.Int
 import GHC.IO.Exception
