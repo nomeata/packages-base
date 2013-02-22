@@ -32,6 +32,11 @@ exactly one of the splitted packages, by running
 (On Debian or Ubuntu, install `libfile-find-rule-perl` first.)
 
 
+You can also review the split graphically, by running 
+
+    ./gen-graph.pl | tred | dot -Tpdf -o graph.pdf
+
+
 Changes so far
 --------------
 
@@ -64,3 +69,8 @@ Some changes are just work-arounds due to GHC having the package name `base` har
  * Replacing every `foreign import` by a regular definition with `... = undefined`
  * Packages with do-notation have a `RebindableSyntax` to pick up the proper `Monad` instance. This requires implementing `ifThenElse` there locally.
  * I did not pay attention to Safe and Trustworthy attributes; these will have to be recovered
+
+Planned changes
+---------------
+
+ * The base-concurrent package currently contains only `MVar`s and is hence not useful. This can be merged into base-io.

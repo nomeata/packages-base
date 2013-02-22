@@ -3,17 +3,20 @@
 use File::Slurp;
 use File::Find::Rule;
 
-open DOT, ">", "graph.dot";
-print DOT <<"";
+print <<"";
 digraph base {
 	compound = true; 
 //	clusterrank = none;
+        ranksep = 2;
+        mclimit = 100;
+        nslimit = 100;
+        rankdir = LR;
 
 @colors = qw/aquamarine chartreuse1 darkorange2 coral gold1 darksalmon darkslategray2 cyan3 firebrick1 skyblue1/;
 
 my @packages = qw/base-pure base-st base-io base-array base-float base-concurrent base-foreign base-io-system/;
 
-printf DOT <<'', pop @colors;
+printf <<'', pop @colors;
 subgraph "cluster_ghc-prim" {
 label = "ghc-prim";
 color = "black";
@@ -29,7 +32,7 @@ node [style=filled,fillcolor=%s];
 "GHC.Types";
 }
 
-printf DOT <<'', pop @colors;
+printf <<'', pop @colors;
 subgraph "cluster_integer-gmp" { label = "integer-gmp"; color = "black";
 node [style=filled,fillcolor=%s];
 "GHC.Integer";
@@ -42,7 +45,7 @@ my %seen;
 my %all;
 
 for my $pkg (@packages) {
-	printf DOT <<'', $pkg, $pkg, pop @colors;
+	printf <<'', $pkg, $pkg, pop @colors;
 	subgraph "cluster_%s" {
 		label = "%s";
 		color = "black";
@@ -53,11 +56,11 @@ for my $pkg (@packages) {
 		for (read_file($file)) {
 			if (m!module ([A-Z][a-zA-Z0-9\.]*)!) {
 				$seen{$1} = $pkg;
-				printf DOT "\"%s\";\n", $1;
+				printf "\"%s\";\n", $1;
 			}
 		}
 	}
-	printf DOT "}\n";
+	printf "}\n";
 }
 
 
@@ -67,20 +70,20 @@ for $file (<*.imports>) {
 	for (read_file($file)) {
 		if (m!import (?:safe )?(?:qualified )?(?:{-# SOURCE #-} )?([A-Z][a-zA-Z0-9\.]*)!) {
 			$all{$1}++;
-			printf DOT "\"%s\" -> \"%s\"", $from, $1;
+			printf "\"%s\" -> \"%s\"", $from, $1;
 			#if ($seen{$1} && !($seen{$1} eq $seen{$from})) {
-			#	printf DOT " [lhead=\"cluster_%s\"]", $seen{$1};
+			#	printf " [lhead=\"cluster_%s\"]", $seen{$1};
 			#}
-			printf DOT ";\n";
+			printf ";\n";
 		}
 	}
 }
 
-printf DOT "subgraph \"cluster_unsorted\" { label = \"unsorted\"; color = black; \n", $pkg, $pkg;
+printf "subgraph \"cluster_unsorted\" { label = \"unsorted\"; color = black; \n", $pkg, $pkg;
 for $mod (keys %all) {
 	next if $seen{$mod};
-	printf DOT "\"%s\";\n",$mod;
+	printf "\"%s\";\n",$mod;
 }
-printf DOT "}\n";
+printf "}\n";
 
-print DOT "}\n"
+print "}\n"
