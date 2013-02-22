@@ -33,8 +33,8 @@ Library {
         GHC.Foreign,
         GHC.ForeignPtr,
         Foreign,
-        --Foreign.C,
-        --Foreign.C.Error, (requires IOException)
+        Foreign.C,
+        Foreign.C.Error,
         Foreign.C.String,
         Foreign.C.Types,
         Foreign.ForeignPtr,
