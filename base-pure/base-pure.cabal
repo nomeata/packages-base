@@ -30,6 +30,7 @@ Library {
         Data.Bits,
         Data.Bool,
         Data.Char,
+        Data.Dynamic,
         Data.Either,
         Data.Eq,
         Data.Foldable,
