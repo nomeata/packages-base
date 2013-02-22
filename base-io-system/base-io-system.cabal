@@ -24,7 +24,6 @@ Library {
         GHC.IOArray
         GHC.Conc.IO
         GHC.Conc.Sync
-        GHC.IOBase
         GHC.IO.BufferedIO
         GHC.IO.Device
         GHC.IO.Exception

@@ -110,7 +110,8 @@ data Handle
         !(MVar Handle__)                -- The read side
         !(MVar Handle__)                -- The write side
 
-  deriving Typeable
+--  deriving Typeable
+instance Typeable Handle
 
 -- NOTES:
 --    * A 'FileHandle' is seekable.  A 'DuplexHandle' may or may not be
@@ -139,7 +140,8 @@ data Handle__
       haOtherSide   :: Maybe (MVar Handle__) -- ptr to the write side of a 
                                              -- duplex handle.
     }
-    deriving Typeable
+--    deriving Typeable
+instance Typeable Handle__
 
 -- we keep a few spare buffers around in a handle to avoid allocating
 -- a new one for each hPutStr.  These buffers are *guaranteed* to be the
@@ -251,7 +253,9 @@ data BufferMode
                 -- ^ block-buffering should be enabled if possible.
                 -- The size of the buffer is @n@ items if the argument
                 -- is 'Just' @n@ and is otherwise implementation-dependent.
-   deriving (Eq, Ord, Read, Show)
+   deriving (Eq, Ord) --, Read, Show)
+instance Read BufferMode
+instance Show BufferMode
 
 {-
 [note Buffering Implementation]
@@ -353,7 +357,10 @@ and hence it is only possible on a seekable Handle.
 -- | The representation of a newline in the external file or stream.
 data Newline = LF    -- ^ '\n'
              | CRLF  -- ^ '\r\n'
-             deriving (Eq, Ord, Read, Show)
+             deriving (Eq, Ord) --, Read, Show)
+instance Read Newline
+instance Show Newline
+
 
 -- | Specifies the translation, if any, of newline characters between
 -- internal Strings and the external file or stream.  Haskell Strings
@@ -366,7 +373,9 @@ data NewlineMode
                   outputNL :: Newline
                     -- ^ the representation of newlines on output
                  }
-             deriving (Eq, Ord, Read, Show)
+             deriving (Eq, Ord)-- Read, Show)
+instance Read NewlineMode
+instance Show NewlineMode
 
 -- | The native newline representation for the current platform: 'LF'
 -- on Unix systems, 'CRLF' on Windows.

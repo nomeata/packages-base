@@ -31,6 +31,8 @@ module GHC.Event.Control
 import Control.Monad (when)
 import Foreign.ForeignPtr (ForeignPtr)
 import GHC.Base
+import GHC.Num
+import GHC.Err
 import GHC.IO
 import GHC.Conc.Signal (Signal)
 import GHC.Real (fromIntegral)
@@ -58,7 +60,8 @@ data ControlMessage = CMsgWakeup
                     | CMsgDie
                     | CMsgSignal {-# UNPACK #-} !(ForeignPtr Word8)
                                  {-# UNPACK #-} !Signal
-    deriving (Eq, Show)
+    deriving Eq -- (Eq, Show)
+instance Show ControlMessage
 
 -- | The structure used to tell the IO manager thread what to do.
 data Control = W {
@@ -70,7 +73,8 @@ data Control = W {
     , wakeupReadFd   :: {-# UNPACK #-} !Fd
     , wakeupWriteFd  :: {-# UNPACK #-} !Fd
 #endif
-    } deriving (Show)
+    } --deriving (Show)
+instance Show Control
 
 #if defined(HAVE_EVENTFD)
 wakeupReadFd :: Control -> Fd
@@ -103,7 +107,7 @@ newControl = allocaArray 2 $ \fds -> do
   (ctrl_rd, ctrl_wr) <- createPipe
   c_setIOManagerControlFd ctrl_wr
 #if defined(HAVE_EVENTFD)
-  ev <- throwErrnoIfMinus1 "eventfd" $ c_eventfd 0 0
+  ev <- throwErrnoIfMinus1 "eventfd" $ c_eventfd (fromInteger 0) (fromInteger 0)
   setNonBlock ev
   setCloseOnExec ev
   c_setIOManagerWakeupFd ev
@@ -135,11 +139,13 @@ closeControl w = do
   return ()
 
 io_MANAGER_WAKEUP, io_MANAGER_DIE :: Word8
-io_MANAGER_WAKEUP = 0xff
-io_MANAGER_DIE    = 0xfe
+io_MANAGER_WAKEUP = fromInteger 0xff
+io_MANAGER_DIE    = fromInteger 0xfe
 
-foreign import ccall "__hscore_sizeof_siginfo_t"
-    sizeof_siginfo_t :: CSize
+-- foreign import ccall "__hscore_sizeof_siginfo_t"
+--    sizeof_siginfo_t :: CSize
+sizeof_siginfo_t :: CSize
+sizeof_siginfo_t = undefined
 
 readControlMessage :: Control -> Fd -> IO ControlMessage
 readControlMessage ctrl fd
@@ -150,7 +156,7 @@ readControlMessage ctrl fd
     | otherwise =
         alloca $ \p -> do
             throwErrnoIfMinus1_ "readControlMessage" $
-                c_read (fromIntegral fd) p 1
+                c_read (fromIntegral fd) p (fromInteger 1)
             s <- peek p
             case s of
                 -- Wakeup messages shouldn't be sent on the control
@@ -177,9 +183,9 @@ readControlMessage ctrl fd
 sendWakeup :: Control -> IO ()
 #if defined(HAVE_EVENTFD)
 sendWakeup c = alloca $ \p -> do
-  poke p (1 :: Word64)
+  poke p (fromInteger 1 :: Word64)
   throwErrnoIfMinus1_ "sendWakeup" $
-    c_write (fromIntegral (controlEventFd c)) (castPtr p) 8
+    c_write (fromIntegral (controlEventFd c)) (castPtr p) (fromInteger 8)
 #else
 sendWakeup c = do
   n <- sendMessage (wakeupWriteFd c) CMsgWakeup
@@ -201,17 +207,23 @@ sendMessage fd msg = alloca $ \p -> do
     CMsgWakeup        -> poke p io_MANAGER_WAKEUP
     CMsgDie           -> poke p io_MANAGER_DIE
     CMsgSignal _fp _s -> error "Signals can only be sent from within the RTS"
-  fromIntegral `fmap` c_write (fromIntegral fd) p 1
+  fromIntegral `fmap` c_write (fromIntegral fd) p (fromInteger 1)
 
 #if defined(HAVE_EVENTFD)
-foreign import ccall unsafe "sys/eventfd.h eventfd"
-   c_eventfd :: CInt -> CInt -> IO CInt
+-- foreign import ccall unsafe "sys/eventfd.h eventfd"
+--   c_eventfd :: CInt -> CInt -> IO CInt
+c_eventfd :: CInt -> CInt -> IO CInt
+c_eventfd = undefined
 #endif
 
 -- Used to tell the RTS how it can send messages to the I/O manager.
-foreign import ccall "setIOManagerControlFd"
-   c_setIOManagerControlFd :: CInt -> IO ()
+-- foreign import ccall "setIOManagerControlFd"
+--   c_setIOManagerControlFd :: CInt -> IO ()
+c_setIOManagerControlFd :: CInt -> IO ()
+c_setIOManagerControlFd = undefined
 
-foreign import ccall "setIOManagerWakeupFd"
-   c_setIOManagerWakeupFd :: CInt -> IO ()
+-- foreign import ccall "setIOManagerWakeupFd"
+--   c_setIOManagerWakeupFd :: CInt -> IO ()
+c_setIOManagerWakeupFd :: CInt -> IO ()
+c_setIOManagerWakeupFd = undefined
 

@@ -29,6 +29,8 @@ Library {
     build-depends: rts, ghc-prim, base-pure, base-array
     exposed-modules:
         GHC.Float
+        GHC.Float.ConversionUtils
+        GHC.Float.RealFracMethods
         Data.Complex
     include-dirs: include
 

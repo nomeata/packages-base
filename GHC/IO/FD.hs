@@ -32,6 +32,7 @@ module GHC.IO.FD (
     ) where
 
 import GHC.Base
+import GHC.Err
 import GHC.Num
 import GHC.Real
 import GHC.Show
@@ -87,7 +88,8 @@ data FD = FD {
   fdIsNonBlocking :: {-# UNPACK #-} !Int
 #endif
  }
- deriving Typeable
+ --deriving Typeable
+instance Typeable FD
 
 #ifdef mingw32_HOST_OS
 fdIsSocket :: FD -> Bool
@@ -170,9 +172,9 @@ openFile filepath iomode non_blocking =
                   AppendMode    -> append_flags
 
 #ifdef mingw32_HOST_OS
-      binary_flags = o_BINARY
+      binary_flags = fromInteger o_BINARY
 #else
-      binary_flags = 0
+      binary_flags = fromInteger 0
 #endif
 
       oflags2 = oflags1 .|. binary_flags
@@ -187,8 +189,8 @@ openFile filepath iomode non_blocking =
     -- always returns EISDIR if the file is a directory and was opened
     -- for writing, so I think we're ok with a single open() here...
     fd <- throwErrnoIfMinus1Retry "openFile"
-                (if non_blocking then c_open      f oflags 0o666
-                                 else c_safe_open f oflags 0o666)
+                (if non_blocking then c_open      f oflags (fromInteger 0o666)
+                                 else c_safe_open f oflags (fromInteger 0o666))
 
     (fD,fd_type) <- mkFD fd iomode Nothing{-no stat-}
                             False{-not a socket-} 
@@ -255,7 +257,7 @@ mkFD fd iomode mb_stat is_socket is_nonblock = do
            -- and inode, since fstat just returns 0 for both.
            (unique_dev, unique_ino) <- getUniqueFileInfo fd dev ino
            r <- lockFile fd unique_dev unique_ino (fromBool write)
-           when (r == -1)  $
+           when (r == negate (fromInteger 1))  $
                 ioException (IOError Nothing ResourceBusy "openFile"
                                    "file is locked" Nothing Nothing)
 
@@ -286,8 +288,10 @@ getUniqueFileInfo fd _ _ = do
 #endif
 
 #ifdef mingw32_HOST_OS
-foreign import ccall unsafe "__hscore_setmode"
-  setmode :: CInt -> Bool -> IO CInt
+-- foreign import ccall unsafe "__hscore_setmode"
+--   setmode :: CInt -> Bool -> IO CInt
+setmode :: CInt -> Bool -> IO CInt
+setmode = undefined
 #endif
 
 -- -----------------------------------------------------------------------------
@@ -306,9 +310,9 @@ stdFD fd = FD { fdFD = fd,
                 }
 
 stdin, stdout, stderr :: FD
-stdin  = stdFD 0
-stdout = stdFD 1
-stderr = stdFD 2
+stdin  = stdFD (fromInteger 0)
+stdout = stdFD (fromInteger 1)
+stderr = stdFD (fromInteger 2)
 
 -- -----------------------------------------------------------------------------
 -- Operations on file descriptors
@@ -331,8 +335,10 @@ release fd = do _ <- unlockFile (fdFD fd)
                 return ()
 
 #ifdef mingw32_HOST_OS
-foreign import WINDOWS_CCONV unsafe "HsBase.h closesocket"
-   c_closesocket :: CInt -> IO CInt
+-- foreign import WINDOWS_CCONV unsafe "HsBase.h closesocket"
+--    c_closesocket :: CInt -> IO CInt
+ c_closesocket :: CInt -> IO CInt
+ c_closesocket = undefined
 #endif
 
 isSeekable :: FD -> IO Bool
@@ -355,14 +361,14 @@ tell :: FD -> IO Integer
 tell fd =
  fromIntegral `fmap`
    (throwErrnoIfMinus1Retry "hGetPosn" $
-      c_lseek (fdFD fd) 0 sEEK_CUR)
+      c_lseek (fdFD fd) (fromInteger 0) sEEK_CUR)
 
 getSize :: FD -> IO Integer
 getSize fd = fdFileSize (fdFD fd)
 
 setSize :: FD -> Integer -> IO () 
 setSize fd size = do
-  throwErrnoIf_ (/=0) "GHC.IO.FD.setSize"  $
+  throwErrnoIf_ (/= fromInteger 0) "GHC.IO.FD.setSize"  $
      c_ftruncate (fdFD fd) (fromIntegral size)
 
 devType :: FD -> IO IODeviceType
@@ -397,12 +403,14 @@ ready fd write msecs = do
 #if defined(mingw32_HOST_OS)
                           (fromIntegral $ fromEnum $ fdIsSocket fd)
 #else
-                          0
+                          (fromInteger 0)
 #endif
   return (toEnum (fromIntegral r))
 
-foreign import ccall safe "fdReady"
-  fdReady :: CInt -> CInt -> CInt -> CInt -> IO CInt
+-- foreign import ccall safe "fdReady"
+--   fdReady :: CInt -> CInt -> CInt -> CInt -> IO CInt
+fdReady :: CInt -> CInt -> CInt -> CInt -> IO CInt
+fdReady = undefined
 
 -- ---------------------------------------------------------------------------
 -- Terminal-related stuff
@@ -499,8 +507,8 @@ readRawBufferPtr :: String -> FD -> Ptr Word8 -> Int -> CSize -> IO Int
 readRawBufferPtr loc !fd buf off len
   | isNonBlocking fd = unsafe_read -- unsafe is ok, it can't block
   | otherwise    = do r <- throwErrnoIfMinus1 loc 
-                                (unsafe_fdReady (fdFD fd) 0 0 0)
-                      if r /= 0 
+                                (unsafe_fdReady (fdFD fd) (fromInteger 0) (fromInteger 0) (fromInteger 0))
+                      if r /= fromInteger 0 
                         then read
                         else do threadWaitRead (fromIntegral (fdFD fd)); read
   where
@@ -515,24 +523,23 @@ readRawBufferPtr loc !fd buf off len
 readRawBufferPtrNoBlock :: String -> FD -> Ptr Word8 -> Int -> CSize -> IO Int
 readRawBufferPtrNoBlock loc !fd buf off len
   | isNonBlocking fd  = unsafe_read -- unsafe is ok, it can't block
-  | otherwise    = do r <- unsafe_fdReady (fdFD fd) 0 0 0
-                      if r /= 0 then safe_read
-                                else return 0
+  | otherwise    = do r <- unsafe_fdReady (fdFD fd) (fromInteger 0) (fromInteger 0) (fromInteger 0)
+                      if r /= fromInteger 0 then safe_read
+                                else return (fromInteger 0)
        -- XXX see note [nonblock]
  where
-   do_read call = do r <- throwErrnoIfMinus1RetryOnBlock loc call (return (-1))
-                     case r of
-                       (-1) -> return 0
-                       0    -> return (-1)
-                       n    -> return (fromIntegral n)
+   do_read call = do r <- throwErrnoIfMinus1RetryOnBlock loc call (return (negate (fromInteger 1)))
+                     if r == negate (fromInteger 1) then return (fromInteger 0) else
+                         if r == fromInteger 0 then return (negate (fromInteger 1)) else
+                            return (fromIntegral r) 
    unsafe_read  = do_read (c_read (fdFD fd) (buf `plusPtr` off) len)
    safe_read    = do_read (c_safe_read (fdFD fd) (buf `plusPtr` off) len)
 
 writeRawBufferPtr :: String -> FD -> Ptr Word8 -> Int -> CSize -> IO CInt
 writeRawBufferPtr loc !fd buf off len
   | isNonBlocking fd = unsafe_write -- unsafe is ok, it can't block
-  | otherwise   = do r <- unsafe_fdReady (fdFD fd) 1 0 0
-                     if r /= 0 
+  | otherwise   = do r <- unsafe_fdReady (fdFD fd) (fromInteger 1) (fromInteger 0) (fromInteger 0)
+                     if r /= fromInteger 0 
                         then write
                         else do threadWaitWrite (fromIntegral (fdFD fd)); write
   where
@@ -546,14 +553,14 @@ writeRawBufferPtr loc !fd buf off len
 writeRawBufferPtrNoBlock :: String -> FD -> Ptr Word8 -> Int -> CSize -> IO CInt
 writeRawBufferPtrNoBlock loc !fd buf off len
   | isNonBlocking fd = unsafe_write -- unsafe is ok, it can't block
-  | otherwise   = do r <- unsafe_fdReady (fdFD fd) 1 0 0
-                     if r /= 0 then write
-                               else return 0
+  | otherwise   = do r <- unsafe_fdReady (fdFD fd) (fromInteger 1) (fromInteger 0) (fromInteger 0)
+                     if r /= fromInteger 0 then write
+                               else return (fromInteger 0)
   where
-    do_write call = do r <- throwErrnoIfMinus1RetryOnBlock loc call (return (-1))
-                       case r of
-                         (-1) -> return 0
-                         n    -> return (fromIntegral n)
+    do_write call = do r <- throwErrnoIfMinus1RetryOnBlock loc call (return (negate (fromInteger 1)))
+                       if r == negate (fromInteger 1)
+                         then return (fromInteger 0)
+                         else return (fromIntegral r)
     write         = if threaded then safe_write else unsafe_write
     unsafe_write  = do_write (c_write (fdFD fd) (buf `plusPtr` off) len)
     safe_write    = do_write (c_safe_write (fdFD fd) (buf `plusPtr` off) len)
@@ -561,8 +568,10 @@ writeRawBufferPtrNoBlock loc !fd buf off len
 isNonBlocking :: FD -> Bool
 isNonBlocking fd = fdIsNonBlocking fd /= 0
 
-foreign import ccall unsafe "fdReady"
-  unsafe_fdReady :: CInt -> CInt -> CInt -> CInt -> IO CInt
+-- foreign import ccall unsafe "fdReady"
+--   unsafe_fdReady :: CInt -> CInt -> CInt -> CInt -> IO CInt
+unsafe_fdReady :: CInt -> CInt -> CInt -> CInt -> IO CInt
+unsafe_fdReady = undefined
 
 #else /* mingw32_HOST_OS.... */
 
@@ -630,15 +639,21 @@ blockingWriteRawBufferPtr loc fd buf off len
 -- NOTE: "safe" versions of the read/write calls for use by the threaded RTS.
 -- These calls may block, but that's ok.
 
-foreign import WINDOWS_CCONV safe "recv"
-   c_safe_recv :: CInt -> Ptr Word8 -> CSize -> CInt{-flags-} -> IO CSsize
+-- foreign import WINDOWS_CCONV safe "recv"
+--    c_safe_recv :: CInt -> Ptr Word8 -> CSize -> CInt{-flags-} -> IO CSsize
+ c_safe_recv :: CInt -> Ptr Word8 -> CSize -> CInt{-flags-} -> IO CSsize
+ c_safe_recv = undefined
 
-foreign import WINDOWS_CCONV safe "send"
-   c_safe_send :: CInt -> Ptr Word8 -> CSize -> CInt{-flags-} -> IO CSsize
+-- foreign import WINDOWS_CCONV safe "send"
+--    c_safe_send :: CInt -> Ptr Word8 -> CSize -> CInt{-flags-} -> IO CSsize
+ c_safe_send :: CInt -> Ptr Word8 -> CSize -> CInt{-flags-} -> IO CSsize
+ c_safe_send = undefined
 
 #endif
 
-foreign import ccall "rtsSupportsBoundThreads" threaded :: Bool
+-- foreign import ccall "rtsSupportsBoundThreads" threaded :: Bool
+threaded :: Bool
+threaded = undefined
 
 -- -----------------------------------------------------------------------------
 -- utils
@@ -648,7 +663,7 @@ throwErrnoIfMinus1RetryOnBlock  :: String -> IO CSsize -> IO CSsize -> IO CSsize
 throwErrnoIfMinus1RetryOnBlock loc f on_block  = 
   do
     res <- f
-    if (res :: CSsize) == -1
+    if (res :: CSsize) == negate (fromInteger 1)
       then do
         err <- getErrno
         if err == eINTR
@@ -662,13 +677,19 @@ throwErrnoIfMinus1RetryOnBlock loc f on_block  =
 -- -----------------------------------------------------------------------------
 -- Locking/unlocking
 
-foreign import ccall unsafe "lockFile"
-  lockFile :: CInt -> Word64 -> Word64 -> CInt -> IO CInt
+-- foreign import ccall unsafe "lockFile"
+--   lockFile :: CInt -> Word64 -> Word64 -> CInt -> IO CInt
+lockFile :: CInt -> Word64 -> Word64 -> CInt -> IO CInt
+lockFile = undefined
 
-foreign import ccall unsafe "unlockFile"
-  unlockFile :: CInt -> IO CInt
+-- foreign import ccall unsafe "unlockFile"
+--   unlockFile :: CInt -> IO CInt
+unlockFile :: CInt -> IO CInt
+unlockFile = undefined
 
 #ifdef mingw32_HOST_OS
-foreign import ccall unsafe "get_unique_file_info"
-  c_getUniqueFileInfo :: CInt -> Ptr Word64 -> Ptr Word64 -> IO ()
+-- foreign import ccall unsafe "get_unique_file_info"
+--   c_getUniqueFileInfo :: CInt -> Ptr Word64 -> Ptr Word64 -> IO ()
+c_getUniqueFileInfo :: CInt -> Ptr Word64 -> Ptr Word64 -> IO ()
+c_getUniqueFileInfo = undefined
 #endif

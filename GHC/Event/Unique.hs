@@ -1,4 +1,5 @@
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE BangPatterns, GeneralizedNewtypeDeriving, NoImplicitPrelude #-}
 module GHC.Event.Unique
     (

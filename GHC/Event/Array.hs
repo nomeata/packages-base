@@ -308,9 +308,11 @@ firstPowerOf2 !n =
 # error firstPowerOf2 not defined on this architecture
 #endif
 
-foreign import ccall unsafe "string.h memcpy"
-    memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+--foreign import ccall unsafe "string.h memcpy"
+memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+memcpy = undefined
 
-foreign import ccall unsafe "string.h memmove"
-    memmove :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+--foreign import ccall unsafe "string.h memmove"
+memmove :: Ptr a -> Ptr a -> CSize -> IO (Ptr a)
+memmove = undefined
 

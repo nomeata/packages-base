@@ -23,6 +23,7 @@ module GHC.IO.Handle.FD (
  ) where
 
 import GHC.Base
+import GHC.Num
 import GHC.Show
 import Data.Maybe
 import Foreign.C.Types
@@ -252,7 +253,7 @@ fdToHandle' fdint mb_type is_socket filepath iomode binary = do
                           -- mkFD will do the stat:
                         Just RegularFile -> Nothing
                           -- no stat required for streams etc.:
-                        Just other       -> Just (other,0,0)
+                        Just other       -> Just (other,fromInteger 0,fromInteger 0)
   (fd,fd_type) <- FD.mkFD fdint iomode mb_stat
                        is_socket
                        is_socket

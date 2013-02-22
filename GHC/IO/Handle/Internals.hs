@@ -5,6 +5,7 @@
            , PatternGuards
            , NondecreasingIndentation
            , Rank2Types
+           , RebindableSyntax
   #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 {-# OPTIONS_GHC -fno-warn-name-shadowing #-}
@@ -607,7 +608,7 @@ mkHandle :: (IODevice dev, BufferedIO dev, Typeable dev) => dev
             -> IO Handle
 
 mkHandle dev filepath ha_type buffered mb_codec nl finalizer other_side = do
-   openTextEncoding mb_codec ha_type $ \ mb_encoder mb_decoder -> do
+   openTextEncoding mb_codec ha_type ( \ mb_encoder mb_decoder -> do
 
    let buf_state = initBufferState ha_type
    bbuf <- Buffered.newBuffer dev buf_state
@@ -634,6 +635,7 @@ mkHandle dev filepath ha_type buffered mb_codec nl finalizer other_side = do
                         haOutputNL = outputNL nl,
                         haOtherSide = other_side
                       })
+    )
 
 -- | makes a new 'Handle'
 mkFileHandle :: (IODevice dev, BufferedIO dev, Typeable dev)
@@ -792,7 +794,7 @@ debugIO :: String -> IO ()
 debugIO s
  | c_DEBUG_DUMP
     = do _ <- withCStringLen (s ++ "\n") $
-                  \(p, len) -> c_write 1 (castPtr p) (fromIntegral len)
+                  \(p, len) -> c_write (fromInteger 1) (castPtr p) (fromIntegral len)
          return ()
  | otherwise = return ()
 
@@ -913,3 +915,5 @@ decodeByteBuf h_@Handle__{..} cbuf = do
   writeIORef haByteBuffer bbuf2
   return cbuf'
 
+ifThenElse True a b = a
+ifThenElse False a b = b

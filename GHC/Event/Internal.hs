@@ -83,7 +83,8 @@ evtConcat = foldl' evtCombine evtNothing
 -- | A type alias for timeouts, specified in seconds.
 data Timeout = Timeout {-# UNPACK #-} !Double
              | Forever
-               deriving (Show)
+--               deriving (Show)
+instance Show Timeout
 
 -- | Event notification backend.
 data Backend = forall a. Backend {
@@ -135,8 +136,8 @@ delete (Backend bState _ _ bDelete) = bDelete bState
 throwErrnoIfMinus1NoRetry :: (Eq a, Num a) => String -> IO a -> IO a
 throwErrnoIfMinus1NoRetry loc f = do
     res <- f
-    if res == -1
+    if res == negate (fromInteger 1)
         then do
             err <- getErrno
-            if err == eINTR then return 0 else throwErrno loc
+            if err == eINTR then return (fromInteger 0) else throwErrno loc
         else return res

@@ -16,6 +16,7 @@ import Data.Maybe (Maybe(..))
 import Foreign.C.Error (ErrnoError(..), eBADF)
 import Foreign.Ptr (Ptr)
 import GHC.Base
+import GHC.Err
 import GHC.Conc.Sync (TVar, ThreadId, ThreadStatus(..), atomically, forkIO,
                       labelThread, modifyMVar_, newTVar, sharedCAF,
                       threadStatus, writeTVar)
@@ -100,8 +101,10 @@ threadWait evt fd = mask_ $ do
 getSystemEventManager :: IO (Maybe EventManager)
 getSystemEventManager = readIORef eventManager
 
-foreign import ccall unsafe "getOrSetSystemEventThreadEventManagerStore"
-    getOrSetSystemEventThreadEventManagerStore :: Ptr a -> IO (Ptr a)
+-- foreign import ccall unsafe "getOrSetSystemEventThreadEventManagerStore"
+--   getOrSetSystemEventThreadEventManagerStore :: Ptr a -> IO (Ptr a)
+getOrSetSystemEventThreadEventManagerStore :: Ptr a -> IO (Ptr a)
+getOrSetSystemEventThreadEventManagerStore = undefined
 
 eventManager :: IORef (Maybe EventManager)
 eventManager = unsafePerformIO $ do
@@ -109,8 +112,10 @@ eventManager = unsafePerformIO $ do
     sharedCAF em getOrSetSystemEventThreadEventManagerStore
 {-# NOINLINE eventManager #-}
 
-foreign import ccall unsafe "getOrSetSystemEventThreadIOManagerThreadStore"
-    getOrSetSystemEventThreadIOManagerThreadStore :: Ptr a -> IO (Ptr a)
+-- foreign import ccall unsafe "getOrSetSystemEventThreadIOManagerThreadStore"
+--   getOrSetSystemEventThreadIOManagerThreadStore :: Ptr a -> IO (Ptr a)
+getOrSetSystemEventThreadIOManagerThreadStore :: Ptr a -> IO (Ptr a)
+getOrSetSystemEventThreadIOManagerThreadStore = undefined
 
 {-# NOINLINE ioManager #-}
 ioManager :: MVar (Maybe ThreadId)
@@ -151,4 +156,6 @@ startIOManagerThread = modifyMVar_ ioManager $ \old -> do
           create
         _other         -> return st
 
-foreign import ccall unsafe "rtsSupportsBoundThreads" threaded :: Bool
+-- foreign import ccall unsafe "rtsSupportsBoundThreads" threaded :: Bool
+threaded :: Bool
+threaded = undefined

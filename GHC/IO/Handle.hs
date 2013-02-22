@@ -254,13 +254,14 @@ hSetEncoding hdl encoding = do
   withAllHandles__ "hSetEncoding" hdl $ \h_@Handle__{..} -> do
     flushCharBuffer h_
     closeTextCodecs h_
-    openTextEncoding (Just encoding) haType $ \ mb_encoder mb_decoder -> do
+    openTextEncoding (Just encoding) haType ( \ mb_encoder mb_decoder -> do
     bbuf <- readIORef haByteBuffer
     ref <- newIORef (error "last_decode")
     return (Handle__{ haLastDecode = ref, 
                       haDecoder = mb_decoder, 
                       haEncoder = mb_encoder,
                       haCodec   = Just encoding, .. })
+    )
 
 -- | Return the current 'TextEncoding' for the specified 'Handle', or
 -- 'Nothing' if the 'Handle' is in binary mode.
@@ -565,7 +566,7 @@ hSetBinaryMode handle bin =
          mb_te <- if bin then return Nothing
                          else fmap Just getLocaleEncoding
 
-         openTextEncoding mb_te haType $ \ mb_encoder mb_decoder -> do
+         openTextEncoding mb_te haType ( \ mb_encoder mb_decoder -> do
 
          -- should match the default newline mode, whatever that is
          let nl    | bin       = noNewlineTranslation
@@ -580,6 +581,7 @@ hSetBinaryMode handle bin =
                           haCodec    = mb_te,
                           haInputNL  = inputNL nl,
                           haOutputNL = outputNL nl, .. }
+         )
   
 -- -----------------------------------------------------------------------------
 -- hSetNewlineMode

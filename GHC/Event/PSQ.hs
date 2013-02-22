@@ -101,7 +101,8 @@ data Elem a = E
     { key   :: {-# UNPACK #-} !Key
     , prio  :: {-# UNPACK #-} !Prio
     , value :: a
-    } deriving (Eq, Show)
+    } deriving (Eq) --, Show)
+instance Show (Elem a)
 
 ------------------------------------------------------------------------
 -- | A mapping from keys @k@ to priorites @p@.
@@ -113,7 +114,8 @@ data PSQ a = Void
            | Winner {-# UNPACK #-} !(Elem a)
                     !(LTree a)
                     {-# UNPACK #-} !Key  -- max key
-           deriving (Eq, Show)
+           deriving (Eq) --, Show)
+instance Show (PSQ a)
 
 -- | /O(1)/ The number of elements in a queue.
 size :: PSQ a -> Int
@@ -300,7 +302,8 @@ data LTree a = Start
                       !(LTree a)
                       {-# UNPACK #-} !Key  -- split key
                       !(LTree a)
-             deriving (Eq, Show)
+             deriving (Eq) --, Show)
+instance Show (LTree a)
 
 size' :: LTree a -> Size
 size' Start              = 0

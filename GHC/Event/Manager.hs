@@ -62,7 +62,7 @@ import GHC.IO (IO)
 import GHC.Conc.Signal (runHandlers)
 import GHC.List (filter)
 import GHC.Num (Num(..))
-import GHC.Real ((/), fromIntegral )
+import GHC.Real ((/), fromIntegral, fromRational, (%) )
 import GHC.Show (Show(..))
 import GHC.Event.Clock (getMonotonicTime)
 import GHC.Event.Control
@@ -98,7 +98,8 @@ data FdData = FdData {
 data FdKey = FdKey {
       keyFd     :: {-# UNPACK #-} !Fd
     , keyUnique :: {-# UNPACK #-} !Unique
-    } deriving (Eq, Show)
+    } deriving Eq -- (Eq, Show)
+instance Show FdKey
 
 -- | Callback invoked on I/O events.
 type IOCallback = FdKey -> Event -> IO ()
@@ -114,7 +115,8 @@ data State = Created
            | Running
            | Dying
            | Finished
-             deriving (Eq, Show)
+             deriving Eq -- (Eq, Show)
+instance Show State
 
 -- | A priority search queue, with timeouts as priorities.
 type TimeoutQueue = Q.PSQ TimeoutCallback
@@ -365,7 +367,7 @@ registerTimeout mgr us cb = do
   if us <= 0 then cb
     else do
       now <- getMonotonicTime
-      let expTime = fromIntegral us / 1000000.0 + now
+      let expTime = fromIntegral us / fromRational (1000000%1) + now
 
       -- We intentionally do not evaluate the modified map to WHNF here.
       -- Instead, we leave a thunk inside the IORef and defer its
@@ -389,7 +391,7 @@ unregisterTimeout mgr (TK key) = do
 updateTimeout :: EventManager -> TimeoutKey -> Int -> IO ()
 updateTimeout mgr (TK key) us = do
   now <- getMonotonicTime
-  let expTime = fromIntegral us / 1000000.0 + now
+  let expTime = fromIntegral us / fromRational(1000000%1) + now
 
   atomicModifyIORef (emTimeouts mgr) $ \f ->
       let f' = (Q.adjust (const expTime) key) . f in (f', ())

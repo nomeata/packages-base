@@ -47,7 +47,7 @@ instance Eq (IOArray i e) where
 -- |Build a new 'IOArray'
 newIOArray :: Ix i => (i,i) -> e -> IO (IOArray i e)
 {-# INLINE newIOArray #-}
-newIOArray lu initial  = stToIO $ do {marr <- newSTArray lu initial; return (IOArray marr)}
+newIOArray lu initial  = stToIO $ IOArray `fmap` newSTArray lu initial
 
 -- | Read a value from an 'IOArray'
 unsafeReadIOArray  :: Ix i => IOArray i e -> Int -> IO e

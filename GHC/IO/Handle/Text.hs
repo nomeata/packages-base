@@ -54,6 +54,7 @@ import Data.Maybe
 import Control.Monad
 
 import GHC.IORef
+import GHC.Err
 import GHC.Base
 import GHC.Real
 import GHC.Num
@@ -994,8 +995,10 @@ copyFromRawBuffer ptr raw off bytes =
    do _ <- memcpy ptr (praw `plusPtr` off) (fromIntegral bytes)
       return ()
 
-foreign import ccall unsafe "memcpy"
-   memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr ())
+-- foreign import ccall unsafe "memcpy"
+--   memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr ())
+memcpy :: Ptr a -> Ptr a -> CSize -> IO (Ptr ())
+memcpy = undefined
 
 -----------------------------------------------------------------------------
 -- Internal Utils

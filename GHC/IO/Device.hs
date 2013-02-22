@@ -175,5 +175,9 @@ data SeekMode
                         -- from the current position.
   | SeekFromEnd         -- ^ the position of @hdl@ is set to offset @i@
                         -- from the end of the file.
-    deriving (Eq, Ord, Ix, Enum, Read, Show)
+    deriving (Eq, Ord) --, Ix, Enum, Read, Show)
+instance Ix SeekMode
+instance Enum SeekMode
+instance Read SeekMode
+instance Show SeekMode
 

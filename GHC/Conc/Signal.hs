@@ -18,6 +18,7 @@ import Foreign.StablePtr (castPtrToStablePtr, castStablePtrToPtr,
 import Foreign.Ptr (Ptr, castPtr)
 import GHC.Arr (inRange)
 import GHC.Base
+import GHC.Err
 import GHC.Conc.Sync (forkIO)
 import GHC.IO (IO, mask_, unsafePerformIO)
 import GHC.IOArray (IOArray, boundsIOArray, newIOArray,
@@ -45,8 +46,9 @@ signal_handlers = unsafePerformIO $ do
   sharedCAF m getOrSetGHCConcSignalSignalHandlerStore
 {-# NOINLINE signal_handlers #-}
 
-foreign import ccall unsafe "getOrSetGHCConcSignalSignalHandlerStore"
-  getOrSetGHCConcSignalSignalHandlerStore :: Ptr a -> IO (Ptr a)
+--foreign import ccall unsafe "getOrSetGHCConcSignalSignalHandlerStore"
+getOrSetGHCConcSignalSignalHandlerStore :: Ptr a -> IO (Ptr a)
+getOrSetGHCConcSignalSignalHandlerStore = undefined
 
 setHandler :: Signal -> Maybe (HandlerFun, Dynamic)
            -> IO (Maybe (HandlerFun, Dynamic))

@@ -1,4 +1,4 @@
-{-# LANGUAGE Safe #-}
+{- LANGUAGE Safe #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -20,6 +20,8 @@ module GHC.Stats
 ) where
 
 import Prelude.Pure
+import GHC.IO
+import GHC.Float
 import Control.Monad
 import Data.Int
 import GHC.IO.Exception
@@ -29,8 +31,12 @@ import Foreign.Ptr
 
 #include "Rts.h"
 
-foreign import ccall "getGCStats"        getGCStats_       :: Ptr () -> IO ()
-foreign import ccall "getGCStatsEnabled" getGCStatsEnabled :: IO Bool
+-- foreign import ccall "getGCStats"        getGCStats_       :: Ptr () -> IO ()
+getGCStats_       :: Ptr () -> IO ()
+getGCStats_       = undefined
+-- foreign import ccall "getGCStatsEnabled" getGCStatsEnabled :: IO Bool
+getGCStatsEnabled :: IO Bool
+getGCStatsEnabled = undefined
 
 -- I'm probably violating a bucket of constraints here... oops.
 
@@ -71,7 +77,9 @@ data GCStats = GCStats
     -- run and approaches the number of threads (set by the RTS flag
     -- @-N@) for a maximally parallel run.
     , parMaxBytesCopied :: !Int64
-    } deriving (Show, Read)
+    } -- deriving (Show, Read)
+instance Show GCStats
+instance Read GCStats
 
     {-
     , initCpuSeconds :: !Double

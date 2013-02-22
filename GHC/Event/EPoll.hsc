@@ -116,12 +116,14 @@ poll ep timeout f = do
 
 newtype EPollFd = EPollFd {
       fromEPollFd :: CInt
-    } deriving (Eq, Show)
+    } deriving (Eq) --, Show)
+instance Show EPollFd
 
 data Event = Event {
       eventTypes :: EventType
     , eventFd    :: Fd
-    } deriving (Show)
+    }-- deriving (Show)
+instance Show Event
 
 instance Storable Event where
     sizeOf    _ = #size struct epoll_event
@@ -139,7 +141,9 @@ instance Storable Event where
 
 newtype ControlOp = ControlOp CInt
 
-#{enum ControlOp, ControlOp
+controlOpFoo x = ControlOp (fromInteger x)
+
+#{enum ControlOp, controlOpFoo
  , controlOpAdd    = EPOLL_CTL_ADD
  , controlOpModify = EPOLL_CTL_MOD
  , controlOpDelete = EPOLL_CTL_DEL
@@ -147,9 +151,14 @@ newtype ControlOp = ControlOp CInt
 
 newtype EventType = EventType {
       unEventType :: Word32
-    } deriving (Show, Eq, Num, Bits)
+    } deriving Eq -- deriving (Show, Eq, Num, Bits)
+instance Show EventType
+instance Num EventType
+instance Bits EventType
 
-#{enum EventType, EventType
+eventTypeFoo x = EventType (fromInteger x)
+
+#{enum EventType, eventTypeFoo
  , epollIn  = EPOLLIN
  , epollOut = EPOLLOUT
  , epollErr = EPOLLERR
@@ -167,7 +176,7 @@ newtype EventType = EventType {
 epollCreate :: IO EPollFd
 epollCreate = do
   fd <- throwErrnoIfMinus1 "epollCreate" $
-        c_epoll_create 256 -- argument is ignored
+        c_epoll_create (fromInteger 256) -- argument is ignored
   setCloseOnExec fd
   let !epollFd' = EPollFd fd
   return epollFd'
@@ -187,27 +196,33 @@ fromEvent e = remap E.evtRead  epollIn .|.
               remap E.evtWrite epollOut
   where remap evt to
             | e `E.eventIs` evt = to
-            | otherwise         = 0
+            | otherwise         = fromInteger 0
 
 toEvent :: EventType -> E.Event
 toEvent e = remap (epollIn  .|. epollErr .|. epollHup) E.evtRead `mappend`
             remap (epollOut .|. epollErr .|. epollHup) E.evtWrite
   where remap evt to
-            | e .&. evt /= 0 = to
+            | e .&. evt /= fromInteger 0 = to
             | otherwise      = mempty
 
 fromTimeout :: Timeout -> Int
 fromTimeout Forever     = -1
-fromTimeout (Timeout s) = ceiling $ 1000 * s
+fromTimeout (Timeout s) = ceiling $ fromInteger 1000 * s
 
-foreign import ccall unsafe "sys/epoll.h epoll_create"
-    c_epoll_create :: CInt -> IO CInt
+-- foreign import ccall unsafe "sys/epoll.h epoll_create"
+--   c_epoll_create :: CInt -> IO CInt
+c_epoll_create :: CInt -> IO CInt
+c_epoll_create = undefined
 
-foreign import ccall unsafe "sys/epoll.h epoll_ctl"
-    c_epoll_ctl :: CInt -> CInt -> CInt -> Ptr Event -> IO CInt
+-- foreign import ccall unsafe "sys/epoll.h epoll_ctl"
+--   c_epoll_ctl :: CInt -> CInt -> CInt -> Ptr Event -> IO CInt
+c_epoll_ctl :: CInt -> CInt -> CInt -> Ptr Event -> IO CInt
+c_epoll_ctl = undefined
 
-foreign import ccall safe "sys/epoll.h epoll_wait"
-    c_epoll_wait :: CInt -> Ptr Event -> CInt -> CInt -> IO CInt
+-- foreign import ccall safe "sys/epoll.h epoll_wait"
+--   c_epoll_wait :: CInt -> Ptr Event -> CInt -> CInt -> IO CInt
+c_epoll_wait :: CInt -> Ptr Event -> CInt -> CInt -> IO CInt
+c_epoll_wait = undefined
 
 #endif /* defined(HAVE_EPOLL) */
 

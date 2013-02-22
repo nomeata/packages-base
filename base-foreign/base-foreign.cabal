@@ -51,7 +51,18 @@ Library {
         Foreign.Ptr,
         Foreign.Safe,
         Foreign.StablePtr,
-        Foreign.Storable
+        Foreign.Storable,
+        GHC.Storable
+        GHC.Stable
+        GHC.Ptr
+        -- slightly misplaced here, needed for recoverDecode
+        GHC.IO.Buffer
+        GHC.IO.Encoding
+        GHC.IO.Encoding.Types
+        GHC.IO.Encoding.UTF8
+        GHC.IO.Encoding.UTF16
+        GHC.IO.Encoding.UTF32
+        GHC.IO.Encoding.Latin1
     other-modules:
         Foreign.ForeignPtr.Imp
     include-dirs: include

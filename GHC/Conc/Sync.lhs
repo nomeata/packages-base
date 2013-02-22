@@ -110,6 +110,8 @@ import Control.Monad
 import Data.Maybe
 
 import GHC.Base
+import GHC.Err
+import GHC.Num
 import {-# SOURCE #-} GHC.IO.Handle ( hFlush )
 import {-# SOURCE #-} GHC.IO.Handle.FD ( stdout )
 import GHC.IO
@@ -134,7 +136,8 @@ infixr 0 `par`, `pseq`
 %************************************************************************
 
 \begin{code}
-data ThreadId = ThreadId ThreadId# deriving( Typeable )
+data ThreadId = ThreadId ThreadId# -- deriving( Typeable )
+instance Typeable ThreadId
 -- ToDo: data ThreadId = ThreadId (Weak ThreadId#)
 -- But since ThreadId# is unlifted, the Weak type must use open
 -- type variables.
@@ -161,20 +164,24 @@ instance Show ThreadId where
         showString "ThreadId " .
         showsPrec d (getThreadId (id2TSO t))
 
-foreign import ccall unsafe "rts_getThreadId" getThreadId :: ThreadId# -> CInt
+--foreign import ccall unsafe "rts_getThreadId" getThreadId :: ThreadId# -> CInt
+getThreadId :: ThreadId# -> CInt
+getThreadId = undefined
 
 id2TSO :: ThreadId -> ThreadId#
 id2TSO (ThreadId t) = t
 
-foreign import ccall unsafe "cmp_thread" cmp_thread :: ThreadId# -> ThreadId# -> CInt
+--foreign import ccall unsafe "cmp_thread" cmp_thread :: ThreadId# -> ThreadId# -> CInt
+cmp_thread :: ThreadId# -> ThreadId# -> CInt
+cmp_thread = undefined
 -- Returns -1, 0, 1
 
 cmpThread :: ThreadId -> ThreadId -> Ordering
 cmpThread t1 t2 =
-   case cmp_thread (id2TSO t1) (id2TSO t2) of
-      -1 -> LT
-      0  -> EQ
-      _  -> GT -- must be 1
+   let c = cmp_thread (id2TSO t1) (id2TSO t2) in
+   if c == fromInteger (-1) then LT else
+   if c == fromInteger 0 then EQ else
+   GT -- must be 1
 
 instance Eq ThreadId where
    t1 == t2 =
@@ -308,20 +315,26 @@ to avoid contention with other processes in the machine.
 setNumCapabilities :: Int -> IO ()
 setNumCapabilities i = c_setNumCapabilities (fromIntegral i)
 
-foreign import ccall safe "setNumCapabilities"
-  c_setNumCapabilities :: CUInt -> IO ()
+--foreign import ccall safe "setNumCapabilities"
+--  c_setNumCapabilities :: CUInt -> IO ()
+c_setNumCapabilities :: CUInt -> IO ()
+c_setNumCapabilities = undefined
 
 getNumProcessors :: IO Int
 getNumProcessors = fmap fromIntegral c_getNumberOfProcessors
 
-foreign import ccall unsafe "getNumberOfProcessors"
-  c_getNumberOfProcessors :: IO CUInt
+--foreign import ccall unsafe "getNumberOfProcessors"
+--  c_getNumberOfProcessors :: IO CUInt
+c_getNumberOfProcessors :: IO CUInt
+c_getNumberOfProcessors = undefined
 
 -- | Returns the number of sparks currently in the local spark pool
 numSparks :: IO Int
 numSparks = IO $ \s -> case numSparks# s of (# s', n #) -> (# s', I# n #)
 
-foreign import ccall "&n_capabilities" n_capabilities :: Ptr CInt
+--foreign import ccall "&n_capabilities" n_capabilities :: Ptr CInt
+n_capabilities :: Ptr CInt
+n_capabilities = undefined
 
 childHandler :: SomeException -> IO ()
 childHandler err = catchException (real_handler err) childHandler
@@ -476,7 +489,8 @@ data BlockReason
         -- ^blocked on some other resource.  Without @-threaded@,
         -- I\/O and 'threadDelay' show up as 'BlockedOnOther', with @-threaded@
         -- they show up as 'BlockedOnMVar'.
-  deriving (Eq,Ord,Show)
+  deriving (Eq,Ord) --,Show)
+instance Show BlockReason
 
 -- | The current status of a thread
 data ThreadStatus
@@ -488,7 +502,8 @@ data ThreadStatus
         -- ^the thread is blocked on some resource
   | ThreadDied
         -- ^the thread received an uncaught exception
-  deriving (Eq,Ord,Show)
+  deriving (Eq,Ord) --,Show)
+instance Show ThreadStatus
 
 threadStatus :: ThreadId -> IO ThreadStatus
 threadStatus (ThreadId t) = IO $ \s ->
@@ -681,15 +696,13 @@ checkInv (STM m) = STM (\s -> (check# m) s)
 -- of those points then the transaction violating it is aborted
 -- and the exception raised by the invariant is propagated.
 alwaysSucceeds :: STM a -> STM ()
-alwaysSucceeds i = do ( i >> retry ) `orElse` ( return () )
-                      checkInv i
+alwaysSucceeds i =  (( i >> retry ) `orElse` ( return () )) >> checkInv i
 
 -- | always is a variant of alwaysSucceeds in which the invariant is
 -- expressed as an STM Bool action that must return True.  Returning
 -- False or raising an exception are both treated as invariant failures.
 always :: STM Bool -> STM ()
-always i = alwaysSucceeds ( do v <- i
-                               if (v) then return () else ( error "Transactional invariant violation" ) )
+always i = alwaysSucceeds ( i >>= \v -> if (v) then return () else ( error "Transactional invariant violation" ) )
 
 -- |Shared memory locations that support atomic memory transactions.
 data TVar a = TVar (TVar# RealWorld a)
@@ -815,8 +828,10 @@ uncaughtExceptionHandler = unsafePerformIO (newIORef defaultHandler)
 
 -- don't use errorBelch() directly, because we cannot call varargs functions
 -- using the FFI.
-foreign import ccall unsafe "HsBase.h errorBelch2"
-   errorBelch :: CString -> CString -> IO ()
+--foreign import ccall unsafe "HsBase.h errorBelch2"
+--   errorBelch :: CString -> CString -> IO ()
+errorBelch :: CString -> CString -> IO ()
+errorBelch = undefined
 
 setUncaughtExceptionHandler :: (SomeException -> IO ()) -> IO ()
 setUncaughtExceptionHandler = writeIORef uncaughtExceptionHandler
